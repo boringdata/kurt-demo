@@ -17,6 +17,9 @@ Content is extracted as markdown with metadata (title, author, date, categories)
 # 1. Discover URLs from sitemap (fast, no downloads)
 kurt ingest map https://www.anthropic.com
 
+# 1a. OR discover with publish dates (slower, extracts dates from blogrolls)
+kurt ingest map https://docs.getdbt.com/sitemap.xml --discover-dates
+
 # 2. Review what was found
 kurt document list --status NOT_FETCHED
 
@@ -47,11 +50,17 @@ Discover URLs from sitemaps without downloading content.
 # Discover all URLs from sitemap
 kurt ingest map https://www.anthropic.com
 
+# Discover with publish dates from blogrolls (recommended for blogs/docs)
+kurt ingest map https://docs.getdbt.com/sitemap.xml --discover-dates
+
 # Limit discovery (useful for testing)
 kurt ingest map https://example.com --limit 10
 
 # Map and fetch immediately
 kurt ingest map https://example.com --fetch
+
+# Discover dates with custom blogroll limit
+kurt ingest map https://example.com --discover-dates --max-blogrolls 5
 
 # JSON output for scripts
 kurt ingest map https://example.com --output json
@@ -73,6 +82,165 @@ kurt ingest map https://example.com --output json
   ✓ https://www.anthropic.com/news/claude-3-7-sonnet
      ID: bc2bcf48 | Status: NOT_FETCHED
 ```
+
+### Discovering Publish Dates from Blogrolls
+
+**When to use `--discover-dates`:**
+- Content freshness is critical (tutorials, documentation, blog posts)
+- You need to identify outdated content for updates
+- Building a chronological content inventory
+- Working with blogs, changelogs, or release notes
+
+**How it works:**
+1. Maps sitemap normally (all URLs)
+2. Uses LLM to identify blog indexes, changelogs, release notes pages
+3. Scrapes those pages to extract individual post URLs + dates
+4. Creates/updates document records with `published_date` populated
+5. Marks discovered posts with `is_chronological=True` and `discovery_method="blogroll"`
+
+**Example:**
+```bash
+# Discover docs.getdbt.com with date extraction
+kurt ingest map https://docs.getdbt.com/sitemap.xml --discover-dates
+
+# Output shows date discovery:
+# ✓ Found 500 URLs from sitemap
+# --- Discovering blogroll/changelog pages ---
+# Found 8 potential blogroll/changelog pages
+#
+# Scraping https://docs.getdbt.com/blog...
+#   Found 45 posts with dates
+# Scraping https://docs.getdbt.com/docs/dbt-versions/...
+#   Found 23 posts with dates
+#
+# ✓ Total documents discovered from blogrolls: 68
+#   New: 12 (not in sitemap)
+#   Existing: 56 (enriched with dates)
+```
+
+**Performance:**
+- Regular mapping: ~2-5 seconds (just sitemap parsing)
+- With `--discover-dates`: ~5-15 minutes (includes LLM analysis + page scraping)
+- Controlled with `--max-blogrolls` (default: 10 pages)
+
+**Benefits:**
+- Dates captured upfront (before fetch)
+- Discovers additional posts not in sitemap
+- Enriches existing records with publish dates
+- Enables date-based filtering and relevance tracking
+
+### Troubleshooting: Sitemap Discovery Failures
+
+If automatic discovery fails with "No sitemap found," use this fallback workflow:
+
+#### Tier 1: Try Common Sitemap Paths Directly
+
+Most sites use standard paths. Try these **directly** (not base URL):
+
+```bash
+# Standard path (most common)
+kurt ingest map https://docs.getdbt.com/sitemap.xml
+
+# Alternative paths
+kurt ingest map https://docs.getdbt.com/sitemap_index.xml
+kurt ingest map https://docs.getdbt.com/sitemap/sitemap.xml
+kurt ingest map https://docs.getdbt.com/sitemaps/sitemap.xml
+```
+
+**Success if:** Kurt finds and processes the sitemap
+**Next if fails:** Try Tier 2
+
+#### Tier 2: Check robots.txt
+
+Use WebFetch to find sitemap URL in robots.txt:
+
+```
+WebFetch URL: https://docs.getdbt.com/robots.txt
+Prompt: "Extract all Sitemap URLs from this robots.txt file"
+```
+
+Then try the discovered sitemap URLs:
+```bash
+kurt ingest map <sitemap-url-from-robots>
+```
+
+**Success if:** Sitemap URL found in robots.txt works
+**Next if fails:** Try Tier 3
+
+#### Tier 3: Search for Sitemap
+
+Use WebSearch to discover sitemap location:
+
+```
+WebSearch: "site:docs.getdbt.com sitemap"
+WebSearch: "docs.getdbt.com sitemap.xml"
+```
+
+Or check common documentation pages for sitemap links.
+
+Then try discovered URLs with `kurt ingest map`
+
+**Success if:** Sitemap found via search
+**Next if fails:** Try Tier 4
+
+#### Tier 4: Manual URL Collection
+
+If no sitemap exists or is inaccessible, manually collect URLs:
+
+**Option A: Use WebSearch to find pages**
+```
+WebSearch: "site:docs.getdbt.com tutorial"
+WebSearch: "site:docs.getdbt.com guide"
+```
+
+**Option B: Crawl from homepage**
+- Use WebFetch on homepage
+- Extract navigation links
+- Add each URL manually
+
+**Option C: User provides URL list**
+- Ask user for key URLs to ingest
+- Import from CSV or list
+
+Then add URLs manually:
+```bash
+kurt ingest add https://docs.getdbt.com/page1
+kurt ingest add https://docs.getdbt.com/page2
+kurt ingest add https://docs.getdbt.com/page3
+```
+
+#### Real Example: docs.getdbt.com
+
+```bash
+# ❌ Automatic discovery fails
+kurt ingest map https://docs.getdbt.com
+# Error: No sitemap found
+
+# ✅ Direct sitemap URL works!
+kurt ingest map https://docs.getdbt.com/sitemap.xml --limit 100
+# Success: Found 100 URLs from sitemap
+```
+
+#### Quick Diagnostic Commands
+
+**Test if sitemap exists:**
+```bash
+# Use WebFetch to check
+WebFetch URL: https://example.com/sitemap.xml
+Prompt: "Does this sitemap exist? If yes, describe its structure."
+```
+
+**Why automatic discovery fails:**
+- Anti-bot protection (site blocks trafilatura but not WebFetch)
+- Sitemap not in robots.txt
+- Non-standard sitemap location
+- Dynamic/JavaScript-rendered sitemaps
+
+**When to use each tier:**
+- **Tier 1**: Always try first (5 seconds to test)
+- **Tier 2**: Standard sites with robots.txt (1 minute)
+- **Tier 3**: Unusual configurations (2-3 minutes)
+- **Tier 4**: No sitemap or heavily protected sites (ongoing)
 
 ### Fetch Single Document
 
@@ -159,6 +327,103 @@ Create document record and fetch content in one step.
 kurt ingest fetch https://example.com/specific-page
 ```
 
+## WebFetch Fallback (When Kurt Fetch Fails)
+
+If `kurt ingest fetch` fails due to anti-bot protection or other issues, use WebFetch as a fallback with automatic import.
+
+### Workflow
+
+1. **Attempt Kurt fetch first** (creates ERROR record if it fails)
+2. **Use WebFetch to retrieve content with metadata**
+3. **Save with YAML frontmatter**
+4. **Auto-import hook handles the rest**
+
+### WebFetch with Metadata Extraction
+
+When using WebFetch, extract FULL metadata to preserve in the file:
+
+```
+Use WebFetch with this prompt:
+"Extract ALL metadata from this page including:
+- Full page title
+- Description / meta description
+- Author(s)
+- Published date or last modified date
+- Any structured data or meta tags
+- The complete page content as markdown
+
+Format the response to clearly show:
+1. All metadata fields found
+2. The markdown content"
+```
+
+### Save Content with Frontmatter
+
+Save the fetched content with YAML frontmatter:
+
+```markdown
+---
+title: "Full Page Title from WebFetch"
+url: https://example.com/page
+description: "Meta description or summary"
+author: "Author Name or Organization"
+published_date: "2025-10-22"
+last_modified: "2025-10-22"
+fetched_via: WebFetch
+fetched_at: "2025-10-23"
+---
+
+# Page Content
+
+[Markdown content from WebFetch...]
+```
+
+### Auto-Import Process
+
+Once the file is saved to `/sources/`, the PostToolUse hook automatically:
+
+1. Detects the new .md file
+2. Finds the ERROR record in Kurt DB
+3. Updates status to FETCHED
+4. **Parses frontmatter and populates metadata fields**
+5. Links the file to the database record
+6. Runs metadata extraction (kurt index)
+7. Shows confirmation message
+
+**Result:** File is fully indexed in Kurt with proper title, author, dates, and description!
+
+### Example: Complete WebFetch Fallback
+
+```bash
+# 1. Kurt fetch fails
+kurt ingest fetch https://docs.example.com/guide
+# → Creates ERROR record
+
+# 2. Use WebFetch (Claude does this automatically)
+# Extracts metadata + content
+
+# 3. Save with frontmatter to sources/
+# File: sources/docs.example.com/guide.md
+
+# 4. Auto-import hook triggers
+# → Updates ERROR record to FETCHED
+# → Populates title, author, date from frontmatter
+# → Links file to database
+
+# 5. Verify
+kurt document get <doc-id>
+# Shows proper title, metadata, FETCHED status
+```
+
+### Benefits of WebFetch with Frontmatter
+
+- ✅ Preserves all page metadata (title, author, dates)
+- ✅ Automatic import via hook
+- ✅ No manual database updates needed
+- ✅ Content is queryable and searchable
+- ✅ Metadata extraction works same as native fetch
+- ✅ Transparent fallback - just works!
+
 ## Advanced Usage
 
 For custom extraction behavior beyond the CLI, use trafilatura Python library directly.
@@ -217,6 +482,7 @@ config.set('DEFAULT', 'MIN_EXTRACTED_SIZE', '500')
 | Task | Command | Performance |
 |------|---------|-------------|
 | Map sitemap | `kurt ingest map <url>` | Fast (no downloads) |
+| Map with dates | `kurt ingest map <url> --discover-dates` | ~5-15 min (LLM scraping) |
 | Fetch single | `kurt ingest fetch <id\|url>` | ~2-3s per doc |
 | Batch fetch | `kurt ingest fetch --url-prefix <url>` | ~0.4-0.6s per doc |
 | Add URL | `kurt ingest add <url>` | Instant |
@@ -265,11 +531,12 @@ See:
 
 | Issue | Solution |
 |-------|----------|
-| "No sitemap found" | Use `kurt ingest add <url>` or `kurt ingest fetch <url>` directly |
+| "No sitemap found" | **See detailed guide above**: Try direct sitemap URLs (`.../sitemap.xml`), check robots.txt, or use WebSearch. Full 4-tier fallback documented in "Troubleshooting: Sitemap Discovery Failures" section. |
 | Slow batch fetch | Increase `--max-concurrent` (default: 5, try 10) |
 | Extraction quality low | See advanced extraction scripts for custom settings |
 | Duplicate content | Kurt automatically deduplicates using content hashes |
 | Rate limiting | Reduce `--max-concurrent` or add delays |
+| Content fetch fails | Use WebFetch fallback with frontmatter (see "WebFetch Fallback" section) |
 
 ## Next Steps
 

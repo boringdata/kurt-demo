@@ -3,3 +3,4 @@ kurt.config
 sources/*
 projects/*
 artefacts/*
+.DS_Store

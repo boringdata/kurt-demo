@@ -7,13 +7,14 @@ description: Guide new users through setting up a Kurt project - understand thei
 
 ## Overview
 
-Guide users through setting up their first Kurt project with a structured 6-step workflow:
+Guide users through setting up their first Kurt project with a structured 7-step workflow:
 1. Understand user's intent (what they want to accomplish)
 2. Create named project directory and documentation
 3. Map content sources (discover URLs without fetching)
 4. Compute topic clusters automatically
 5. Refine clusters with user input
-6. Plan concrete next steps based on intent and clusters
+6. Extract reusable rules from content (optional)
+7. Plan concrete next steps based on intent and clusters
 
 **When to use this skill:**
 - User is new to Kurt and needs to get started
@@ -209,9 +210,103 @@ kurt ingest fetch --url-contains <cluster-topic-keyword>
 - Guide user to edit cluster names/descriptions in project.md
 - Suggest which clusters align with their project goal (from Step 1)
 
+### Step 5.5: Extract Rules (Optional)
+
+Before planning content work, optionally extract reusable rules from existing content.
+
+**Question to ask:**
+> Would you like to extract reusable writing rules from your content? This creates:
+> - **Style guides** - Voice, tone, and writing patterns
+> - **Structure templates** - Document organization and format
+> - **Personas** - Audience targeting profiles
+> - **Publisher profile** - Company messaging and brand context
+>
+> Options:
+> a) Yes, extract rules now (helps ensure consistency in content creation)
+> b) Skip for now (can extract later when needed)
+
+**If user chooses (a), guide them through extraction:**
+
+**5.5.1: Extract Publisher Profile**
+```bash
+# Extract organizational context from company pages
+invoke publisher-profile-extraction-skill with sources: <company-homepage-url> <about-page-url> <products-page-url>
+```
+
+**5.5.2: Extract Style Guides**
+```bash
+# Identify content clusters with consistent style
+# Ask: Which clusters should we extract style patterns from?
+# Example: "Let's extract style from your blog posts and technical docs"
+
+# Extract from specific content types
+invoke style-extraction-skill with documents: /sources/<domain>/<content-path>/*.md
+
+# Can run multiple extractions for different styles
+# Example: Technical docs style + Blog post style + Marketing style
+```
+
+**5.5.3: Extract Structure Templates**
+```bash
+# Identify content types with consistent structure
+# Ask: Which content formats should we create templates for?
+# Example: "Let's extract structure from tutorials and API docs"
+
+# Extract from specific content types
+invoke structure-extraction-skill with documents: /sources/<domain>/<content-type>/*.md
+
+# Can run multiple extractions for different structures
+# Example: Tutorial structure + API reference structure + Landing page structure
+```
+
+**5.5.4: Extract Personas**
+```bash
+# Identify clusters targeting distinct audiences
+# Ask: Which audiences does your content target?
+# Example: "Let's extract personas from developer docs and business blog"
+
+# Extract from audience-specific content
+invoke persona-extraction-skill with documents: /sources/<domain>/<audience-content>/*.md
+
+# Can extract multiple personas if content targets different audiences
+```
+
+**Update project.md with extracted rules:**
+```markdown
+## Style Guidelines
+- Technical documentation style: `/rules/style/technical-documentation.md` (extracted: YYYY-MM-DD)
+- Conversational blog style: `/rules/style/conversational-blog.md` (extracted: YYYY-MM-DD)
+
+## Structure Templates
+- Quickstart tutorial: `/rules/structure/quickstart-tutorial.md` (extracted: YYYY-MM-DD)
+- API reference: `/rules/structure/api-reference.md` (extracted: YYYY-MM-DD)
+
+## Target Personas
+- Developer persona: `/rules/personas/technical-implementer.md` (extracted: YYYY-MM-DD)
+- Business decision-maker: `/rules/personas/business-decision-maker.md` (extracted: YYYY-MM-DD)
+
+## Publisher Profile
+- Company profile: `/rules/publisher/publisher-profile.md` (extracted: YYYY-MM-DD)
+```
+
+**Quality checks:**
+- ✓ Minimum 3-5 documents per extraction for reliable patterns
+- ✓ Content should be consistent within each extraction set
+- ✓ Auto-generated names are descriptive and clear
+
+**If insufficient content:**
+```
+⚠️ Only 2 documents found for technical documentation style extraction.
+
+Options:
+- Fetch more content first: kurt ingest fetch --url-contains /docs/
+- Proceed with caveat (may have less reliable patterns)
+- Skip extraction for now
+```
+
 ### Step 6: Plan Next Steps
 
-Based on the project intent and discovered clusters, recommend concrete actions.
+Based on the project intent, discovered clusters, and extracted rules (if any), recommend concrete actions.
 
 **For intent (a) - Update positioning/messaging:**
 ```markdown
@@ -447,5 +542,8 @@ After onboarding completes, recommend these skills:
 
 - **ingest-content-skill**: Fetch and manage document content
 - **document-management-skill**: Query, filter, and analyze documents
-- Future: **entity-extraction-skill** (extract claims and entities)
-- Future: **content-analysis-skill** (analyze messaging patterns)
+- **project-management-skill**: Add sources/targets, check rule coverage, track progress
+- **style-extraction-skill**: Extract additional writing patterns as needed
+- **structure-extraction-skill**: Extract additional document templates as needed
+- **persona-extraction-skill**: Extract additional audience profiles as needed
+- **publisher-profile-extraction-skill**: Update company profile as messaging evolves

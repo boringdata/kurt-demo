@@ -1,0 +1,512 @@
+---
+name: project-management
+description: Manage Kurt projects - add sources/targets, update project.md, detect missing content, track progress.
+---
+
+# Project Management
+
+## Overview
+
+This skill helps manage Kurt projects by tracking sources (ground truth), targets (content to update/create), and project progress. It handles updating project.md, detecting missing content, and organizing project structure.
+
+For core concepts about projects, see `KURT.md`.
+
+## Quick Start
+
+```bash
+# Create a new project
+/create-project
+
+# Resume existing project
+/resume-project
+
+# Claude automatically invokes this skill when you:
+# - Say "add this to my project"
+# - Say "add source to project"
+# - Say "what sources do we have?"
+```
+
+## Project Structure
+
+```
+projects/project-name/
+├── project.md              # Project manifest (sources, targets, progress)
+├── sources/                # Project-specific sources only
+│   ├── internal-spec.pdf
+│   └── notes.md
+└── targets/                # Work in progress
+    └── drafts/
+        └── draft-content.md
+```
+
+**Note**: Web content lives in top-level `/sources/` (org knowledge base), not in project folders.
+
+## Core Operations
+
+### Add Source to Project
+
+Sources are ground truth content you're working FROM.
+
+**For web content:**
+
+1. Ingest to organizational KB first:
+   ```bash
+   # Map URLs (add --discover-dates if publish dates are important)
+   kurt ingest map https://example.com
+   kurt ingest map https://example.com --discover-dates  # Extracts dates from blogrolls
+
+   # Fetch content
+   kurt ingest fetch --url-prefix https://example.com/
+   ```
+
+2. Update project.md to reference it:
+   ```markdown
+   ## Sources (Ground Truth)
+
+   ### From Organizational Knowledge Base
+   - [x] Page title: `/sources/example.com/path/page.md` (fetched: 2025-01-15)
+   ```
+
+**For local files:**
+
+1. Copy file to project sources:
+   ```bash
+   cp ~/file.pdf projects/project-name/sources/
+   ```
+
+2. Update project.md:
+   ```markdown
+   ### Project-Specific Sources
+   - [x] Internal spec: `sources/file.pdf` (added: 2025-01-15)
+   ```
+
+### Add Target to Project
+
+Targets are content you're working ON (updating or creating).
+
+**For existing content to update:**
+
+Update project.md to reference content in `/sources/`:
+```markdown
+## Targets (Content to Update/Create)
+
+### Existing Content to Update
+- [ ] Tutorial: `/sources/docs.company.com/tutorial.md`
+- [ ] Guide: `/sources/docs.company.com/guide.md`
+```
+
+**For new content to create:**
+
+Update project.md with planned location:
+```markdown
+### New Content to Create
+- [ ] New tutorial: `targets/drafts/new-tutorial.md` (planned)
+- [ ] Blog post: `targets/drafts/blog-post.md` (planned)
+```
+
+### List Project Sources and Targets
+
+Read project.md and display:
+- Sources count (org KB vs project-specific)
+- Targets count (to update vs to create)
+- Completion status (checked vs unchecked)
+
+Example output:
+```
+Sources: 5 total
+  - 3 from organizational KB
+  - 2 project-specific
+  ✓ 4 fetched
+  ☐ 1 pending
+
+Targets: 4 total
+  - 2 existing (to update)
+  - 2 new (to create)
+  ☐ 0 completed
+  ☐ 4 pending
+```
+
+### Detect Missing Content
+
+When resuming a project, check for gaps:
+
+**No sources?**
+```
+⚠️ No ground truth sources found.
+
+Do you have source material to add?
+- Product specs or documentation
+- Reference materials
+- Internal docs or notes
+```
+
+**No targets?**
+```
+⚠️ No target content identified.
+
+What do you want to create or update?
+- Existing docs to update
+- New content to create
+```
+
+### Update Project Progress
+
+Update the Progress section in project.md:
+
+```markdown
+## Progress
+- [x] Sources collected (2025-01-15)
+- [x] Style guide identified (2025-01-16)
+- [x] First draft: New tutorial (2025-01-17)
+- [ ] Review and revisions
+- [ ] Update existing tutorials
+```
+
+## Common Workflows
+
+### Workflow 1: Add Web Content as Source
+
+User: "Add https://example.com/docs to my project as ground truth"
+
+Claude should:
+1. Determine current project (from context or ask)
+2. Ingest content:
+   ```bash
+   kurt ingest fetch https://example.com/docs
+   ```
+3. Find the file path in `/sources/`
+4. Update project.md Sources section
+5. Confirm: "Added example.com/docs as source to project-name"
+
+### Workflow 2: Add Local File as Source
+
+User: "Add this PDF to my project" (with file path)
+
+Claude should:
+1. Determine current project
+2. Copy file to `projects/project-name/sources/`
+3. Update project.md Sources section
+4. Confirm: "Added filename.pdf to project-name sources"
+
+### Workflow 3: Identify Target Content
+
+User: "I need to update the getting started tutorial"
+
+Claude should:
+1. Search for "getting started" in `/sources/`
+2. Show matches
+3. Ask user to confirm which one(s)
+4. Update project.md Targets section
+5. Mark as "to update"
+
+### Workflow 4: Check Project Status
+
+User: "What's the status of my project?"
+
+Claude should:
+1. Read project.md
+2. Count sources (checked vs unchecked)
+3. Count targets (checked vs unchecked)
+4. Check Progress section
+5. Display summary
+6. Recommend next actions if applicable
+
+## Updating project.md
+
+### Sources Section Format
+
+```markdown
+## Sources (Ground Truth)
+
+### From Organizational Knowledge Base
+- [x] Page title: `/sources/domain.com/path/page.md` (fetched: YYYY-MM-DD)
+- [ ] Another page: https://example.com/page (not fetched)
+
+### Project-Specific Sources
+- [x] Internal doc: `sources/filename.pdf` (added: YYYY-MM-DD)
+- [ ] Notes: `sources/notes.md` (pending)
+```
+
+**Format rules:**
+- Use `[x]` for fetched/added content
+- Use `[ ]` for pending content
+- Include date when content was added
+- Use relative paths for project-specific sources
+- Use absolute paths (`/sources/...`) for org KB content
+
+### Targets Section Format
+
+```markdown
+## Targets (Content to Update/Create)
+
+### Existing Content to Update
+- [ ] Tutorial: `/sources/docs.company.com/tutorial.md`
+- [x] Guide: `/sources/docs.company.com/guide.md` (updated: YYYY-MM-DD)
+
+### New Content to Create
+- [ ] New tutorial: `targets/drafts/new-tutorial.md` (planned)
+- [x] Blog post: `targets/drafts/blog-post.md` (drafted: YYYY-MM-DD)
+```
+
+**Format rules:**
+- Use `[ ]` for pending work
+- Use `[x]` for completed work
+- Include completion date when done
+- Separate existing (to update) from new (to create)
+
+## Rule Matching and Validation
+
+When working on target content, ensure appropriate rules exist (style, structure, personas, publisher profile).
+
+### Check for Required Rules
+
+Before content work begins:
+
+1. **Inspect target content** to determine requirements:
+   - Content type (tutorial, blog, landing page, docs)
+   - Content purpose (educational, lead-gen, reference)
+   - Target audience (technical, business, general)
+   - Tone and complexity level
+
+2. **Search for matching rules:**
+   ```bash
+   # Check if appropriate rules exist
+   ls -la rules/style/
+   ls -la rules/structure/
+   ls -la rules/personas/
+   ls -la rules/publisher/
+   ```
+
+3. **Match requirements to available rules:**
+   - **Style**: Voice, tone, complexity match target needs?
+   - **Structure**: Document format matches target type?
+   - **Persona**: Audience profile matches target audience?
+   - **Publisher**: Organizational context available?
+
+### Handle Missing Rules
+
+**Scenario 1: Target Content Exists (Updating Existing)**
+```
+Target: Update technical tutorial
+Required: Technical writing style, tutorial structure, developer persona
+
+Check: Do we have matching rules?
+✓ Technical style → rules/style/technical-documentation.md
+✗ Tutorial structure → NOT FOUND
+✓ Developer persona → rules/personas/technical-implementer.md
+
+Action: Extract tutorial structure from existing targets
+invoke structure-extraction-skill with documents: /sources/docs.company.com/tutorials/*.md
+```
+
+**Scenario 2: No Target Content (Creating New)**
+```
+Target: Create new blog post series
+Required: Blog style, blog structure, target persona
+
+Check: Do we have matching rules?
+✗ Blog style → NOT FOUND
+✗ Blog structure → NOT FOUND
+✗ Target persona → NOT FOUND
+
+Options:
+1. Extract from similar content (if available in sources)
+2. Ask user to provide example/template
+3. Proceed with general guidelines (not recommended)
+
+Recommended: "I don't have rules for blog content. Can you provide:
+- Example blog post to extract style/structure from, OR
+- Style guidelines document, OR
+- Description of desired tone and structure?"
+```
+
+**Scenario 3: Partial Match**
+```
+Target: Create case study
+Required: Case study style, case study structure, customer persona
+
+Check: Do we have matching rules?
+✗ Case study style → NOT FOUND
+✗ Case study structure → NOT FOUND
+✓ General company style → rules/style/conversational-marketing.md
+✓ Publisher profile → rules/publisher/publisher-profile.md
+
+Action: Extract case study specifics, use general rules for foundation
+invoke structure-extraction-skill with documents: /sources/company.com/case-studies/*.md
+```
+
+### Rule Matching Algorithm
+
+```
+FOR each target content item:
+  1. Inspect target properties:
+     - content_type: tutorial | blog | landing-page | docs | case-study | etc.
+     - content_purpose: educational | lead-gen | reference | support | etc.
+     - target_audience: technical | business | general | executive | etc.
+     - complexity_level: beginner | intermediate | advanced
+     - tone_required: professional | conversational | authoritative | casual
+
+  2. Search rules directories:
+     - /rules/style/ for matching voice/tone
+     - /rules/structure/ for matching document format
+     - /rules/personas/ for matching audience profile
+     - /rules/publisher/ for organizational context (always use if exists)
+
+  3. Evaluate matches:
+     IF perfect match found → Use existing rules
+     IF partial match found → Use partial + extract specifics
+     IF no match found → Extract from targets OR ask user for examples
+
+  4. Flag missing rules:
+     ⚠️ No style guide for [content_type]
+     ⚠️ No structure template for [content_purpose]
+     ⚠️ No persona for [target_audience]
+
+  5. Recommend action:
+     - "Extract from these similar documents: [list]"
+     - "Please provide example or template"
+     - "Proceed with general guidelines? (not recommended)"
+```
+
+### Add Rules to project.md
+
+Track which rules apply to the project:
+
+```markdown
+## Style Guidelines
+- Technical documentation style: `/rules/style/technical-documentation.md`
+- Conversational blog style: `/rules/style/conversational-blog.md`
+
+## Structure Templates
+- Tutorial structure: `/rules/structure/quickstart-tutorial.md`
+- API reference structure: `/rules/structure/api-reference.md`
+
+## Target Personas
+- Developer persona: `/rules/personas/technical-implementer.md`
+- Business decision-maker: `/rules/personas/enterprise-decision-maker.md`
+
+## Publisher Profile
+- Company profile: `/rules/publisher/publisher-profile.md` (always applicable)
+```
+
+### Workflow: Content Work with Rule Validation
+
+```
+1. User: "Let's update the getting started tutorial"
+
+2. Check project.md targets:
+   - Target: /sources/docs.company.com/getting-started.md
+
+3. Inspect target content:
+   - Content type: Tutorial
+   - Purpose: Educational quickstart
+   - Audience: Developers (beginner to intermediate)
+   - Tone: Friendly, supportive, clear
+
+4. Check for matching rules:
+   ls rules/style/ | grep -i tutorial
+   ls rules/structure/ | grep -i tutorial
+   ls rules/personas/ | grep -i developer
+
+5. Report findings:
+   ✓ Found: rules/structure/quickstart-tutorial.md
+   ✓ Found: rules/personas/technical-implementer.md
+   ✗ Missing: Tutorial-specific style guide
+
+6. Recommend:
+   "I found structure and persona rules for tutorials, but no tutorial-specific style guide.
+
+   Options:
+   - Extract style from existing tutorials in sources
+   - Use general technical documentation style
+   - Provide example of desired tutorial tone
+
+   What would you prefer?"
+
+7. User chooses → Extract or proceed
+```
+
+## Integration with Other Skills
+
+### With extraction skills
+
+```bash
+# Extract style patterns
+invoke style-extraction-skill with documents: <similar-content-files>
+
+# Extract structure templates
+invoke structure-extraction-skill with documents: <similar-content-files>
+
+# Extract audience personas
+invoke persona-extraction-skill with documents: <target-audience-content>
+
+# Extract publisher profile
+invoke publisher-profile-extraction-skill with sources: <company-web-pages-and-docs>
+```
+
+### With ingest-content-skill
+
+```bash
+# Ingest content first
+kurt ingest map https://example.com
+# Or with date discovery for blogs/docs (recommended for projects tracking content freshness)
+kurt ingest map https://example.com --discover-dates
+
+kurt ingest fetch --url-prefix https://example.com/
+
+# Then add to project (this skill)
+# Updates project.md to reference ingested content
+```
+
+### With document-management-skill
+
+```bash
+# List what's available in org KB
+kurt document list --url-prefix https://example.com
+
+# Search for specific content
+kurt document list --url-contains "tutorial"
+
+# Then add relevant docs to project
+```
+
+## Quick Reference
+
+| Task | Action |
+|------|--------|
+| Add web source | Ingest → Update project.md Sources |
+| Add local source | Copy to project/sources/ → Update project.md |
+| Add target | Update project.md Targets section |
+| List sources | Read & parse project.md Sources |
+| List targets | Read & parse project.md Targets |
+| Check status | Count checked vs unchecked items |
+| Detect gaps | Check for empty Sources or Targets |
+| Update progress | Add entry to Progress section |
+
+## Detection Patterns
+
+Claude should invoke this skill when user says:
+
+- "Add [URL/file] to my project"
+- "Add this as ground truth"
+- "What sources do we have?"
+- "What do we need to update?"
+- "Add target content"
+- "Project status"
+- "What's missing from the project?"
+
+## Important Notes
+
+- **project.md is the source of truth** for project metadata (for now)
+- **Web content goes to /sources/** (org KB), not project folders
+- **Project sources folder** is only for project-specific files (PDFs, notes, etc.)
+- **Always update project.md** when adding sources or targets
+- **Use relative paths** for project-specific content
+- **Use absolute paths** (`/sources/...`) for org KB content
+
+## Next Steps
+
+- For content ingestion, see **ingest-content-skill**
+- For document queries, see **document-management-skill**
+- For project creation, use `/create-project`
+- For resuming work, use `/resume-project`
