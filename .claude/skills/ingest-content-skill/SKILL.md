@@ -258,8 +258,8 @@ results = fetch_documents_batch(
 ```
 
 See:
-- [ingest_map.py](../../../kurt-core/src/kurt/ingest_map.py) - URL discovery
-- [ingest_fetch.py](../../../kurt-core/src/kurt/ingest_fetch.py) - Content fetching
+- [ingest_map.py](https://github.com/boringdata/kurt-core/blob/main/src/kurt/ingest_map.py) - URL discovery
+- [ingest_fetch.py](https://github.com/boringdata/kurt-core/blob/main/src/kurt/ingest_fetch.py) - Content fetching
 
 ## Troubleshooting
 
