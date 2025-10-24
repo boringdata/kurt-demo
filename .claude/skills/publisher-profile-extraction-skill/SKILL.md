@@ -14,6 +14,15 @@ Analyze company websites, marketing materials, and product documentation to buil
 - **Messaging updates**: Refresh profile after rebrand or positioning change
 
 ## Prerequisites
+## Content Discovery Method
+
+> **⚠️ This skill uses file-based content maps (not Kurt CLI database)**
+>
+> All document discovery uses content map queries:
+> - Query: `cat sources/<domain>/_content-map.json | jq ...`
+> - Fetch: Use WebFetch tool (hooks auto-save + index)
+> - Reference: See `.claude/docs/CONTENT-MAP-QUERIES.md` for query patterns
+
 
 - Company web pages (About, Products, Pricing, etc.) OR
 - Local marketing/product documentation
@@ -102,13 +111,13 @@ c) Start over with manual selection
 
 ```bash
 # Check which pages are already fetched
-kurt document list --url <url> --status FETCHED
+cat sources/<domain>/_content-map.json | jq -r '.sitemap["<url>"] | select(.status == "FETCHED")'
 
 # Fetch missing pages
 for url in <proposed-urls>; do
   status=$(kurt document list --url $url | grep "status:")
   if [[ $status == *"NOT_FETCHED"* ]]; then
-    kurt ingest fetch $url
+    # Use WebFetch tool for $url (hooks auto-save + index)
   fi
 done
 ```

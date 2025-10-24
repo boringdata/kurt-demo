@@ -7,3 +7,377 @@
 [2025-10-24 13:21:52] Target file path: sources/docs.getdbt.com/docs/build/snapshots.md
 [2025-10-24 13:21:52] Saved (with generated frontmatter): sources/docs.getdbt.com/docs/build/snapshots.md
 [2025-10-24 13:21:52] Successfully saved: https://docs.getdbt.com/docs/build/snapshots → sources/docs.getdbt.com/docs/build/snapshots.md
+[2025-10-24 18:11:34] No URL or content in tool_output, skipping
+[2025-10-24 18:32:58] No URL or content in tool_output, skipping
+[2025-10-24 18:32:59] No URL or content in tool_output, skipping
+[2025-10-24 18:32:59] No URL or content in tool_output, skipping
+[2025-10-24 18:33:00] No URL or content in tool_output, skipping
+[2025-10-24 18:33:01] No URL or content in tool_output, skipping
+[2025-10-24 18:38:05] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/docs/fusion/connect-data-platform-fusion/databricks-setup",
+    "prompt": "Extract the full content of this Databricks setup guide for dbt Fusion."
+  },
+  "tool_response": {
+    "bytes": 68976,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Databricks Setup Guide for dbt Fusion\n\n## Overview\nThis guide explains how to configure the Databricks adapter for dbt Fusion Engine. The setup process can be completed through the `dbt init` CLI command or by manually editing the `profiles.yml` file.\n\n## Key Configuration Requirements\n\nWhen setting up Databricks with Fusion, you'll need to provide:\n- **Host:** \"Databricks instance hostname (excluding the `http` or `https` prefix)\"\n- **HTTP Path:** Path to your SQL server or cluster\n- **Schema:** Development/staging/deployment schema for your project\n- **Catalog (Optional):** Databricks catalog containing schemas and tables\n\n## Authentication Methods Supported\n\nThe Databricks adapter offers three authentication approaches:\n\n1. **Personal Access Token (PAT)** - For individual users, though Databricks considers this legacy\n2. **Service Principal Token** - Designed for service accounts and automated workflows\n3. **OAuth** - The recommended approach; opens a browser for authentication during each new dbt session\n\n## Configuration Examples\n\nEach authentication method requires different `profiles.yml` entries. For tokens (both PAT and Service Principal), you'll set `auth_type: databricks_cli` and include a `token` field. OAuth configuration omits the token field and uses `auth_type: oauth` instead.\n\nAll configurations include standard fields like `type: databricks`, `database`, `schema`, `host`, `http_path`, and `threads`.\n\n## Important Notes\n\n- The `dbt-databricks` adapter is the only supported connection method for Databricks\n- SQL Warehouses are the recommended starting point for Databricks users\n- Additional Databricks-specific settings are available in the adapter reference guide",
+    "durationMs": 5566,
+    "url": "https://docs.getdbt.com/docs/fusion/connect-data-platform-fusion/databricks-setup"
+  }
+}
+[2025-10-24 18:38:05] No URL or content in tool_output, skipping
+[2025-10-24 18:38:05] DEBUG: url='', content length=0
+[2025-10-24 18:38:05] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/docs/cloud/connect-data-platform/connect-databricks",
+    "prompt": "Extract the full content of this guide on connecting Databricks to dbt Cloud."
+  },
+  "tool_response": {
+    "bytes": 53581,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Connecting Databricks to dbt Cloud\n\n## Overview\n\nThe dbt-databricks adapter, maintained by the Databricks team, enables seamless integration between Databricks and dbt. According to the documentation, \"Connecting to Databricks via dbt-spark has been deprecated.\"\n\n## Key Features\n\nThe adapter provides three main advantages:\n\n1. **Simplified Setup** — Streamlined configuration process\n2. **Intelligent Defaults** — The adapter includes built-in optimizations like defaulting to Delta format and using merge strategies for incremental models\n3. **Unity Catalog Support** — Enables centralized management of data assets with three-part hierarchies (catalog, schema, model name)\n\n## Feature Availability by dbt Version\n\n| Feature | Minimum dbt Version |\n|---------|-------------------|\n| Core functionality | 1.0 |\n| Unity Catalog | 1.1 |\n| Python models | 1.3 |\n\n## Connection Configuration\n\nTo establish a connection, you'll need to provide three essential fields:\n\n- **Server Hostname**: The Databricks account endpoint (e.g., `dbc-a2c61234-1234.cloud.databricks.com`)\n- **HTTP Path**: The cluster or SQL warehouse path (e.g., `/sql/1.0/warehouses/1a23b4596cd7e8fg`)\n- **Catalog**: Optional Databricks Catalog name for organizing data assets\n\n## Additional Resources\n\nFor performance optimization, refer to Databricks-specific configuration documentation, and consult the database permissions guide for managing access control through roles and users.",
+    "durationMs": 5985,
+    "url": "https://docs.getdbt.com/docs/cloud/connect-data-platform/connect-databricks"
+  }
+}
+[2025-10-24 18:38:05] No URL or content in tool_output, skipping
+[2025-10-24 18:38:05] DEBUG: url='', content length=0
+[2025-10-24 18:38:05] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/docs/core/connect-data-platform/databricks-setup",
+    "prompt": "Extract the full content of this Databricks setup guide for dbt Core."
+  },
+  "tool_response": {
+    "bytes": 86429,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Databricks Setup Guide for dbt Core - Summary\n\n## Installation\nTo set up dbt with Databricks, install both core and adapter: `python -m pip install dbt-core dbt-databricks`\n\n## Key Configuration Details\n\nThe `profiles.yml` file requires these essential fields:\n- **host**: Your cluster hostname (e.g., `YOURORG.databrickshost.com`)\n- **http_path**: Path to your SQL Warehouse or cluster\n- **schema**: Schema name within your catalog\n- **authentication**: Either token-based or OAuth-based\n\n## Authentication Options\n\n1. **Token-based**: Uses Personal Access Token (PAT) via the `token` field\n2. **OAuth (AWS/GCP)**: Requires `client_id` and `client_secret`\n3. **OAuth (Azure)**: Uses `azure_client_id` and `azure_client_secret`\n\n## Optional Parameters\n- `threads`: Number of parallel execution threads (default: 1)\n- `connect_retries`: Connection retry attempts (default: 1)\n- `connect_timeout`: Timeout duration in seconds\n- `session_properties`: Databricks session configurations\n\n## Supported Features\n\nThe adapter supports most dbt Core functionality with special capabilities:\n- **Delta Lake features**: Merge strategies using `unique_key` and snapshots\n- **Unity Catalog**: Full 3-level namespace support (catalog/schema/relations)\n\n## Important Notes\n- This guide applies to dbt Core and dbt Fusion only—dbt Cloud users don't need `profiles.yml`\n- Minimum Databricks SQL or DBR 12+ required\n- SQL Warehouses recommended for getting started",
+    "durationMs": 6135,
+    "url": "https://docs.getdbt.com/docs/core/connect-data-platform/databricks-setup"
+  }
+}
+[2025-10-24 18:38:05] No URL or content in tool_output, skipping
+[2025-10-24 18:38:05] DEBUG: url='', content length=0
+[2025-10-24 18:38:19] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/docs/cloud/secure/databricks-private-link",
+    "prompt": "Extract the full content of this guide on Databricks PrivateLink configuration."
+  },
+  "tool_response": {
+    "bytes": 55501,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Databricks Azure Private Link Configuration Guide\n\n## Overview\n\nThis guide covers setting up a secure private connection between dbt and Databricks using Azure Private Link in the dbt multi-tenant environment.\n\n## Availability Requirements\n\nThe feature is limited to specific Enterprise tiers:\n- Business Critical\n- Virtual Private\n\nContact sales@getdbt.com for tier information.\n\n## Key Limitation\n\n\"Private connection endpoints can't connect across cloud providers.\" Both dbt and Databricks must operate within the same cloud infrastructure for this to function properly.\n\n## Configuration Steps\n\n### Azure Setup Phase\n\n1. Access your Azure Databricks workspace using the subscription path format\n2. Navigate to the workspace overview and select JSON view\n3. Extract the `resource_id` field value\n4. Submit a support request to dbt Support with:\n   - Request type (Databricks)\n   - Workspace name and URL\n   - Azure resource ID\n   - Multi-tenant environment designation (EMEA if applicable)\n   - Workspace region\n\n5. After Support confirms resource availability, approve the dbt-named private endpoint in Azure Databricks under Networking > Private Endpoint Connections\n\n### dbt Configuration Phase\n\n1. Navigate to Settings and create a new Databricks project\n2. Select the \"Private\" radio button option\n3. Choose the private endpoint from the available dropdown menu\n4. Complete remaining platform configuration details\n5. Validate the connection and save\n\nThe hostname field automatically populates when selecting a pre-configured private endpoint.",
+    "durationMs": 4888,
+    "url": "https://docs.getdbt.com/docs/cloud/secure/databricks-private-link"
+  }
+}
+[2025-10-24 18:38:19] No URL or content in tool_output, skipping
+[2025-10-24 18:38:19] DEBUG: url='', content length=0
+[2025-10-24 18:38:19] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/docs/mesh/iceberg/databricks-iceberg-support",
+    "prompt": "Extract the full content of this documentation on Databricks Iceberg support in dbt."
+  },
+  "tool_response": {
+    "bytes": 58636,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Databricks and Apache Iceberg Support in dbt\n\n## Overview\n\nDatabricks is built on Delta Lake and uses Delta table format by default. According to the documentation, \"Databricks does not support writing to Iceberg catalogs.\" However, it can create Iceberg-compatible Delta tables through the UniForm feature.\n\n## Key Capabilities\n\n**Reading External Iceberg Catalogs:**\nDatabricks Unity Catalog supports reading from external Iceberg catalogs. To enable this, organizations must configure Lakehouse Federation and establish the catalog as a foreign catalog outside of dbt.\n\n**Iceberg-Compatible Tables:**\nWhen dbt models use the `UniForm` table property, the system duplicates Delta metadata in Iceberg-compatible format. This allows external Iceberg compute engines to read from Unity Catalogs.\n\nExample configuration:\n```sql\n{{ config(\n    tblproperties={\n      'delta.enableIcebergCompatV2': 'true'\n      'delta.universalFormat.enabledFormats': 'iceberg'\n    }\n)}}\n```\n\n## dbt Configuration Requirements\n\nTo set up Databricks catalog integration, create a `catalogs.yml` file with:\n\n| Field | Purpose |\n|-------|---------|\n| `name` | Databricks catalog identifier |\n| `catalog_type` | Either \"unity\" or \"hive_metastore\" |\n| `table_format` | Automatically set to iceberg for unity catalogs |\n| `file_format` | Defaults to delta |\n\nModels require the `catalog_name` parameter in their configuration to materialize in the specified catalog.\n\n## Current Limitations\n\nThe documentation notes that \"We do not currently support the new Private Preview features of Databricks managed Iceberg tables.\"",
+    "durationMs": 5532,
+    "url": "https://docs.getdbt.com/docs/mesh/iceberg/databricks-iceberg-support"
+  }
+}
+[2025-10-24 18:38:19] No URL or content in tool_output, skipping
+[2025-10-24 18:38:19] DEBUG: url='', content length=0
+[2025-10-24 18:38:20] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/docs/cloud/manage-access/set-up-databricks-oauth",
+    "prompt": "Extract the full content of this guide on setting up Databricks OAuth for dbt Cloud."
+  },
+  "tool_response": {
+    "bytes": 61862,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Setting Up Databricks OAuth for dbt Cloud\n\n## Overview\n\nThis guide explains how to enable Databricks OAuth, which provides enhanced security for dbt Enterprise users. \"When you enable Databricks OAuth for a dbt project, all dbt developers must authenticate with Databricks in order to use the Studio IDE.\"\n\n**Key Limitation:** Access tokens expire after one hour, requiring the Studio IDE to restart hourly.\n\n## Three-Step Configuration Process\n\n### 1. Databricks Admin Setup\n\nAdministrators must register dbt as an OAuth application through Databricks:\n\n- Access the Databricks account console and navigate to App connections\n- Create a new connection with a descriptive name\n- Configure redirect URLs based on your region (US multi-tenant, US cell 1, EMEA, APAC, or single tenant)\n- Select appropriate API scopes:\n  - **SQL scope** for BI applications and SQL models\n  - **ALL APIs scope** if running Python models\n- Generate and securely store the client secret\n\n### 2. dbt Project Admin Configuration\n\nProject administrators configure the OAuth connection in dbt:\n\n1. Access Account settings from the left sidebar\n2. Navigate to Projects and select your project\n3. Click Connections and edit the Databricks connection\n4. Add the OAuth Client ID and Client Secret to optional settings\n\n### 3. Developer Authentication\n\nIndividual developers authenticate by:\n\n1. Accessing Account settings and selecting Credentials\n2. Choosing their project and clicking Edit\n3. Selecting OAuth as the authentication method\n4. Clicking \"Connect Databricks Account\"\n5. Approving the connection when redirected to Databricks\n\nThis feature requires an Enterprise or Enterprise+ dbt plan.",
+    "durationMs": 5864,
+    "url": "https://docs.getdbt.com/docs/cloud/manage-access/set-up-databricks-oauth"
+  }
+}
+[2025-10-24 18:38:20] No URL or content in tool_output, skipping
+[2025-10-24 18:38:20] DEBUG: url='', content length=0
+[2025-10-24 18:38:35] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/guides/productionize-your-dbt-databricks-project",
+    "prompt": "Extract the full content of this guide on productionizing your dbt Databricks project."
+  },
+  "tool_response": {
+    "bytes": 60642,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Guide Summary: Productionize Your dbt Databricks Project\n\n## Overview\nThis comprehensive guide teaches data engineers how to deploy dbt models to production on Databricks while maintaining reliability and timeliness through best practices.\n\n## Key Sections\n\n**Deployment Environments**\nThe guide explains that \"Deployment — Defines the settings used for executing jobs created within that environment.\" Development and production environments should be kept separate using different catalogs (_dev_ and _prod_).\n\n**Production Job Setup**\nTeams should create a daily refresh job using dbt's built-in scheduler. The recommended command sequence includes:\n- `dbt source freshness` — validates data hasn't become stale\n- `dbt test --models source:*` — checks data quality\n- `dbt build --exclude source:* --fail-fast` — executes models efficiently\n\n**CI/CD Implementation**\nThe guide recommends establishing a separate test environment with dedicated service principals to isolate temporary schemas and prevent unintended data exposure during pull request validation.\n\n**Monitoring & Alerts**\nThree monitoring entry points are available: run history dashboards, deployment monitors tracking performance trends, and data health tiles for stakeholder visibility. Notifications can be configured via email, Slack, or webhooks.\n\n**Advanced Features**\n- **Databricks Workflows Integration**: Trigger dbt jobs from larger orchestration pipelines\n- **Data Masking**: Use Dynamic Views with `is_account_group_member` functions for role-based access\n- **Documentation**: Combine dbt docs with Unity Catalog using the `persist_docs` configuration\n\n## Troubleshooting\nThe guide emphasizes reading error messages, isolating problems through incremental testing, and consulting compiled files and logs when issues arise.",
+    "durationMs": 6318,
+    "url": "https://docs.getdbt.com/guides/productionize-your-dbt-databricks-project"
+  }
+}
+[2025-10-24 18:38:35] No URL or content in tool_output, skipping
+[2025-10-24 18:38:35] DEBUG: url='', content length=0
+[2025-10-24 18:38:36] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/guides/migrate-from-spark-to-databricks",
+    "prompt": "Extract the full content of this guide on migrating from Spark to Databricks."
+  },
+  "tool_response": {
+    "bytes": 50041,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Migration Guide: dbt-Spark to dbt-Databricks\n\n## Overview\n\nThis guide explains how to transition from the generic Apache Spark adapter to Databricks' purpose-built adapter. According to the documentation, \"Databricks built this adapter using dbt-spark as the foundation and added some critical improvements.\"\n\n## Key Advantages\n\n### Authentication Simplification\nThe new adapter dramatically reduces setup complexity. Previously, users needed to extract cluster or endpoint IDs from HTTP paths. Now, the connection requires identical inputs regardless of whether you're using a cluster or SQL endpoint: hostname, HTTP path, and credentials.\n\n### Optimized Defaults\nThe dbt-databricks adapter provides three improved defaults:\n- **Delta format**: Models automatically use Delta tables, eliminating redundant configuration declarations\n- **Photon engine**: Query acceleration is enabled by default\n- **Merge strategy**: The incremental strategy defaults to `merge` rather than `append`\n\n### Pure Python Connection\n\"If you use dbt Core, you no longer have to download an independent driver to interact with Databricks.\"\n\n## Migration Steps\n\n### For dbt Cloud Users\n1. Navigate to Account Settings → Projects\n2. Select your project's Databricks connection\n3. Click Edit and select Databricks as the warehouse type\n4. Enter hostname, HTTP path, and optional catalog name\n5. Save changes\n6. Team members refresh the Studio IDE\n\nImportantly, existing credentials remain intact during this process—no authentication data is lost.\n\n### For dbt Core Users\n1. Install the dbt-databricks adapter package\n2. Update your `~/.dbt/profiles.yml` file with the new connection configuration\n\n## Configuration Comparison\n\n**Old dbt-spark setup required:**\nMultiple fields including driver path, method specification, and endpoint extraction.\n\n**New dbt-databricks setup requires:**\nType, schema, host, http_path, and token—significantly more streamlined.\n\nThis migration can occur without production downtime when scheduled during low-usage periods.",
+    "durationMs": 6696,
+    "url": "https://docs.getdbt.com/guides/migrate-from-spark-to-databricks"
+  }
+}
+[2025-10-24 18:38:36] No URL or content in tool_output, skipping
+[2025-10-24 18:38:36] DEBUG: url='', content length=0
+[2025-10-24 18:38:36] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/guides/set-up-your-databricks-dbt-project",
+    "prompt": "Extract the full content of this guide on setting up your Databricks dbt project."
+  },
+  "tool_response": {
+    "bytes": 49578,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Setting Up Your dbt Project with Databricks: Complete Guide\n\n## Overview\nThis guide explains how to configure a dbt project on the Databricks Lakehouse Platform, enabling teams to scale from small to large organizations while maintaining best practices for data governance and security.\n\n## Key Components\n\n### 1. Configuring Databricks Environments\nThe setup requires Unity Catalog to establish separate development and production environments. Two catalogs are created:\n\n- **Dev Catalog**: Where analytics engineers develop and test using the Studio IDE\n- **Prod Catalog**: Reserved for production runs only\n\nAs stated in the documentation: \"A catalog is a top-level container for schemas (previously known as databases in Databricks), which in turn contain tables and views.\"\n\nDevelopers receive their own personal sandbox schemas within the dev catalog, preventing accidental overwrites of colleagues' work.\n\n### 2. Service Principals Setup\nProduction runs must execute using a service principal rather than personal user accounts. The guide explains: \"Service principals are used to remove humans from deploying to production for convenience and security.\"\n\nKey benefits include:\n- Eliminates risks from personnel changes or credential modifications\n- Creates auditable trails of all production modifications\n- Ensures only tested, reviewed code modifies production data\n\n### 3. Databricks Compute Configuration\nThe guide strongly recommends using SQL warehouses over All Purpose Clusters because they're optimized for SQL query execution and offer cost savings with lower uptime requirements.\n\nServerless SQL warehouses are recommended to minimize cluster spin-up time.\n\n### 4. dbt Project Configuration\nDevelopers must:\n- Generate personal access tokens (PATs) for development credentials\n- Create developer schemas named in format: `dbt_<first_initial><last_name>`\n- Configure the dev catalog as their default\n\n### 5. Deployment Environment Setup\nProduction environments require:\n- Service principal tokens with extended validity periods\n- Production catalog designation\n- Proper git repository integration for version control\n\n## Next Steps\nAfter setup, teams should review Unity Catalog best practices and optimization guides for scaling dbt models on Databricks.",
+    "durationMs": 7127,
+    "url": "https://docs.getdbt.com/guides/set-up-your-databricks-dbt-project"
+  }
+}
+[2025-10-24 18:38:36] No URL or content in tool_output, skipping
+[2025-10-24 18:38:36] DEBUG: url='', content length=0
+[2025-10-24 18:38:40] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/guides/optimize-dbt-models-on-databricks",
+    "prompt": "Extract the full content of this guide on optimizing dbt models on Databricks."
+  },
+  "tool_response": {
+    "bytes": 66983,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Guide to Optimizing dbt Models on Databricks\n\n## Overview\nThis guide presents a framework for optimizing data pipelines on Databricks using three key pillars: Platform Components, Patterns & Best Practices, and Performance Troubleshooting.\n\n## Platform Components\n\n**Recommended Infrastructure:**\nThe guide suggests using \"Databricks SQL warehouses for all your SQL workloads\" with serverless warehouses as the standard choice. Serverless options minimize spin-up time and leverage the Photon engine automatically.\n\n**Warehouse Sizing:**\nStart with a Medium-sized warehouse and adjust based on workload complexity. The document notes that larger warehouses complete work faster—if a Small warehouse takes an hour, Medium completes it in roughly half the time. Size selection should account for data volume and SLA requirements.\n\n**Workload Separation:**\nProvision separate warehouses for dbt pipeline execution versus interactive analysis, since their query patterns and resource consumption differ significantly.\n\n**Auto-Stop Configuration:**\nSet auto-stop thresholds low (5 minutes via UI, 1 minute via API) since serverless warehouses spin up quickly without impacting performance.\n\n## Patterns & Best Practices\n\nThe guide endorses the medallion architecture approach:\n\n**Bronze/Staging Layer:**\nUse `COPY INTO` functionality or external tables for ingestion. The document emphasizes that \"data written in Delta format\" provides performance and governance advantages over raw file formats.\n\n**Silver/Intermediate Layer:**\nImplement incremental pipelines to reduce data processing. Use dbt's incremental materialization with merge strategies, configuring timestamp-based snapshots via `is_incremental` logic.\n\n**Optimization Techniques:**\n\n- **File Compaction**: Enable auto-compaction in Databricks to maintain optimal file sizes (32-256 MB)\n- **Data Skipping**: Leverage Z-Order clustering for high-cardinality columns: `OPTIMIZE table_name ZORDER BY (col1,col2)`\n- **Table Statistics**: Run `ANALYZE TABLE` on frequently-joined columns\n- **Vacuum Operations**: Clean unused files while respecting version retention policies\n\n**Gold/Marts Layer:**\nPrioritize Z-Ordering for business-facing tables with strict SLAs. Define metrics using MetricFlow for consistency across KPIs.\n\n**Incremental Predicates:**\nFilter both source and target data using predicates to minimize data scanned during merges.\n\n## Performance Troubleshooting\n\n**Query Profiling:**\nThe SQL warehouse query profile tool identifies three performance bottlenecks:\n\n1. **Inefficient File Pruning**: Reorder columns so numerical keys and high-cardinality predicates appear within the first 32 columns\n2. **Full Table Scans**: Apply file compaction and Z-Ordering techniques\n3. **Exploding Joins**: Make join conditions more specific and preprocess data before joining\n\n**Key Merge Strategies:**\nThe guide recommends \"merge strategy as the recommended strategy for the majority of incremental models\" and suggests pushing filters down to minimize rows processed.\n\n**Monitoring Tools:**\n- dbt Discovery API: Analyze metadata on timing, configuration, and model freshness\n- dbt Admin API: Extract artifacts and use the dbt_artifacts package to identify inefficiencies\n\n## Conclusion\n\nThe guide encourages teams to test these strategies on open-source implementations and provide feedback within the dbt community channels.",
+    "durationMs": 10809,
+    "url": "https://docs.getdbt.com/guides/optimize-dbt-models-on-databricks"
+  }
+}
+[2025-10-24 18:38:40] No URL or content in tool_output, skipping
+[2025-10-24 18:38:40] DEBUG: url='', content length=0
+[2025-10-24 18:38:49] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/tags/databricks",
+    "prompt": "Extract the full content of this Databricks tag page listing all related content."
+  },
+  "tool_response": {
+    "bytes": 24015,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Databricks Tag Page - dbt Developer Hub\n\nThis page compiles 6 documentation articles related to Databricks integration with dbt:\n\n## Featured Content\n\n1. **Databricks configurations** - \"Configuring tables\" with Databricks-specific settings\n2. **Optimize and troubleshoot dbt models on Databricks** - Guidance on improving performance and resolving issues\n3. **Productionize your dbt Databricks project** - Best practices for delivering models to end users and maintaining production data\n4. **Quickstart for dbt and Databricks** - Introductory guide to get started\n5. **Set up your dbt project with Databricks** - Instructions for initial project configuration\n6. **Use Databricks workflows to run dbt jobs** - Integration between Databricks workflows and dbt Cloud jobs\n\n## Getting Started\n\nThe hub promotes the free dbt VS Code extension as the preferred local development tool with the dbt Fusion Engine, offering both a free extension download and demo request options for users exploring the platform.",
+    "durationMs": 2659,
+    "url": "https://docs.getdbt.com/tags/databricks"
+  }
+}
+[2025-10-24 18:38:49] No URL or content in tool_output, skipping
+[2025-10-24 18:38:49] DEBUG: url='', content length=0
+[2025-10-24 18:38:51] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/guides/databricks",
+    "prompt": "Extract the full content of this Databricks guides overview page."
+  },
+  "tool_response": {
+    "bytes": 191358,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Databricks Quickstart Guide Summary\n\nThis comprehensive guide teaches users how to integrate dbt with Databricks through a hands-on tutorial.\n\n## Key Learning Objectives\n\nThe guide covers several essential skills:\n\n- Setting up a Databricks workspace and loading sample data\n- Establishing connection between dbt and Databricks using Partner Connect\n- Creating and materializing data models\n- Implementing data quality tests\n- Adding documentation to models\n- Scheduling production jobs\n\n## Initial Setup Steps\n\nUsers begin by creating a Databricks workspace, selecting their cloud provider (AWS, GCP, or Azure), and loading three CSV datasets representing the \"Jaffle Shop\" sample data. The guide specifies that users should avoid the Community Edition, as it \"will not provide the required compute for this guide.\"\n\n## Development Workflow\n\nThe tutorial walks through creating a managed repository within dbt, then initializing a project structure. A key concept involves using the `ref()` function to \"build models on top of other models,\" establishing dependencies without manual specification.\n\n## Data Quality and Documentation\n\nThe guide emphasizes testing practices, recommending that \"every model has a data test on a primary key, that is, a column that is `unique` and `not_null`.\" Users generate documentation through the `dbt docs generate` command, making project information accessible to team members.\n\n## Deployment\n\nThe final section covers creating deployment environments and scheduling jobs using `dbt build` commands to maintain up-to-date production data.",
+    "durationMs": 5332,
+    "url": "https://docs.getdbt.com/guides/databricks"
+  }
+}
+[2025-10-24 18:38:51] No URL or content in tool_output, skipping
+[2025-10-24 18:38:51] DEBUG: url='', content length=0
+[2025-10-24 18:38:53] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/guides/how-to-use-databricks-workflows-to-run-dbt-cloud-jobs",
+    "prompt": "Extract the full content of this guide on using Databricks Workflows to run dbt Cloud jobs."
+  },
+  "tool_response": {
+    "bytes": 77435,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Using Databricks Workflows to Run dbt Cloud Jobs\n\n## Overview\n\nThis guide demonstrates how to integrate Databricks workflows with dbt Cloud jobs through API calls, enabling sophisticated orchestration of data transformation pipelines.\n\n## Key Benefits\n\nThe approach offers four primary advantages:\n\n1. **Pipeline Integration** — Trigger dbt jobs after completing other Databricks ETL processes within a unified workflow environment\n\n2. **Enhanced Job Management** — Leverage dbt's monitoring capabilities, historical logging, documentation, and performance optimization features\n\n3. **Improved Debugging** — Maintain detailed logs in dbt while preserving visibility of overall status in Databricks, facilitating faster issue resolution\n\n4. **Custom Triggering Logic** — Execute dbt jobs based on conditional logic or business rules beyond dbt's native scheduling options\n\n## Prerequisites\n\n- Enterprise or Enterprise+ dbt account\n- Existing configured dbt deploy job\n- Active Databricks workspace with Data Science access\n- Databricks CLI with authentication configured\n- Personal access token or service account token from dbt\n\n## Implementation Steps\n\n**1. Secure API Credentials**\n\nStore your dbt API key in Databricks secrets using:\n```\ndatabricks secrets create-scope --scope <YOUR_SECRET_SCOPE>\ndatabricks secrets put --scope <YOUR_SECRET_SCOPE> --key <YOUR_SECRET_KEY> --string-value \"<YOUR_DBT_CLOUD_API_KEY>\"\n```\n\n**2. Create Python Notebook**\n\nDevelop a notebook using the `requests` library to make HTTP POST requests to dbt's job API endpoint. The script monitors job status through polling, checking every 5 seconds until completion.\n\n**3. Configure Workflow Tasks**\n\nAdd the notebook to Databricks workflows by specifying the job ID as a parameter. Multiple tasks can reference the same notebook with different job IDs.\n\n## Workflow Execution\n\nWhen configured properly, the workflow will trigger dbt jobs and display status progression (QUEUED → STARTING → RUNNING → SUCCESS) as it monitors execution completion.",
+    "durationMs": 6743,
+    "url": "https://docs.getdbt.com/guides/how-to-use-databricks-workflows-to-run-dbt-cloud-jobs"
+  }
+}
+[2025-10-24 18:38:53] No URL or content in tool_output, skipping
+[2025-10-24 18:38:53] DEBUG: url='', content length=0
+[2025-10-24 18:39:05] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/reference/database-permissions/databricks-permissions",
+    "prompt": "Extract the full content of this reference documentation on Databricks permissions."
+  },
+  "tool_response": {
+    "bytes": 41841,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Databricks Permissions Reference\n\n## Overview\nThe documentation explains that \"permissions are used to control who can perform certain actions on different database objects\" in Databricks. SQL statements serve as the mechanism for managing these permissions.\n\n## Key Concepts\n\n**Principals and Securable Objects**\nPermissions can be granted to principals (users, service principals, or groups) on various securable objects. The framework follows this structure: `grant privilege_type on securable_object to principal`.\n\n## Example SQL Statements\n\nThe reference provides these sample permission commands:\n\n```sql\ngrant all privileges on schema schema_name to principal;\ngrant create table on schema schema_name to principal;\ngrant create view on schema schema_name to principal;\n```\n\nThese examples demonstrate granting different levels of access—from comprehensive privileges to specific object creation permissions.\n\n## Additional Resources\n\nFor comprehensive details on privilege types across different securable objects in Unity Catalog, the documentation directs users to the official Databricks documentation on privilege management.\n\nThe page was last updated October 23, 2025, and represents part of dbt's broader database permissions reference covering multiple platforms including Postgres, Redshift, and Snowflake.",
+    "durationMs": 3850,
+    "url": "https://docs.getdbt.com/reference/database-permissions/databricks-permissions"
+  }
+}
+[2025-10-24 18:39:05] No URL or content in tool_output, skipping
+[2025-10-24 18:39:05] DEBUG: url='', content length=0
+[2025-10-24 18:39:08] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/reference/global-configs/databricks-changes",
+    "prompt": "Extract the full content of this reference documentation on Databricks global configuration changes."
+  },
+  "tool_response": {
+    "bytes": 73025,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Databricks Adapter Behavior Changes - Reference Documentation\n\nThis documentation outlines three primary behavior change flags specific to `dbt-databricks`:\n\n## 1. Use Information Schema for Columns\n\n**Status:** Introduced in v1.9.0\n\nThe `use_info_schema_for_columns` flag defaults to `False`. When enabled, it switches from using `describe extended` to `information_schema` for retrieving column metadata on Unity Catalog tables. \n\n**Key consideration:** As noted in the documentation, \"this setting is not yet the default behavior, as there are performance impacts due to a Databricks metadata limitation because of the need to run `REPAIR TABLE {{relation}} SYNC METADATA`.\"\n\nAn alternative approach uses the `parse_json` function to create columns as the `variant` type, which can avoid truncation issues with complex struct types.\n\n## 2. Use User's Folder for Python Model Notebooks\n\n**Status:** Introduced in v1.9.0; planned default change in v1.11.0\n\nCurrently defaults to `False`, writing notebooks to the `/Shared/dbt_python_models/` path. Setting it to `True` redirects output to `/Users/{{current user}}/` locations, aligning with Databricks governance recommendations since the Shared folder is deprecated.\n\n## 3. Use Restructured Materializations (V2)\n\n**Status:** Introduced in v1.10.0; planned default change in v1.11.0\n\nThis experimental flag enables rewritten materialization logic for views, tables, incremental models, and seeds. Key optional configurations include:\n\n- **`view_update_via_alter`** — Updates views in-place rather than replacing them\n- **`use_safer_relation_operations`** — Stages relations and uses rename operations for safety\n- **`incremental_apply_config_changes`** — Controls metadata updates during incremental runs\n\nThe documentation notes that these changes may increase storage and Unity Catalog costs but improve performance, safety, and enable future feature support.",
+    "durationMs": 6813,
+    "url": "https://docs.getdbt.com/reference/global-configs/databricks-changes"
+  }
+}
+[2025-10-24 18:39:08] No URL or content in tool_output, skipping
+[2025-10-24 18:39:08] DEBUG: url='', content length=0
+[2025-10-24 18:39:09] DEBUG: Received input structure:
+{
+  "session_id": "e59943b6-05c6-4412-a220-7545832fcc84",
+  "transcript_path": "/Users/davidkrevitt/.claude/projects/-Users-davidkrevitt-code-kurt-demo/e59943b6-05c6-4412-a220-7545832fcc84.jsonl",
+  "cwd": "/Users/davidkrevitt/code/kurt-demo",
+  "permission_mode": "acceptEdits",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://docs.getdbt.com/reference/resource-configs/databricks-configs",
+    "prompt": "Extract the full content of this reference documentation on Databricks resource configurations."
+  },
+  "tool_response": {
+    "bytes": 278966,
+    "code": 200,
+    "codeText": "OK",
+    "result": "# Databricks Resource Configurations Reference\n\n## Overview\nThis documentation covers dbt-databricks plugin configurations for materializing models on the Databricks platform, including table settings, incremental strategies, Python model execution, and compute resource management.\n\n## Key Configuration Areas\n\n### Table Materialization Options\nThe plugin supports numerous table-specific configs beyond standard dbt options:\n\n- **File formats**: Delta, Hudi, Parquet, CSV, JSON, and others\n- **Partitioning**: Via `partition_by` for organizing data by columns\n- **Clustering**: \"Liquid clustering using Delta's feature\" or traditional bucketing via `clustered_by`\n- **Table properties**: Custom metadata through `tblproperties`\n- **Iceberg compatibility**: Optional via `table_format: iceberg` (v1.9+)\n- **Data governance**: Tags and column-level masks for Unity Catalog\n\n### Incremental Strategy Selection\nFive distinct approaches are available:\n\n1. **Append**: Simple inserts without updates\n2. **Insert Overwrite**: Replaces partitions or entire tables\n3. **Merge**: \"Match records based on a unique_key, updating old records, and inserting new\" (default for Delta/Hudi)\n4. **Replace Where**: Selective overwrites using predicates (Delta only)\n5. **Microbatch**: Event-time-based incremental processing\n\n### Python Model Execution\nFour submission methods handle PySpark code execution:\n\n- **All-purpose cluster**: Interactive development with optional notebook creation\n- **Job cluster**: Short-lived, cost-effective production runs\n- **Serverless cluster**: Managed execution without cluster overhead\n- **Workflow job**: Reusable workflows with post-task support\n\nConfiguration includes package installation, timeout settings, and access controls.\n\n### Compute Resource Management\nModels can target specific SQL Warehouses or all-purpose clusters via `databricks_compute` configuration, enabling separation of SQL and Python execution environments.\n\n### Column-Level Configuration\nMetadata capabilities include tagging individual columns and applying dynamic data masking functions for security.\n\n### Materialized Views & Streaming Tables\nDelta Live Tables support via configuration of scheduling, partitioning, and refresh behavior with `on_configuration_change` options.",
+    "durationMs": 7360,
+    "url": "https://docs.getdbt.com/reference/resource-configs/databricks-configs"
+  }
+}
+[2025-10-24 18:39:09] No URL or content in tool_output, skipping
+[2025-10-24 18:39:09] DEBUG: url='', content length=0

@@ -16,3 +16,23 @@
 [2025-10-24 13:22:13] Metadata extracted successfully
 [2025-10-24 13:22:13] Content map updated successfully
 [2025-10-24 13:22:13] Successfully indexed: https://docs.getdbt.com/docs/build/snapshots → topics: snapshots, data versioning, point-in-time data, cluster: snapshots
+[2025-10-24 18:08:30] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/document-management-skill/DEPRECATED.md
+[2025-10-24 18:08:30] Not in sources directory, skipping
+[2025-10-24 18:08:32] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/document-indexing-skill/DEPRECATED.md
+[2025-10-24 18:08:32] Not in sources directory, skipping
+[2025-10-24 18:08:34] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/ingest-content-skill/DEPRECATED.md
+[2025-10-24 18:08:34] Not in sources directory, skipping
+[2025-10-24 18:20:51] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/onboard-user-skill/DEPRECATED.md
+[2025-10-24 18:20:51] Not in sources directory, skipping
+[2025-10-24 18:33:47] Processing file: /Users/davidkrevitt/code/kurt-demo/sources/docs.databricks.com/aws/en/integrations/dbt-core-tutorial.md
+[2025-10-24 18:33:47] Not in sources directory, skipping
+[2025-10-24 18:34:05] Processing file: /Users/davidkrevitt/code/kurt-demo/sources/docs.databricks.com/aws/en/jobs/dbt.md
+[2025-10-24 18:34:05] Not in sources directory, skipping
+[2025-10-24 18:34:23] Processing file: /Users/davidkrevitt/code/kurt-demo/sources/docs.databricks.com/aws/en/jobs/how-to/use-dbt-in-workflows.md
+[2025-10-24 18:34:23] Not in sources directory, skipping
+[2025-10-24 18:34:38] Processing file: /Users/davidkrevitt/code/kurt-demo/sources/docs.databricks.com/aws/en/partners/prep/dbt.md
+[2025-10-24 18:34:38] Not in sources directory, skipping
+[2025-10-24 18:34:55] Processing file: /Users/davidkrevitt/code/kurt-demo/sources/docs.databricks.com/aws/en/partners/prep/dbt-cloud.md
+[2025-10-24 18:34:55] Not in sources directory, skipping
+[2025-10-24 18:37:24] Processing file: /Users/davidkrevitt/code/kurt-demo/projects/dbt-databricks-docs-comparison/project.md
+[2025-10-24 18:37:24] Not in sources directory, skipping

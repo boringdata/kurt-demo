@@ -14,6 +14,15 @@ Analyze content to identify who it's written for - inferred roles, technical lev
 - **New content creation**: Building persona foundation from target examples
 
 ## Prerequisites
+## Content Discovery Method
+
+> **⚠️ This skill uses file-based content maps (not Kurt CLI database)**
+>
+> All document discovery uses content map queries:
+> - Query: `cat sources/<domain>/_content-map.json | jq ...`
+> - Fetch: Use WebFetch tool (hooks auto-save + index)
+> - Reference: See `.claude/docs/CONTENT-MAP-QUERIES.md` for query patterns
+
 
 - Minimum 3-5 substantial documents for reliable extraction
 - Documents should target consistent audience(s)
@@ -56,10 +65,10 @@ invoke persona-extraction-skill --audience-type all --auto-discover --include <p
 
 ```bash
 # Step 1: Discover technical content
-docs=$(kurt document list --url-contains /docs/ --status FETCHED)
-api_refs=$(kurt document list --url-contains /api/ --status FETCHED)
+docs=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "guide" and .value.status == "FETCHED") | .key')
+api_refs=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "reference" and .value.status == "FETCHED") | .key')
 guides=$(kurt document list --url-contains /guide --status FETCHED)
-tutorials=$(kurt document list --url-contains /tutorial --status FETCHED)
+tutorials=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "tutorial" and .value.status == "FETCHED") | .key')
 
 # Step 2: Sample technical content (5-10 for pattern detection)
 sample=$(echo "$docs $api_refs $guides $tutorials" | head -10)
@@ -81,11 +90,11 @@ echo "Total: 10 pages (technical audience)"
 
 ```bash
 # Discover business-focused content
-product_pages=$(kurt document list --url-contains /product --status FETCHED)
+product_pages=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "product_page" and .value.status == "FETCHED") | .key')
 solutions=$(kurt document list --url-contains /solution --status FETCHED)
 case_studies=$(kurt document list --url-contains /case-stud --status FETCHED)
 pricing=$(kurt document list --url-contains /pricing --status FETCHED)
-blog_business=$(kurt document list --url-contains /blog/ --status FETCHED | grep -E "(roi|business|strategy|leadership)")
+blog_business=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "blog" and .value.status == "FETCHED") | .key' | grep -E "(roi|business|strategy|leadership)")
 
 # Sample business content (5-10 for pattern)
 sample=$(echo "$product_pages $solutions $case_studies $pricing $blog_business" | head -10)
@@ -108,10 +117,10 @@ sample=$(echo "$support $help $faq $getting_started" | head -10)
 
 ```bash
 # Step 1: Sample diverse content types
-technical=$(kurt document list --url-contains /docs/ --status FETCHED | head -5)
-business=$(kurt document list --url-contains /product --status FETCHED | head -5)
+technical=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "guide" and .value.status == "FETCHED") | .key' | head -5)
+business=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "product_page" and .value.status == "FETCHED") | .key' | head -5)
 customer=$(kurt document list --url-contains /support --status FETCHED | head -5)
-blog=$(kurt document list --url-contains /blog/ --status FETCHED | head -5)
+blog=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "blog" and .value.status == "FETCHED") | .key' | head -5)
 
 # Step 2: Combine samples
 all_content=$(echo "$technical $business $customer $blog")

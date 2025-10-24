@@ -93,54 +93,71 @@ def extract_date_from_url(url: str) -> Optional[str]:
 
 
 def classify_url(url: str) -> str:
-    """Classify URL into content type based on path patterns."""
+    """
+    Classify URL into content type based on path patterns.
+
+    Content types match kurt-core ContentType enum:
+    - reference: API docs, technical references
+    - tutorial: Step-by-step tutorials, quickstarts
+    - guide: Documentation, how-to guides
+    - blog: Blog posts, articles, news
+    - product_page: Product/feature pages
+    - solution_page: Solutions, use cases
+    - homepage: Site homepage
+    - case_study: Customer stories, case studies
+    - event: Events, webinars
+    - info: About, support, FAQ, changelog
+    - landing_page: Marketing landing pages, pricing
+    - other: Everything else
+    """
     path = urlparse(url).path.lower()
 
-    # Documentation
-    if any(pattern in path for pattern in ['/docs/', '/documentation/', '/reference/', '/guide/']):
-        return 'docs'
-
-    # Tutorial/Quickstart
-    if any(pattern in path for pattern in ['/tutorial', '/quickstart', '/getting-started', '/guide/']):
-        return 'tutorial'
-
-    # Blog
-    if any(pattern in path for pattern in ['/blog/', '/article/', '/post/', '/news/']):
-        # Check for date patterns to confirm blog
-        if extract_date_from_url(url):
-            return 'blog'
-        return 'blog'
-
-    # API Reference
-    if any(pattern in path for pattern in ['/api/', '/api-reference/']):
-        return 'api-docs'
-
-    # Changelog/Release Notes
-    if any(pattern in path for pattern in ['/changelog', '/release', '/releases/', '/updates/']):
-        return 'changelog'
-
-    # About/Company pages
-    if any(pattern in path for pattern in ['/about', '/company', '/team']):
-        return 'about'
-
-    # Product pages
-    if any(pattern in path for pattern in ['/product/', '/features/', '/solutions/']):
-        return 'product'
-
-    # Pricing
-    if '/pricing' in path:
-        return 'pricing'
-
-    # Support/Help
-    if any(pattern in path for pattern in ['/support/', '/help/', '/faq']):
-        return 'support'
-
-    # Homepage
+    # Homepage (check first, most specific)
     if path in ['', '/']:
         return 'homepage'
 
+    # API Reference (before general docs)
+    if any(pattern in path for pattern in ['/api/', '/api-reference/', '/api-docs/']):
+        return 'reference'
+
+    # Tutorial/Quickstart (before general guide)
+    if any(pattern in path for pattern in ['/tutorial', '/quickstart', '/getting-started']):
+        return 'tutorial'
+
+    # Guide/Documentation (use specific patterns to avoid false matches)
+    if any(pattern in path for pattern in ['/docs/', '/documentation/', '/guide/']):
+        return 'guide'
+
+    # Blog
+    if any(pattern in path for pattern in ['/blog/', '/article/', '/post/', '/news/']):
+        return 'blog'
+
+    # Case Study
+    if any(pattern in path for pattern in ['/case-study', '/case-studies', '/customer-stories', '/customers/']):
+        return 'case_study'
+
+    # Event
+    if any(pattern in path for pattern in ['/event', '/webinar', '/conference']):
+        return 'event'
+
+    # Solution Page (before product page)
+    if any(pattern in path for pattern in ['/solutions/', '/use-case']):
+        return 'solution_page'
+
+    # Product Page
+    if any(pattern in path for pattern in ['/product/', '/features/']):
+        return 'product_page'
+
+    # Landing Page (pricing, contact, etc.)
+    if any(pattern in path for pattern in ['/pricing', '/contact', '/demo', '/signup', '/get-started']):
+        return 'landing_page'
+
+    # Info (about, support, changelog, etc.)
+    if any(pattern in path for pattern in ['/about', '/company', '/team', '/support/', '/help/', '/faq', '/changelog', '/release', '/updates/']):
+        return 'info'
+
     # Default
-    return 'page'
+    return 'other'
 
 
 def get_content_map_path(domain: str) -> str:

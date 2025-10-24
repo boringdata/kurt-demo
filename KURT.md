@@ -2,18 +2,29 @@
 
 ## Overview
 
-Kurt is a document intelligence CLI that helps teams manage, analyze, and create content. It fetches web content, stores it in a local SQLite database with extracted metadata, and provides tools for organizing projects around content creation and updates.
+Kurt is a file-based document intelligence system that helps teams manage, analyze, and create content. It discovers content from sitemaps, fetches web pages with automatic metadata extraction, and provides tools for organizing projects around content creation and updates.
+
+**No database required** - all data stored in JSON content maps and markdown files.
 
 ## Core Concepts
 
 ### Document Management
 
-Kurt maintains two types of storage:
+Kurt uses **file-based content maps** for all document tracking:
 
-1. **Database (SQLite)**: Metadata about documents (title, URL, author, dates, content fingerprints)
-2. **Filesystem (`/sources/`)**: Actual content as markdown files
+1. **Content Maps (`sources/<domain>/_content-map.json`)**: JSON file per domain tracking:
+   - All discovered URLs from sitemaps
+   - Metadata (topics, entities, content_type, etc.)
+   - Status (DISCOVERED → FETCHED)
+   - Clusters (automatic topic grouping)
 
-Documents are fetched from the web using trafilatura for clean markdown extraction.
+2. **Markdown Files (`/sources/<domain>/<path>.md`)**: Actual content with YAML frontmatter
+
+Documents are fetched using WebFetch tool with automatic hooks that:
+- Save files with frontmatter
+- Extract metadata via Claude API
+- Update content maps
+- Assign to clusters
 
 ### Projects
 
@@ -100,11 +111,11 @@ Claude will:
 **Organizational content (from web):**
 ```bash
 # Ingest to /sources/ (org knowledge base)
-kurt ingest map https://example.com
+python .claude/scripts/map_sitemap.py example.com --recursive
 # Or with date discovery (extracts publish dates from blogrolls/changelogs)
-kurt ingest map https://example.com --discover-dates
+python .claude/scripts/map_sitemap.py example.com --recursive --discover-dates
 
-kurt ingest fetch --url-prefix https://example.com/
+# Use WebFetch tool for specific URLs (hooks auto-save + index)
 
 # Reference in project.md
 ```
@@ -335,12 +346,10 @@ For reliable extraction:
 
 ## Skills That Work with Projects
 
-### Content Ingestion
+### Content Discovery & Mapping
 
-- **ingest-content-skill** - Map/fetch web content to `/sources/`
-- **document-management-skill** - List, query, manage documents
-- **document-indexing-skill** - Extract metadata with AI
-- **import-content-skill** - Import existing markdown files, fix ERROR records
+- **sitemap-mapping-skill** - Discover and classify URLs from sitemaps
+- **import-content-skill** - Import existing markdown files
 
 ### Project Management
 
@@ -402,13 +411,13 @@ When Claude writes markdown files to `/sources/` or `projects/*/sources/`, a Pos
 
 ### When WebFetch is Used
 
-If `kurt ingest fetch` fails (anti-bot protection), Claude automatically:
+If `# Use WebFetch tool` fails (anti-bot protection), Claude automatically:
 
-1. Falls back to WebFetch to retrieve content
+1. Retrieves content via WebFetch
 2. Saves markdown file to `/sources/`
 3. Auto-import hook triggers
-4. File gets properly indexed in Kurt database
-5. Content becomes queryable via Kurt commands
+4. Metadata gets extracted and added to content map
+5. Content becomes queryable via content map (jq queries)
 
 This happens transparently - no manual intervention needed.
 
@@ -426,7 +435,7 @@ python .claude/scripts/import_markdown.py \
 kurt index <doc-id>
 
 # Verify
-kurt document get <doc-id>
+cat sources/<domain>/_content-map.json | jq '.sitemap["<url>"]
 ```
 
 ### Troubleshooting
@@ -445,7 +454,7 @@ cat .claude/logs/auto-import.log
 
 ### Benefits
 
-- ✅ Transparent fallback from `kurt ingest` to WebFetch
+- ✅ Automatic WebFetch with hooks for save + index
 - ✅ Automatic database integration
 - ✅ No manual import steps needed
 - ✅ Files are queryable and indexed

@@ -14,6 +14,15 @@ Analyze content to identify consistent document structures (section flow, headli
 - **New content creation**: Building structure foundation from examples
 
 ## Prerequisites
+## Content Discovery Method
+
+> **⚠️ This skill uses file-based content maps (not Kurt CLI database)**
+>
+> All document discovery uses content map queries:
+> - Query: `cat sources/<domain>/_content-map.json | jq ...`
+> - Fetch: Use WebFetch tool (hooks auto-save + index)
+> - Reference: See `.claude/docs/CONTENT-MAP-QUERIES.md` for query patterns
+
 
 - Minimum 3-5 substantial documents for reliable extraction
 - Documents should represent consistent structural patterns
@@ -54,7 +63,7 @@ invoke structure-extraction-skill --type tutorial --auto-discover --include <pat
 
 ```bash
 # Step 1: Discover tutorial/quickstart pages
-tutorials=$(kurt document list --url-contains /tutorial --status FETCHED)
+tutorials=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "tutorial" and .value.status == "FETCHED") | .key')
 quickstarts=$(kurt document list --url-contains /quickstart --status FETCHED)
 getting_started=$(kurt document list --url-contains /getting-started --status FETCHED)
 get_started=$(kurt document list --url-contains /get-started --status FETCHED)
@@ -78,7 +87,7 @@ echo "Total: 8 pages (focused sample)"
 
 ```bash
 # Discover API reference pages
-api_refs=$(kurt document list --url-contains /api/ --status FETCHED)
+api_refs=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "reference" and .value.status == "FETCHED") | .key')
 reference=$(kurt document list --url-contains /reference --status FETCHED)
 endpoints=$(kurt document list --url-contains /endpoint --status FETCHED)
 
@@ -91,7 +100,7 @@ sample=$(echo "$api_refs $reference $endpoints" | head -8)
 ```bash
 # Discover landing/product pages
 landing=$(kurt document list --url-contains /landing --status FETCHED)
-product=$(kurt document list --url-contains /product --status FETCHED | grep -v "/products/?$")
+product=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "product_page" and .value.status == "FETCHED") | .key' | grep -v "/products/?$")
 
 # Sample product/landing pages (5-8 for pattern)
 sample=$(echo "$landing $product" | head -8)
@@ -101,7 +110,7 @@ sample=$(echo "$landing $product" | head -8)
 
 ```bash
 # Discover blog posts (exclude blog homepage)
-blog_posts=$(kurt document list --url-contains /blog/ --status FETCHED | grep -v "/blog/?$")
+blog_posts=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "blog" and .value.status == "FETCHED") | .key' | grep -v "/blog/?$")
 
 # Sample recent blog posts (5-8 for structure pattern)
 sample=$(echo "$blog_posts" | head -8)

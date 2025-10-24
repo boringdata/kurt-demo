@@ -85,6 +85,10 @@ main() {
   local input
   input=$(cat)
 
+  # DEBUG: Log the actual JSON structure we received
+  log "DEBUG: Received input structure:"
+  echo "$input" | jq '.' >> "$LOG_FILE" 2>&1 || log "DEBUG: Failed to parse JSON"
+
   # Extract URL and content from tool_output using jq
   local url
   local content
@@ -97,6 +101,7 @@ main() {
   # If no URL or content, exit silently
   if [ -z "$url" ] || [ -z "$content" ]; then
     log "No URL or content in tool_output, skipping"
+    log "DEBUG: url='$url', content length=${#content}"
     exit 0
   fi
 

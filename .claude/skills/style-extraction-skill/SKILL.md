@@ -18,6 +18,16 @@ Analyze content to identify consistent writing patterns (voice, tone, sentence s
 - Minimum 3-5 substantial documents for reliable extraction
 - Documents should represent consistent writing style
 - Content stored in `/sources/` or accessible file paths
+- **Domain must be mapped**: Run `python .claude/scripts/map_sitemap.py <domain> --recursive` first
+
+## Content Discovery Method
+
+> **⚠️ This skill uses file-based content maps (not Kurt CLI database)**
+>
+> All document discovery uses content map queries:
+> - Query: `cat sources/<domain>/_content-map.json | jq ...`
+> - Fetch: Use WebFetch tool (hooks auto-save + index)
+> - Reference: See `.claude/docs/CONTENT-MAP-QUERIES.md` for query patterns
 
 ## Style Extraction Philosophy
 
@@ -75,22 +85,31 @@ invoke style-extraction-skill --type corporate --auto-discover --include <path> 
 **For Corporate Voice (Priority 1):**
 
 ```bash
-# Step 1: Discover key corporate/marketing pages
+# Step 1: Discover key corporate/marketing pages from content map
 # Homepage
-kurt document list --url-prefix https://company.com/ | grep -E "^https://[^/]+/?$"
+cat sources/company.com/_content-map.json | jq -r '.sitemap |
+  to_entries[] |
+  select(.value.content_type == "homepage") |
+  .key'
 
 # Product/Feature pages (marketing copy)
-kurt document list --url-contains /product
-kurt document list --url-contains /features
-kurt document list --url-contains /solutions
+cat sources/company.com/_content-map.json | jq -r '.sitemap |
+  to_entries[] |
+  select(.value.content_type == "product_page") |
+  .key'
 
 # About/Company pages
-kurt document list --url-contains /about
-kurt document list --url-contains /company
+cat sources/company.com/_content-map.json | jq -r '.sitemap |
+  to_entries[] |
+  select(.value.content_type == "info") |
+  select(.key | contains("/about") or contains("/company")) |
+  .key'
 
 # Landing pages (marketing campaigns)
-kurt document list --url-contains /landing
-kurt document list --url-contains /campaign
+cat sources/company.com/_content-map.json | jq -r '.sitemap |
+  to_entries[] |
+  select(.value.content_type == "landing_page") |
+  .key'
 
 # Step 2: Show proposed list
 echo "Found corporate/marketing pages for brand voice extraction:"
@@ -101,18 +120,18 @@ echo "Total: 8 pages"
 
 # Step 3: User approves or refines
 
-# Step 4: Fetch if needed, extract corporate voice style
+# Step 4: Fetch if needed (use WebFetch tool, hooks auto-save + index)
 ```
 
 **For Technical Documentation Voice:**
 
 ```bash
-# Discover documentation pages
-kurt document list --url-contains /docs/
-kurt document list --url-contains /documentation
-kurt document list --url-contains /guide
-kurt document list --url-contains /tutorial
-kurt document list --url-contains /reference
+# Discover documentation pages from content map
+cat sources/company.com/_content-map.json | jq -r '.sitemap |
+  to_entries[] |
+  select(.value.content_type == "guide" or .value.content_type == "tutorial" or .value.content_type == "reference") |
+  select(.value.status == "FETCHED") |
+  .key'
 
 # Sample diverse doc types for comprehensive style
 # (Not all docs, just representative sample of 5-10)
@@ -220,6 +239,9 @@ Each style guide includes:
 
 ## Discovery Workflow Examples
 
+> **Note**: Examples show content map queries. For any remaining `kurt` commands,
+> refer to `.claude/docs/CONTENT-MAP-QUERIES.md` for equivalent content map syntax.
+
 ### Example 1: Extract Corporate Voice (Recommended First Step)
 
 ```bash
@@ -230,7 +252,7 @@ Each style guide includes:
 
 # 2. Discover corporate/marketing pages from content map
 homepage=$(kurt document list --url-prefix https://company.com/ | grep -E "^https://company\.com/?$")
-products=$(kurt document list --url-contains /product --status FETCHED | head -5)
+products=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "product_page" and .value.status == "FETCHED") | .key' | head -5)
 about=$(kurt document list --url-contains /about --status FETCHED)
 features=$(kurt document list --url-contains /features --status FETCHED | head -3)
 
@@ -245,9 +267,9 @@ echo "✓ 3 feature pages"
 
 # 5. Check fetch status and fetch if needed
 for url in $products; do
-  status=$(kurt document list --url $url | grep "status:")
+  status=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap["'$url'"].status')
   if [[ $status == *"NOT_FETCHED"* ]]; then
-    kurt ingest fetch $url
+    # Use WebFetch tool for $url (hooks auto-save + index)
   fi
 done
 
@@ -263,7 +285,7 @@ done
 # User wants to extract technical docs style after corporate voice is done
 
 # 1. Discover documentation pages
-docs=$(kurt document list --url-contains /docs/ --status FETCHED)
+docs=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "guide" and .value.status == "FETCHED") | .key')
 guides=$(kurt document list --url-contains /guide --status FETCHED)
 tutorials=$(kurt document list --url-contains /tutorial --status FETCHED)
 
@@ -296,7 +318,7 @@ ls /rules/style/blog*.md  # ✓ exists
 # User: "Extract John's voice - I want to match his personal style"
 
 # 3. Discover John's posts
-john_posts=$(kurt document list --author "John Doe" --status FETCHED)
+john_posts=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.author and (.value.author | tostring | contains("John Doe")) and .value.status == "FETCHED") | .key')
 # Or by URL if author has dedicated path
 john_posts=$(kurt document list --url-contains /blog/john-doe/ --status FETCHED)
 
@@ -317,9 +339,9 @@ echo "Topics: AI, product launches, company culture"
 # User wants general content style (mix of corporate, blog, docs)
 
 # 1. Discover diverse content types
-corp_pages=$(kurt document list --url-contains /product --status FETCHED | head -3)
-blog_posts=$(kurt document list --url-contains /blog/ --status FETCHED | head -3)
-docs_pages=$(kurt document list --url-contains /docs/ --status FETCHED | head -3)
+corp_pages=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "product_page" and .value.status == "FETCHED") | .key' | head -3)
+blog_posts=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "blog" and .value.status == "FETCHED") | .key' | head -3)
+docs_pages=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap | to_entries[] | select(.value.content_type == "guide" and .value.status == "FETCHED") | .key' | head -3)
 
 # 2. Combine for diverse sample
 all_content=$(echo "$corp_pages $blog_posts $docs_pages")

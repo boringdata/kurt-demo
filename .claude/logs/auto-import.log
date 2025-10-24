@@ -58,3 +58,7 @@
 [2025-10-24 13:26:52] Not a markdown file, skipping
 [2025-10-24 13:28:57] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/sitemap-mapping-skill/SKILL.md
 [2025-10-24 13:28:57] Not in sources directory, skipping
+[2025-10-24 14:12:33] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/scripts/update-skills-to-content-map.sh
+[2025-10-24 14:12:33] Not a markdown file, skipping
+[2025-10-24 14:13:02] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/docs/CONTENT-MAP-QUERIES.md
+[2025-10-24 14:13:02] Not in sources directory, skipping

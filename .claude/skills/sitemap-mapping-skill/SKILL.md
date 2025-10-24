@@ -54,21 +54,22 @@ python .claude/scripts/map_sitemap.py https://docs.getdbt.com/sitemap.xml
 
 ## Content Type Classification
 
-The script classifies URLs based on path patterns:
+The script classifies URLs based on path patterns, matching kurt-core's ContentType enum:
 
-| Content Type | URL Patterns |
-|--------------|--------------|
-| `docs` | `/docs/`, `/documentation/`, `/reference/`, `/guide/` |
-| `tutorial` | `/tutorial`, `/quickstart`, `/getting-started` |
-| `blog` | `/blog/`, `/article/`, `/post/`, `/news/` |
-| `api-docs` | `/api/`, `/api-reference/` |
-| `changelog` | `/changelog`, `/release`, `/updates/` |
-| `about` | `/about`, `/company`, `/team` |
-| `product` | `/product/`, `/features/`, `/solutions/` |
-| `pricing` | `/pricing` |
-| `support` | `/support/`, `/help/`, `/faq` |
-| `homepage` | `/` (root) |
-| `page` | Everything else (default) |
+| Content Type | URL Patterns | Description |
+|--------------|--------------|-------------|
+| `reference` | `/api/`, `/api-reference/`, `/api-docs/` | API documentation, technical references |
+| `tutorial` | `/tutorial`, `/quickstart`, `/getting-started` | Step-by-step tutorials |
+| `guide` | `/docs/`, `/documentation/`, `/guide/`, `/how-to` | Documentation, how-to guides |
+| `blog` | `/blog/`, `/article/`, `/post/`, `/news/` | Blog posts, articles, news |
+| `product_page` | `/product/`, `/features/` | Product and feature pages |
+| `solution_page` | `/solutions/`, `/use-case` | Solutions, use cases |
+| `homepage` | `/` (root) | Site homepage |
+| `case_study` | `/case-study`, `/customer-stories`, `/customers/` | Customer stories, case studies |
+| `event` | `/event`, `/webinar`, `/conference` | Events, webinars |
+| `info` | `/about`, `/company`, `/support/`, `/faq`, `/changelog` | About, support, FAQ, changelog |
+| `landing_page` | `/pricing`, `/contact`, `/demo`, `/signup` | Marketing landing pages |
+| `other` | Everything else | Default classification |
 
 ## Date Discovery
 
@@ -93,12 +94,13 @@ The script outputs JSON summary:
   "existing_urls": 0,
   "content_map_path": "sources/docs.getdbt.com/_content-map.json",
   "content_types": {
-    "docs": 1856,
+    "guide": 1856,
     "blog": 145,
     "tutorial": 89,
-    "about": 12,
-    "product": 18,
-    "page": 8
+    "info": 102,
+    "product_page": 18,
+    "reference": 45,
+    "other": 8
   }
 }
 ```
@@ -118,7 +120,7 @@ Creates/updates `sources/{domain}/_content-map.json`:
       "title": null,
       "author": null,
       "published_date": null,
-      "content_type": "docs",
+      "content_type": "guide",
       "source": "sitemap",
       "discovered_at": "2025-10-24T13:30:00Z"
     }
@@ -149,8 +151,8 @@ Once URLs are mapped, you can:
 
 1. **Filter by content type**:
    ```bash
-   # Get all tutorial URLs
-   jq '.sitemap | to_entries[] | select(.value.content_type == "tutorial") | .key' \
+   # Get all guide URLs
+   jq '.sitemap | to_entries[] | select(.value.content_type == "guide") | .key' \
      sources/docs.getdbt.com/_content-map.json
    ```
 
@@ -191,12 +193,12 @@ Claude: "I'll map the sitemap to discover all available pages."
 - Already fetched: 8
 
 📁 Content types discovered:
-- docs: 1,856 pages
+- guide: 1,856 pages
 - blog: 145 posts
 - tutorial: 89 guides
-- changelog: 18 releases
-- about: 12 pages
-- product: 8 pages
+- info: 132 pages
+- product_page: 8 pages
+- reference: 45 pages
 
 📂 Content map: sources/docs.getdbt.com/_content-map.json
 
