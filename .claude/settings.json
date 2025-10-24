@@ -13,11 +13,21 @@
     ],
     "PostToolUse": [
       {
+        "matcher": "WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/scripts/webfetch-to-file.sh",
+            "timeout": 10
+          }
+        ]
+      },
+      {
         "matcher": "Write",
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/scripts/auto-import-source.sh",
+            "command": "bash .claude/scripts/extract-metadata-hook.sh",
             "timeout": 30
           }
         ]

@@ -18,3 +18,43 @@
 [2025-10-24 11:21:29] Not in sources directory, skipping
 [2025-10-24 11:22:52] Processing file: /Users/davidkrevitt/code/kurt-demo/rules/personas/data-analyst-persona.md
 [2025-10-24 11:22:52] Not in sources directory, skipping
+[2025-10-24 12:04:43] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/skill.md
+[2025-10-24 12:04:43] Not in sources directory, skipping
+[2025-10-24 12:06:30] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/templates/outline-metadata-schema.yaml
+[2025-10-24 12:06:30] Not a markdown file, skipping
+[2025-10-24 12:08:06] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/scripts/extract_metadata.py
+[2025-10-24 12:08:06] Not a markdown file, skipping
+[2025-10-24 12:08:38] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/scripts/update_content_map.py
+[2025-10-24 12:08:38] Not a markdown file, skipping
+[2025-10-24 12:12:08] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/extract-content-metadata-skill/SKILL.md
+[2025-10-24 12:12:08] Not in sources directory, skipping
+[2025-10-24 12:12:27] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/templates/draft-metadata-schema.yaml
+[2025-10-24 12:12:27] Not a markdown file, skipping
+[2025-10-24 12:15:40] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/templates/inline-comment-patterns.md
+[2025-10-24 12:15:40] Not in sources directory, skipping
+[2025-10-24 12:19:58] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/subskills/outline-content.md
+[2025-10-24 12:19:58] Not in sources directory, skipping
+[2025-10-24 12:22:34] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/subskills/draft-content.md
+[2025-10-24 12:22:34] Not in sources directory, skipping
+[2025-10-24 12:28:42] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/subskills/edit-content.md
+[2025-10-24 12:28:42] Not in sources directory, skipping
+[2025-10-24 12:31:29] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/README.md
+[2025-10-24 12:31:29] Not in sources directory, skipping
+[2025-10-24 12:31:52] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/scripts/webfetch-to-file.sh
+[2025-10-24 12:31:52] Not a markdown file, skipping
+[2025-10-24 12:32:16] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/scripts/extract-metadata-hook.sh
+[2025-10-24 12:32:16] Not a markdown file, skipping
+[2025-10-24 12:47:46] Processing file: /Users/davidkrevitt/code/kurt-demo/projects/tutorial-refresh-fusion/assets/bigquery-quickstart-outline.md
+[2025-10-24 12:47:46] Not in sources directory, skipping
+[2025-10-24 12:54:56] Processing file: /Users/davidkrevitt/code/kurt-demo/projects/tutorial-refresh-fusion/assets/bigquery-quickstart-draft.md
+[2025-10-24 12:54:56] Not in sources directory, skipping
+[2025-10-24 13:23:26] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/templates/outline-metadata-schema.yaml
+[2025-10-24 13:23:26] Not a markdown file, skipping
+[2025-10-24 13:23:45] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/content-writing-skill/templates/draft-metadata-schema.yaml
+[2025-10-24 13:23:45] Not a markdown file, skipping
+[2025-10-24 13:26:02] Processing file: /Users/davidkrevitt/code/kurt-demo/projects/tutorial-refresh-fusion/assets/bigquery-quickstart-draft.md
+[2025-10-24 13:26:02] Not in sources directory, skipping
+[2025-10-24 13:26:52] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/scripts/map_sitemap.py
+[2025-10-24 13:26:52] Not a markdown file, skipping
+[2025-10-24 13:28:57] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/sitemap-mapping-skill/SKILL.md
+[2025-10-24 13:28:57] Not in sources directory, skipping

@@ -49,14 +49,19 @@ Sources are ground truth content you're working FROM.
 
 **For web content:**
 
-1. Ingest to organizational KB first:
+1. Map and fetch to organizational KB first:
    ```bash
-   # Map URLs (add --discover-dates if publish dates are important)
-   kurt ingest map https://example.com
-   kurt ingest map https://example.com --discover-dates  # Extracts dates from blogrolls
+   # Map sitemap to discover all URLs
+   python .claude/scripts/map_sitemap.py example.com --recursive
 
-   # Fetch content
-   kurt ingest fetch --url-prefix https://example.com/
+   # Review what was discovered
+   cat sources/example.com/_content-map.json | jq '{
+     total: (.sitemap | length),
+     by_type: .content_types
+   }'
+
+   # Fetch specific content using WebFetch tool
+   # (Hooks automatically save files + extract metadata)
    ```
 
 2. Update project.md to reference it:
@@ -170,11 +175,14 @@ User: "Add https://example.com/docs to my project as ground truth"
 
 Claude should:
 1. Determine current project (from context or ask)
-2. Ingest content:
+2. Check if domain is mapped:
    ```bash
-   kurt ingest fetch https://example.com/docs
+   ls sources/example.com/_content-map.json
+   # If not, map it first
    ```
-3. Find the file path in `/sources/`
+3. Fetch content using WebFetch tool
+   - Hooks automatically save to `/sources/example.com/docs.md`
+   - Hooks automatically extract metadata
 4. Update project.md Sources section
 5. Confirm: "Added example.com/docs as source to project-name"
 
@@ -508,28 +516,36 @@ invoke persona-extraction-skill with documents: <target-audience-content>
 invoke publisher-profile-extraction-skill with sources: <company-web-pages-and-docs>
 ```
 
-### With ingest-content-skill
+### With sitemap-mapping-skill
 
 ```bash
-# Ingest content first
-kurt ingest map https://example.com
-# Or with date discovery for blogs/docs (recommended for projects tracking content freshness)
-kurt ingest map https://example.com --discover-dates
+# Map sitemap first to discover all URLs
+python .claude/scripts/map_sitemap.py example.com --recursive
 
-kurt ingest fetch --url-prefix https://example.com/
+# Review what's available
+cat sources/example.com/_content-map.json | jq '{
+  total: (.sitemap | length),
+  by_type: .content_types
+}'
 
-# Then add to project (this skill)
-# Updates project.md to reference ingested content
+# Then fetch specific content using WebFetch
+# Hooks automatically save files + extract metadata
+
+# Finally add to project (this skill)
+# Updates project.md to reference fetched content
 ```
 
-### With document-management-skill
+### With content map queries
 
 ```bash
 # List what's available in org KB
-kurt document list --url-prefix https://example.com
+cat sources/<domain>/_content-map.json | jq '.sitemap | keys'
 
-# Search for specific content
-kurt document list --url-contains "tutorial"
+# Search for specific content by type
+cat sources/<domain>/_content-map.json | jq '.sitemap |
+  to_entries[] |
+  select(.value.content_type == "tutorial") |
+  .key'
 
 # Then add relevant docs to project
 ```

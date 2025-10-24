@@ -128,17 +128,17 @@ Would you like to extract rules now?
 - Use project-management-skill to guide them through adding sources/targets
 
 **If user wants to extract rules (NEW):**
-- First verify content is fetched + indexed (Step 5)
-- Then guide through extraction workflow (see Step 5.7 below)
+- First verify content is fetched (Step 5)
+- Then guide through extraction workflow (see Step 4.5 below)
 
-## Step 5.7: Extract Rules (If Missing and Content Ready)
+## Step 4.5: Extract Rules (If Missing and Content Ready)
 
-If the user wants to extract rules (from Step 4) AND content is fetched + indexed (from Step 5), guide them through extraction:
+If the user wants to extract rules (from Step 4) AND content is fetched (from Step 5), guide them through extraction:
 
 **Prerequisites:**
-- ✅ Sources must be FETCHED (files in `/sources/`)
-- ✅ Sources must be INDEXED (metadata extracted)
-- If not, complete Step 5.3 and 5.5 first
+- ✅ Domain must be mapped (content map exists)
+- ✅ Sources must be FETCHED (files in `/sources/`, metadata extracted via hooks)
+- If not, complete Step 5 first
 
 1. **Check what already exists globally:**
    ```bash
@@ -192,28 +192,56 @@ Required rules:
 Recommendation: Extract tutorial structure template before starting work.
 ```
 
-## Step 5: Analyze Content Status & Fetch/Index Gaps
+## Step 5: Check Content Map Status
 
-Check the actual Kurt database status for this project and verify fetch + index completion:
+Check the content map for each domain referenced in the project:
 
 ### 5.1: Parse Sources and Targets from project.md
 
-Extract all URLs/paths from:
+Extract all URLs/domains from:
 - "From Organizational Knowledge Base" section
 - "Existing Content to Update" section
 
-### 5.2: Check Fetch Status for All Content
+### 5.2: Check Content Map Exists for Each Domain
 
-For each URL in sources + targets:
+For each domain referenced:
 
 ```bash
-# Check fetch status
-kurt document list --url <url>
+# Check if domain is mapped
+ls sources/<domain>/_content-map.json
 
-# Look for:
-# - status: FETCHED (good)
-# - status: NOT_FETCHED (needs fetch)
-# - status: ERROR (needs investigation)
+# If not found, map it:
+python .claude/scripts/map_sitemap.py <domain> --recursive
+```
+
+**Display mapping status:**
+```
+Content Map Status:
+
+docs.company.com:
+✓ Mapped (sources/docs.company.com/_content-map.json exists)
+  - 1,234 URLs discovered
+  - 45 fetched + indexed
+
+blog.company.com:
+✗ Not mapped yet
+  - Need to run: python .claude/scripts/map_sitemap.py blog.company.com
+```
+
+### 5.3: Check Fetch Status for Sources and Targets
+
+For each URL in sources + targets, check content map:
+
+```bash
+# Get status summary for domain
+cat sources/<domain>/_content-map.json | jq '{
+  total: (.sitemap | length),
+  discovered: [.sitemap[] | select(.status == "DISCOVERED")] | length,
+  fetched: [.sitemap[] | select(.status == "FETCHED")] | length
+}'
+
+# Check specific URL
+cat sources/<domain>/_content-map.json | jq '.sitemap["<url>"]'
 ```
 
 **Display fetch status summary:**
@@ -221,115 +249,98 @@ kurt document list --url <url>
 Fetch Status:
 
 Sources (8 total):
-✓ 6 FETCHED
-✗ 2 NOT_FETCHED
+✓ 6 FETCHED (files in /sources/, metadata extracted)
+○ 2 DISCOVERED (in sitemap, not fetched yet)
   - https://docs.company.com/page1
   - https://docs.company.com/page2
 
 Targets (23 total):
 ✓ 15 FETCHED
-✗ 8 NOT_FETCHED
+○ 8 DISCOVERED
   - https://docs.company.com/target1
   - https://docs.company.com/target2
   ...
 ```
 
-### 5.3: Fetch Missing Content
+### 5.4: Fetch Missing Content
 
-If any NOT_FETCHED content found:
+If any DISCOVERED but not FETCHED content found:
 
+**On-demand (recommended):**
+```
+Use WebFetch tool for specific URLs:
+- Hooks automatically save + index each page
+- Content map updated from DISCOVERED → FETCHED
+```
+
+**Batch fetch (if many URLs):**
 ```bash
-# Batch fetch by URL prefix if possible
-kurt ingest fetch --url-prefix https://docs.company.com/
+# Get URLs that need fetching
+cat sources/<domain>/_content-map.json | jq -r '.sitemap |
+  to_entries[] |
+  select(.value.status == "DISCOVERED") |
+  .key'
 
-# Or fetch individual URLs
-kurt ingest fetch https://docs.company.com/page1
-kurt ingest fetch https://docs.company.com/page2
+# Then use WebFetch for each URL
+# Hooks automatically handle save + metadata extraction
 ```
 
 **Show progress:**
 ```
 Fetching missing content...
-✓ Fetched 2 sources
-✓ Fetched 8 targets
-All content now fetched.
+✓ Fetched 2 sources (auto-indexed via hooks)
+✓ Fetched 8 targets (auto-indexed via hooks)
+All content now fetched and indexed.
 ```
 
-### 5.4: Check Index Status for All Content
+### 5.5: Verify Metadata Extraction
 
-**Critical:** Check if fetched content has been indexed (metadata extracted):
+Check that fetched content has metadata:
 
 ```bash
-# Check if content has metadata
-kurt document get <url>
+# Check if fetched URLs have topics/metadata
+cat sources/<domain>/_content-map.json | jq '.sitemap |
+  to_entries[] |
+  select(.value.status == "FETCHED") |
+  select(.value.topics | length > 0) |
+  .key' | wc -l
 
-# Look for extracted fields:
-# - title, author, published_date (frontmatter or extracted)
-# - topics, entities (LLM-extracted)
-# - indexed_at timestamp
-
-# If these are missing or null, content needs indexing
+# Should match number of fetched URLs
 ```
 
-**Display index status summary:**
+**Display index status:**
 ```
-Index Status:
+Metadata Status:
 
-Sources (8 total):
-✓ 3 INDEXED (metadata extracted)
-✗ 5 FETCHED but NOT INDEXED
-  - Missing topics/entities
-  - Need to run: kurt index --url-prefix <prefix>
+✓ All fetched content has metadata
+  - Topics extracted: 53/53
+  - Clusters assigned: 53/53
+  - Ready for rule extraction and content work
 
-Targets (23 total):
-✓ 5 INDEXED
-✗ 18 FETCHED but NOT INDEXED
-```
-
-### 5.5: Index All Fetched Content
-
-If any fetched but not indexed content found:
-
-```bash
-# Batch index by URL prefix (recommended)
-kurt index --url-prefix https://docs.company.com/
-
-# Or index specific URLs
-kurt index --url <url1> --url <url2>
-```
-
-**Show progress:**
-```
-Indexing content (extracting metadata + topics)...
-This may take 10-30 seconds depending on volume...
-
-✓ Indexed 5 sources
-✓ Indexed 18 targets
-All content now indexed and ready for analysis.
-```
-
-### 5.6: Check Clusters (if relevant)
-
-```bash
-kurt cluster list
+(Metadata extracted automatically by hooks when content was fetched)
 ```
 
 ### Final Content Status Summary
 
-After fetch + index complete:
+After verification:
 
 ```
-✅ Content Processing Complete
+✅ Content Ready
 
 Sources: 8 total
-  ✓ All fetched
-  ✓ All indexed
+  ✓ All fetched (files in /sources/)
+  ✓ All indexed (metadata extracted)
   ✓ Ready for rule extraction
 
 Targets: 23 total
   ✓ All fetched
   ✓ All indexed
   ✓ Ready for content work
+
+Content Map:
+  ✓ 1,339 URLs discovered
+  ✓ 53 URLs fetched with metadata
+  ✓ 4 clusters created
 
 Next: Check rule coverage...
 ```
@@ -371,30 +382,29 @@ Based on the project intent and current status, recommend specific next actions:
 
 **Common next steps by status (priority order):**
 
-1. **No content mapped:**
-   - Run `kurt ingest map <url>` to discover content
+1. **No content map:**
+   - Run `python .claude/scripts/map_sitemap.py <domain> --recursive` to discover content
+   - Creates content map with all URLs from sitemap
 
 2. **Content mapped but not fetched:**
-   - Run `kurt ingest fetch --url-prefix <url>` to download
-   - **Required before** indexing or extraction
+   - Use WebFetch tool to fetch specific URLs
+   - Hooks automatically save files + extract metadata
+   - **Required before** rule extraction
 
-3. **Content fetched but not indexed:**
-   - Run `kurt index --url-prefix <url>` to extract metadata
-   - **Required before** rule extraction or content work
-   - Check: `kurt document get <url>` should show topics/metadata
+3. **Content fetched (metadata extracted automatically):**
+   - Check content map for topics/clusters
+   - Content automatically indexed via hooks when fetched
+   - Ready for rule extraction
 
-4. **Content fetched + indexed, but no clusters:**
-   - Run `kurt cluster compute` to analyze topics (optional)
-
-5. **Content ready, but no rules extracted:**
+4. **Content ready, but no rules extracted:**
    - Extract foundation rules (publisher + corporate voice)
    - Extract content-specific rules based on intent
 
-6. **Rules incomplete for targets:**
+5. **Rules incomplete for targets:**
    - Extract content-specific rules for target types
    - Validate coverage for each target
 
-7. **Ready for work with rules:**
+6. **Ready for work with rules:**
    - Validate rule coverage for specific target
    - Start content work
 

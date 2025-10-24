@@ -55,40 +55,67 @@ Ask the user for source material they'll be working FROM:
 
 2. **For web content:**
 
-   **Step 2a: Map (discover URLs)**
+   **Step 2a: Map sitemap (discover URLs)**
    ```bash
-   kurt ingest map <url>
-   # Or with date discovery for blogs/docs
-   kurt ingest map <url> --discover-dates
+   # Map entire domain sitemap
+   python .claude/scripts/map_sitemap.py <domain> --recursive
+
+   # Example:
+   python .claude/scripts/map_sitemap.py docs.getdbt.com --recursive
    ```
 
-   **Step 2b: Fetch (download content)**
+   This discovers all URLs from the sitemap and stores them in `sources/{domain}/_content-map.json` with status: `DISCOVERED`
+
+   **Step 2b: Review discovered content**
    ```bash
-   # Check current fetch status
-   kurt document list --url-prefix <url> --status NOT_FETCHED
+   # See what was discovered
+   cat sources/<domain>/_content-map.json | jq '{
+     total: (.sitemap | length),
+     by_type: .content_types
+   }'
 
-   # Fetch content
-   kurt ingest fetch --url-prefix <url>
-
-   # Verify fetch completed
-   kurt document list --url-prefix <url> --status FETCHED
+   # List specific content types
+   cat sources/<domain>/_content-map.json | jq '.sitemap |
+     to_entries[] |
+     select(.value.content_type == "docs") |
+     .key' | head -10
    ```
 
-   **Step 2c: Index (extract metadata + topics)**
-   ```bash
-   # Index fetched content for LLM analysis
-   kurt index --url-prefix <url>
+   **Step 2c: Fetch content (automatic indexing)**
 
-   # Verify indexing completed (check for topics/metadata)
-   kurt document get <url>  # Should show extracted metadata
+   Content is fetched on-demand using WebFetch. The hooks automatically:
+   - Save to `/sources/{domain}/{path}.md` with frontmatter
+   - Extract metadata (topics, entities, summary)
+   - Update content map with status: `FETCHED`
+
+   **Option 1: Fetch specific pages** (recommended)
+   ```
+   Use WebFetch tool for specific URLs you need:
+   - Claude Code will suggest relevant pages based on content map
+   - Hooks automatically save + index each page
+   ```
+
+   **Option 2: Batch fetch** (if you know exactly what you need)
+   ```
+   # Get URLs from content map
+   urls=$(cat sources/<domain>/_content-map.json | jq -r '.sitemap |
+     to_entries[] |
+     select(.value.content_type == "docs") |
+     .key' | head -20)
+
+   # Fetch each (Claude can do this in a loop)
+   for url in $urls; do
+     # Use WebFetch tool for each URL
+   done
    ```
 
    **Important:**
-   - **Fetch** creates the file in `/sources/`
-   - **Index** extracts metadata (title, author, topics) via LLM analysis
-   - Both are required for full content intelligence
+   - **Mapping** creates content map with all URLs (status: DISCOVERED)
+   - **WebFetch** saves file + extracts metadata (status: FETCHED)
+   - **Hooks run automatically** - no manual indexing needed
+   - **Content map** tracks all URLs, statuses, and metadata
 
-   - Note the source paths in project.md
+   - Note the source domain in project.md
 
 3. **For local files:**
    - Ask for file paths
@@ -118,22 +145,20 @@ Ask the user what content they'll be working ON:
    - Both
 
 2. **For existing content:**
-   - Search in `/sources/` if already ingested
-   - **Check fetch + index status:**
+   - Search in `/sources/` if already mapped/fetched
+   - **Check fetch status in content map:**
    ```bash
-   # Check if content is fetched
-   kurt document list --url <target-url>
+   # Check if URL is in content map
+   cat sources/<domain>/_content-map.json | jq '.sitemap["<target-url>"]'
 
-   # If NOT_FETCHED, fetch it:
-   kurt ingest fetch <target-url>
+   # If DISCOVERED but not FETCHED:
+   # Use WebFetch tool to fetch it (hooks auto-index)
 
-   # Check if content is indexed (has metadata)
-   kurt document get <target-url>
-
-   # If not indexed, index it:
-   kurt index --url <target-url>
+   # If not in content map at all:
+   # 1. Map the domain sitemap first
+   # 2. Or use WebFetch directly (hooks auto-save + index)
    ```
-   - Or note URLs/paths to fetch/index later
+   - Or note URLs to fetch later
 
 3. **For new content:**
    - Ask for planned file names
@@ -145,85 +170,85 @@ Ask the user what content they'll be working ON:
 - Note in project.md that targets will be added later
 - Continue to Step 5
 
-## Step 4.5: Verify Fetch + Index Status
+## Step 4.5: Verify Content Map Status
 
-**Before proceeding to rule extraction**, verify that all sources and targets are fully processed:
+**Before proceeding to rule extraction**, verify that sources and targets are available in content map:
 
-### Check Sources
-
-For each source URL/path in project.md:
+### Check Content Map Exists
 
 ```bash
-# 1. Check fetch status
-kurt document list --url <source-url>
+# Check if domain is mapped
+ls sources/<domain>/_content-map.json
 
-# 2. If NOT_FETCHED, fetch it
-kurt ingest fetch <source-url>
-
-# 3. Check index status (look for extracted metadata)
-kurt document get <source-url>
-
-# 4. If not indexed (no topics/metadata), index it
-kurt index --url <source-url>
+# If not, map the sitemap first:
+python .claude/scripts/map_sitemap.py <domain> --recursive
 ```
 
-### Check Targets
+### Check Sources and Targets Status
 
-For each target URL in project.md:
+For each source/target domain in project.md:
 
 ```bash
-# Same process as sources
-# 1. Check fetch status
-kurt document list --url <target-url>
+# Get status summary
+cat sources/<domain>/_content-map.json | jq '{
+  total_urls: (.sitemap | length),
+  discovered: [.sitemap | to_entries[] | select(.value.status == "DISCOVERED")] | length,
+  fetched: [.sitemap | to_entries[] | select(.value.status == "FETCHED")] | length,
+  content_types: (.sitemap | group_by(.content_type) | map({type: .[0].content_type, count: length}))
+}'
 
-# 2. Fetch if needed
-kurt ingest fetch <target-url>
-
-# 3. Index if needed
-kurt index --url <target-url>
+# Check specific URLs
+cat sources/<domain>/_content-map.json | jq '.sitemap["<specific-url>"]'
 ```
 
 ### Display Status Summary
 
 ```
-Content Processing Status:
+Content Map Status:
 
-Sources:
-✓ 5 fetched (files in /sources/)
-✓ 5 indexed (metadata extracted)
-✗ 2 not fetched yet
-✗ 3 fetched but not indexed
+docs.getdbt.com:
+✓ 1,339 URLs mapped
+✓ 45 fetched + indexed (files in /sources/, metadata extracted)
+○ 1,294 discovered (available to fetch on-demand)
 
-Targets:
-✓ 10 fetched
-✗ 10 fetched but not indexed (need to run: kurt index --url-prefix <prefix>)
+Content types available:
+- 675 docs pages
+- 228 blog posts
+- 130 support pages
+- 89 tutorials
 
-Action needed:
-- Fetch 2 remaining sources
-- Index 3 sources + 10 targets
+Action available:
+- Fetch specific pages on-demand with WebFetch (auto-indexed via hooks)
+- Or batch fetch by content type
 ```
 
-### Run Batch Operations
+### Fetch Key Content (If Needed)
 
-**Fetch remaining content:**
-```bash
-kurt ingest fetch --url-prefix <common-prefix>
+**On-demand (recommended):**
+```
+Use WebFetch tool for specific URLs:
+- Hooks automatically save + index each page
+- Content map updated from DISCOVERED → FETCHED
 ```
 
-**Index all fetched content:**
+**Batch by content type:**
 ```bash
-# Index by URL prefix
-kurt index --url-prefix <common-prefix>
+# Get URLs of specific type
+cat sources/<domain>/_content-map.json | jq -r '.sitemap |
+  to_entries[] |
+  select(.value.content_type == "docs") |
+  select(.value.status == "DISCOVERED") |
+  .key' | head -20
 
-# Or index specific URLs
-kurt index --url <url1> --url <url2>
+# Then use WebFetch for each URL
+# Hooks automatically handle save + indexing
 ```
 
 **Important:**
-- **Fetch first, then index** (indexing requires fetched content)
-- **Batch operations are faster** than individual URLs
-- **Indexing is required** for rule extraction (needs content analysis)
-- **Wait for indexing to complete** before extracting rules
+- **Mapping** should be done first (creates content map)
+- **WebFetch** fetches + indexes automatically (hooks)
+- **No manual indexing needed** - hooks extract metadata
+- **Content map** tracks all URLs and their status
 
 ## Step 5: Extract Rules (Optional but Recommended)
 
@@ -246,22 +271,25 @@ If the user has added sources in Step 3 AND they are fetched + indexed, ask if t
 
 **Prerequisites check:**
 ```bash
-# Verify sources are fetched + indexed
-kurt document list --url-prefix <url> --status FETCHED
-kurt document get <url>  # Should show metadata
+# Verify domain is mapped and has fetched content
+cat sources/<domain>/_content-map.json | jq '{
+  fetched: [.sitemap | to_entries[] | select(.value.status == "FETCHED")] | length,
+  with_topics: [.sitemap | to_entries[] | select(.value.topics)] | length
+}'
 
-# If not indexed, must run:
-kurt index --url-prefix <url>
+# Should show fetched content with topics/metadata
 ```
 
-**⚠️ If sources not indexed:**
+**⚠️ If no content fetched yet:**
 ```
-Cannot extract rules yet - content must be indexed first.
+Cannot extract rules yet - need fetched content first.
 
-Running: kurt index --url-prefix <url>
-Please wait... (this may take 10-30 seconds depending on content volume)
+Options:
+1. Use WebFetch to fetch specific pages (recommended)
+2. Batch fetch by content type from content map
 
-✓ Indexing complete. Ready to extract rules.
+After fetching, hooks automatically extract metadata.
+Ready to extract rules once content is fetched.
 ```
 
 1. **Start with publisher profile** (if not already extracted):
