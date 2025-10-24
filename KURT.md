@@ -119,11 +119,33 @@ cp ~/file.pdf projects/project-name/sources/
 
 ### 3. Work on Project
 
+**For content creation (outline/draft/edit):**
+
+Use **content-writing-skill** for creating or updating content:
+
+```bash
+# Create outline with source mapping
+content-writing-skill outline project-name asset-name
+
+# Generate draft with inline lineage tracking
+content-writing-skill draft project-name asset-name
+
+# Edit with session history
+content-writing-skill edit projects/project-name/assets/file.md --instructions "..."
+```
+
+**What it provides:**
+- **YAML frontmatter**: Section-level source attribution, rule compliance, edit history
+- **Inline HTML comments**: Sources, reasoning, update patterns at point of use
+- **Version tracking**: Full history of changes with session IDs
+- **Query capabilities**: Find sources, patterns, edits across all content
+
 Claude uses:
-- **Sources**: Ground truth to work FROM
+- **Sources**: Ground truth to work FROM (cited in lineage)
 - **Targets**: Content to update or create (working ON)
-- **Style** (future): Voice/tone guidelines
-- **Structure** (future): Templates and patterns
+- **Style**: Voice/tone guidelines (applied and tracked in drafts)
+- **Structure**: Templates and patterns (followed and documented)
+- **Personas**: Audience targeting (compliance tracked in metadata)
 
 ### 4. Resume Project
 
@@ -330,6 +352,14 @@ For reliable extraction:
 - **structure-extraction-skill** - Extract document format templates from content
 - **persona-extraction-skill** - Extract audience targeting profiles from content
 - **publisher-profile-extraction-skill** - Extract organizational context from company web pages/docs
+
+### Content Creation
+
+- **content-writing-skill** - Create outlines, drafts, and edited content with comprehensive lineage tracking
+  - **Subskills:** outline (source mapping), draft (inline attribution), edit (session history)
+  - **Lineage:** Tracks sources, reasoning, rule compliance, update patterns, edit history
+  - **Output:** YAML frontmatter + inline HTML comments for full traceability
+  - **Use for:** Creating new content or updating existing content with documented sources and patterns
 
 ## Auto-Import Workflow
 

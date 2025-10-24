@@ -211,6 +211,63 @@ Claude should:
 5. Display summary
 6. Recommend next actions if applicable
 
+### Workflow 5: Create or Update Target Content
+
+User: "Let's update the BigQuery quickstart" or "Create a new blog post"
+
+Claude should:
+1. **Check if rules are extracted:**
+   - Read project.md to see if style, structure, persona, publisher rules are listed
+   - If missing → Recommend extraction first (see "Rule Matching and Validation" section)
+   - If present → Proceed to content creation
+
+2. **Verify target is in project.md:**
+   - Check if target content is listed in Targets section
+   - If not → Add it first, then proceed
+
+3. **Recommend content-writing-skill workflow:**
+   ```
+   Great! I see we have the necessary rules for this content:
+   - Style: technical-documentation-style.md
+   - Structure: tutorial-structure-template.md
+   - Persona: analytics-engineer-persona.md
+   - Publisher: publisher-profile.md
+
+   Let's use the content-writing-skill to create this with full lineage tracking:
+
+   Step 1: Create outline
+   content-writing-skill outline <project-name> <asset-name>
+
+   This will map sources to sections and identify update patterns to apply.
+   ```
+
+4. **After outline is created:**
+   ```
+   The outline is ready. Let's generate a draft:
+
+   content-writing-skill draft <project-name> <asset-name>
+
+   This will create a draft with:
+   - Section-level source attribution in YAML frontmatter
+   - Inline HTML comments explaining reasoning
+   - Update pattern applications documented
+   ```
+
+5. **After draft is created:**
+   ```
+   Draft complete! You can now:
+   - Review the draft content
+   - Edit if needed: content-writing-skill edit projects/<project-name>/assets/<asset-name>-draft.md --instructions "..."
+   - Check lineage: grep "<!-- SECTION:" <draft-file>
+   ```
+
+6. **Update project.md Progress section:**
+   - Mark outline as complete
+   - Mark draft as complete (if done)
+   - Add next steps (review, editing, publishing)
+
+**Important**: Always check for rules before recommending content creation. If rules are missing, suggest extraction first.
+
 ## Updating project.md
 
 ### Sources Section Format
@@ -424,6 +481,13 @@ Track which rules apply to the project:
    What would you prefer?"
 
 7. User chooses → Extract or proceed
+
+8. Once rules are confirmed/extracted:
+   "Rules are ready! Let's use content-writing-skill to create this update with full lineage tracking:
+
+   content-writing-skill outline <project-name> getting-started-tutorial
+
+   This will create an outline mapping sources to sections, then we can generate the draft."
 ```
 
 ## Integration with Other Skills
@@ -470,6 +534,46 @@ kurt document list --url-contains "tutorial"
 # Then add relevant docs to project
 ```
 
+### With content-writing-skill
+
+```bash
+# Use content-writing-skill for target content work
+# Provides comprehensive lineage tracking from sources to drafts
+
+# Step 1: Create outline with source mapping
+content-writing-skill outline <project-name> <asset-name>
+
+# Step 2: Generate draft with inline attribution
+content-writing-skill draft <project-name> <asset-name>
+
+# Step 3: Edit with session history tracking
+content-writing-skill edit projects/<project-name>/assets/<asset-name>-draft.md --instructions "..."
+```
+
+**When to recommend content-writing-skill:**
+- User says "let's update [target content]" or "create [new content]"
+- Target content needs drafting or editing
+- User wants to track lineage (which sources informed which sections)
+- Project has rules extracted (style, structure, persona, publisher)
+
+**What it provides:**
+- YAML frontmatter with section-level source attribution
+- Inline HTML comments documenting reasoning and sources
+- Update pattern tracking (project-specific transformations)
+- Version history and edit session tracking
+- Complete traceability from project plan to draft
+
+**Example integration:**
+```
+User: "Let's update the BigQuery tutorial"
+
+Project-management-skill:
+1. Checks project.md for target
+2. Validates rules exist (style, structure, persona)
+3. If rules exist → Recommend: "Use content-writing-skill outline tutorial-refresh-fusion bigquery-quickstart"
+4. If rules missing → Recommend extraction first, then content-writing-skill
+```
+
 ## Quick Reference
 
 | Task | Action |
@@ -495,6 +599,16 @@ Claude should invoke this skill when user says:
 - "Project status"
 - "What's missing from the project?"
 
+**When to recommend content-writing-skill** (from project-management-skill):
+
+- "Let's update [content name]"
+- "Create [new content]"
+- "Write a draft for [content]"
+- "Start working on [target content]"
+- Any request to work on target content listed in project.md
+
+**Flow**: project-management-skill checks for rules → if rules exist, recommend content-writing-skill → if rules missing, recommend extraction first
+
 ## Important Notes
 
 - **project.md is the source of truth** for project metadata (for now)
@@ -508,5 +622,7 @@ Claude should invoke this skill when user says:
 
 - For content ingestion, see **ingest-content-skill**
 - For document queries, see **document-management-skill**
+- For rules extraction, see **style-extraction-skill**, **structure-extraction-skill**, **persona-extraction-skill**, **publisher-profile-extraction-skill**
+- For content creation (outline/draft/edit), see **content-writing-skill**
 - For project creation, use `/create-project`
 - For resuming work, use `/resume-project`
