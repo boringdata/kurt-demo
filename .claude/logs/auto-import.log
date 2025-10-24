@@ -6,3 +6,15 @@
 [2025-10-23 16:34:18] Not in sources directory, skipping
 [2025-10-23 16:35:34] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/publisher-profile-extraction-skill/SKILL.md
 [2025-10-23 16:35:34] Not in sources directory, skipping
+[2025-10-24 11:06:59] Processing file: /Users/davidkrevitt/code/kurt-demo/rules/publisher/publisher-profile.md
+[2025-10-24 11:06:59] Not in sources directory, skipping
+[2025-10-24 11:08:25] Processing file: /Users/davidkrevitt/code/kurt-demo/rules/personas/data-leader-persona.md
+[2025-10-24 11:08:25] Not in sources directory, skipping
+[2025-10-24 11:09:45] Processing file: /Users/davidkrevitt/code/kurt-demo/rules/style/technical-documentation-style.md
+[2025-10-24 11:09:45] Not in sources directory, skipping
+[2025-10-24 11:10:59] Processing file: /Users/davidkrevitt/code/kurt-demo/rules/structure/tutorial-structure-template.md
+[2025-10-24 11:10:59] Not in sources directory, skipping
+[2025-10-24 11:21:29] Processing file: /Users/davidkrevitt/code/kurt-demo/rules/personas/analytics-engineer-persona.md
+[2025-10-24 11:21:29] Not in sources directory, skipping
+[2025-10-24 11:22:52] Processing file: /Users/davidkrevitt/code/kurt-demo/rules/personas/data-analyst-persona.md
+[2025-10-24 11:22:52] Not in sources directory, skipping

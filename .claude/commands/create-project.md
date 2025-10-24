@@ -54,8 +54,40 @@ Ask the user for source material they'll be working FROM:
    - Both
 
 2. **For web content:**
-   - Run `kurt ingest map <url>` to discover content
-   - Run `kurt ingest fetch --url-prefix <url>` to fetch
+
+   **Step 2a: Map (discover URLs)**
+   ```bash
+   kurt ingest map <url>
+   # Or with date discovery for blogs/docs
+   kurt ingest map <url> --discover-dates
+   ```
+
+   **Step 2b: Fetch (download content)**
+   ```bash
+   # Check current fetch status
+   kurt document list --url-prefix <url> --status NOT_FETCHED
+
+   # Fetch content
+   kurt ingest fetch --url-prefix <url>
+
+   # Verify fetch completed
+   kurt document list --url-prefix <url> --status FETCHED
+   ```
+
+   **Step 2c: Index (extract metadata + topics)**
+   ```bash
+   # Index fetched content for LLM analysis
+   kurt index --url-prefix <url>
+
+   # Verify indexing completed (check for topics/metadata)
+   kurt document get <url>  # Should show extracted metadata
+   ```
+
+   **Important:**
+   - **Fetch** creates the file in `/sources/`
+   - **Index** extracts metadata (title, author, topics) via LLM analysis
+   - Both are required for full content intelligence
+
    - Note the source paths in project.md
 
 3. **For local files:**
@@ -87,7 +119,21 @@ Ask the user what content they'll be working ON:
 
 2. **For existing content:**
    - Search in `/sources/` if already ingested
-   - Or note URLs/paths to fetch later
+   - **Check fetch + index status:**
+   ```bash
+   # Check if content is fetched
+   kurt document list --url <target-url>
+
+   # If NOT_FETCHED, fetch it:
+   kurt ingest fetch <target-url>
+
+   # Check if content is indexed (has metadata)
+   kurt document get <target-url>
+
+   # If not indexed, index it:
+   kurt index --url <target-url>
+   ```
+   - Or note URLs/paths to fetch/index later
 
 3. **For new content:**
    - Ask for planned file names
@@ -99,9 +145,164 @@ Ask the user what content they'll be working ON:
 - Note in project.md that targets will be added later
 - Continue to Step 5
 
-## Step 5: Create Project Structure
+## Step 4.5: Verify Fetch + Index Status
 
-Once you have the name, goal, and optionally sources/targets:
+**Before proceeding to rule extraction**, verify that all sources and targets are fully processed:
+
+### Check Sources
+
+For each source URL/path in project.md:
+
+```bash
+# 1. Check fetch status
+kurt document list --url <source-url>
+
+# 2. If NOT_FETCHED, fetch it
+kurt ingest fetch <source-url>
+
+# 3. Check index status (look for extracted metadata)
+kurt document get <source-url>
+
+# 4. If not indexed (no topics/metadata), index it
+kurt index --url <source-url>
+```
+
+### Check Targets
+
+For each target URL in project.md:
+
+```bash
+# Same process as sources
+# 1. Check fetch status
+kurt document list --url <target-url>
+
+# 2. Fetch if needed
+kurt ingest fetch <target-url>
+
+# 3. Index if needed
+kurt index --url <target-url>
+```
+
+### Display Status Summary
+
+```
+Content Processing Status:
+
+Sources:
+✓ 5 fetched (files in /sources/)
+✓ 5 indexed (metadata extracted)
+✗ 2 not fetched yet
+✗ 3 fetched but not indexed
+
+Targets:
+✓ 10 fetched
+✗ 10 fetched but not indexed (need to run: kurt index --url-prefix <prefix>)
+
+Action needed:
+- Fetch 2 remaining sources
+- Index 3 sources + 10 targets
+```
+
+### Run Batch Operations
+
+**Fetch remaining content:**
+```bash
+kurt ingest fetch --url-prefix <common-prefix>
+```
+
+**Index all fetched content:**
+```bash
+# Index by URL prefix
+kurt index --url-prefix <common-prefix>
+
+# Or index specific URLs
+kurt index --url <url1> --url <url2>
+```
+
+**Important:**
+- **Fetch first, then index** (indexing requires fetched content)
+- **Batch operations are faster** than individual URLs
+- **Indexing is required** for rule extraction (needs content analysis)
+- **Wait for indexing to complete** before extracting rules
+
+## Step 5: Extract Rules (Optional but Recommended)
+
+If the user has added sources in Step 3 AND they are fetched + indexed, ask if they want to extract reusable rules:
+
+> Would you like to extract writing rules from your content? This helps ensure consistency when creating/updating content.
+>
+> Rules include:
+> - **Corporate voice** - Brand voice from marketing pages
+> - **Content type styles** - Writing patterns for docs, blog, etc.
+> - **Structure templates** - Document formats (tutorials, API docs, etc.)
+> - **Personas** - Audience targeting patterns
+> - **Publisher profile** - Company messaging and positioning
+>
+> Options:
+> a) Extract rules now (recommended if sources available)
+> b) Skip for now (can extract later)
+
+**If they choose (a) - Extract rules now:**
+
+**Prerequisites check:**
+```bash
+# Verify sources are fetched + indexed
+kurt document list --url-prefix <url> --status FETCHED
+kurt document get <url>  # Should show metadata
+
+# If not indexed, must run:
+kurt index --url-prefix <url>
+```
+
+**⚠️ If sources not indexed:**
+```
+Cannot extract rules yet - content must be indexed first.
+
+Running: kurt index --url-prefix <url>
+Please wait... (this may take 10-30 seconds depending on content volume)
+
+✓ Indexing complete. Ready to extract rules.
+```
+
+1. **Start with publisher profile** (if not already extracted):
+   ```bash
+   # Check if publisher profile exists
+   ls /rules/publisher/publisher-profile.md
+
+   # If not, extract from company pages (must be fetched + indexed)
+   invoke publisher-profile-extraction-skill --auto-discover
+   ```
+
+2. **Extract corporate voice** (if not already extracted):
+   ```bash
+   invoke style-extraction-skill --type corporate --auto-discover
+   ```
+
+3. **Ask about content-specific rules based on project intent:**
+
+   - **If intent (b) - marketing assets or (a) - positioning:**
+     - Ask: "Extract landing page structure?" → structure-extraction-skill
+     - Ask: "Extract marketing persona?" → persona-extraction-skill
+
+   - **If intent (c) - technical docs:**
+     - Ask: "Extract technical doc style?" → style-extraction-skill --type technical-docs
+     - Ask: "Extract tutorial/guide structure?" → structure-extraction-skill --type tutorial
+     - Ask: "Extract developer persona?" → persona-extraction-skill --audience-type technical
+
+4. **Update project.md** with extracted rules references
+
+**If they choose (b) - Skip:**
+- Note in project.md that rules can be extracted later
+- Continue to Step 6
+
+**Important notes:**
+- Publisher profile + corporate voice are most important (do first)
+- Content-specific rules depend on what user will create
+- Can always extract more rules later as needed
+
+## Step 6: Create Project Structure
+
+Once you have the name, goal, and optionally sources/targets/rules:
 
 1. Create the project directory structure:
    ```bash
@@ -137,10 +338,24 @@ Once you have the name, goal, and optionally sources/targets:
 <Planned new content to draft>
 
 ## Style Guidelines
-(Reserved for future use)
+
+*Extracted writing patterns applicable to this project's content:*
+<If extracted in Step 5, list them here. Otherwise leave note: "To be extracted">
 
 ## Structure Templates
-(Reserved for future use)
+
+*Document format templates applicable to this project's content:*
+<If extracted in Step 5, list them here. Otherwise leave note: "To be extracted">
+
+## Target Personas
+
+*Audience profiles for this project's target content:*
+<If extracted in Step 5, list them here. Otherwise leave note: "To be extracted">
+
+## Publisher Profile
+
+*Organizational context for brand consistency:*
+<If extracted in Step 5, reference it. Otherwise leave note: "To be extracted">
 
 ## Progress
 - [x] Project created (<today's date>)
@@ -149,7 +364,7 @@ Once you have the name, goal, and optionally sources/targets:
 <Will be updated as work progresses>
 ```
 
-## Step 6: Offer Next Steps
+## Step 7: Offer Next Steps
 
 After creating the project, summarize what was set up:
 
@@ -158,6 +373,7 @@ After creating the project, summarize what was set up:
 > Status:
 > - Sources: <count> added (or "none yet")
 > - Targets: <count> identified (or "none yet")
+> - Rules: <list extracted rules or "none yet">
 
 Then ask:
 
