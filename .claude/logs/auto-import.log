@@ -56,3 +56,23 @@
 [2025-10-26 14:04:34] Not a markdown file, skipping
 [2025-10-26 14:07:27] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/SKILL.md
 [2025-10-26 14:07:27] Not in sources directory, skipping
+[2025-10-26 14:14:19] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/README.md
+[2025-10-26 14:14:19] Not in sources directory, skipping
+[2025-10-26 14:14:30] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/.gitignore
+[2025-10-26 14:14:30] Not a markdown file, skipping
+[2025-10-26 14:23:46] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-search-skill/SKILL.md
+[2025-10-26 14:23:46] Not in sources directory, skipping
+[2025-10-26 14:25:09] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-fetch-skill/SKILL.md
+[2025-10-26 14:25:09] Not in sources directory, skipping
+[2025-10-26 14:26:28] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-import-skill/SKILL.md
+[2025-10-26 14:26:28] Not in sources directory, skipping
+[2025-10-26 14:28:47] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-publish-skill/SKILL.md
+[2025-10-26 14:28:47] Not in sources directory, skipping
+[2025-10-26 14:30:35] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/README.md
+[2025-10-26 14:30:35] Not in sources directory, skipping
+[2025-10-26 14:57:06] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-onboard-skill/SKILL.md
+[2025-10-26 14:57:06] Not in sources directory, skipping
+[2025-10-26 14:59:08] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/scripts/cms_onboard.py
+[2025-10-26 14:59:08] Not a markdown file, skipping
+[2025-10-26 15:18:06] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/SKILL.md
+[2025-10-26 15:18:06] Not in sources directory, skipping

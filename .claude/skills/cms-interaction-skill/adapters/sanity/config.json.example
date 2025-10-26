@@ -1,0 +1,37 @@
+{
+  "sanity": {
+    "project_id": "your-project-id",
+    "dataset": "production",
+    "token": "your-read-token-here",
+    "write_token": "your-write-token-here",
+    "use_cdn": false,
+    "base_url": "https://yoursite.com",
+
+    "content_type_mappings": {
+      "article": {
+        "enabled": true,
+        "content_field": "body",
+        "title_field": "title",
+        "slug_field": "slug.current",
+        "metadata_fields": {
+          "author": "author->name",
+          "published_date": "publishedAt",
+          "last_modified": "_updatedAt",
+          "tags": "tags[]",
+          "categories": "categories[]->title"
+        }
+      },
+      "blogPost": {
+        "enabled": true,
+        "content_field": "richText",
+        "title_field": "headline",
+        "slug_field": "urlSlug",
+        "metadata_fields": {
+          "author": "author.displayName",
+          "published_date": "publishDate",
+          "tags": "postTags[]"
+        }
+      }
+    }
+  }
+}
