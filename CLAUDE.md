@@ -43,17 +43,21 @@ When working on content creation or updates for a Kurt project, use the **conten
 
 **Step 1: Extract Rules (if not done)**
 ```bash
-# Extract style from existing content
-invoke style-extraction-skill
+# Extract publisher profile (foundation)
+writing-rules-skill publisher --auto-discover
 
-# Extract structure templates
-invoke structure-extraction-skill
+# Extract corporate style
+writing-rules-skill style --type corporate --auto-discover
 
-# Extract personas
-invoke persona-extraction-skill
+# Extract content-specific rules based on what you're creating:
+# For technical docs:
+writing-rules-skill style --type technical-docs --auto-discover
+writing-rules-skill structure --type tutorial --auto-discover
+writing-rules-skill persona --audience-type technical --auto-discover
 
-# Extract publisher profile
-invoke publisher-profile-extraction-skill
+# For marketing content:
+writing-rules-skill structure --type landing-page --auto-discover
+writing-rules-skill persona --audience-type business --auto-discover
 ```
 
 **Step 2: Create Outline**

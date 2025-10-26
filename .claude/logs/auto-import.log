@@ -18,3 +18,41 @@
 [2025-10-24 11:21:29] Not in sources directory, skipping
 [2025-10-24 11:22:52] Processing file: /Users/davidkrevitt/code/kurt-demo/rules/personas/data-analyst-persona.md
 [2025-10-24 11:22:52] Not in sources directory, skipping
+[2025-10-26 11:56:47] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/writing-rules-skill/SKILL.md
+[2025-10-26 11:56:47] Not in sources directory, skipping
+[2025-10-26 11:59:16] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/writing-rules-skill/README.md
+[2025-10-26 11:59:16] Not in sources directory, skipping
+[2025-10-26 12:02:16] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/writing-rules-skill/subskills/extract-style.md
+[2025-10-26 12:02:16] Not in sources directory, skipping
+[2025-10-26 12:02:24] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/adapters/base.py
+[2025-10-26 12:02:24] Not a markdown file, skipping
+[2025-10-26 12:06:06] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/adapters/sanity/adapter.py
+[2025-10-26 12:06:06] Not a markdown file, skipping
+[2025-10-26 12:06:34] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/writing-rules-skill/subskills/extract-structure.md
+[2025-10-26 12:06:34] Not in sources directory, skipping
+[2025-10-26 12:06:42] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/adapters/__init__.py
+[2025-10-26 12:06:42] Not a markdown file, skipping
+[2025-10-26 12:07:13] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/scripts/cms_search.py
+[2025-10-26 12:07:13] Not a markdown file, skipping
+[2025-10-26 12:14:39] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/scripts/cms_fetch.py
+[2025-10-26 12:14:39] Not a markdown file, skipping
+[2025-10-26 12:14:46] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/writing-rules-skill/subskills/extract-persona.md
+[2025-10-26 12:14:46] Not in sources directory, skipping
+[2025-10-26 12:14:49] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/writing-rules-skill/subskills/extract-publisher-profile.md
+[2025-10-26 12:14:49] Not in sources directory, skipping
+[2025-10-26 13:55:44] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/scripts/cms_import.py
+[2025-10-26 13:55:44] Not a markdown file, skipping
+[2025-10-26 14:01:06] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/scripts/cms_publish.py
+[2025-10-26 14:01:06] Not a markdown file, skipping
+[2025-10-26 14:03:38] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/adapters/sanity/config.json.example
+[2025-10-26 14:03:38] Not a markdown file, skipping
+[2025-10-26 14:04:16] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/adapters/sanity/README.md
+[2025-10-26 14:04:16] Not in sources directory, skipping
+[2025-10-26 14:04:21] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/adapters/sanity/__init__.py
+[2025-10-26 14:04:21] Not a markdown file, skipping
+[2025-10-26 14:04:31] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/adapters/contentful/__init__.py
+[2025-10-26 14:04:31] Not a markdown file, skipping
+[2025-10-26 14:04:34] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/adapters/wordpress/__init__.py
+[2025-10-26 14:04:34] Not a markdown file, skipping
+[2025-10-26 14:07:27] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/SKILL.md
+[2025-10-26 14:07:27] Not in sources directory, skipping

@@ -270,24 +270,24 @@ Please wait... (this may take 10-30 seconds depending on content volume)
    ls /rules/publisher/publisher-profile.md
 
    # If not, extract from company pages (must be fetched + indexed)
-   invoke publisher-profile-extraction-skill --auto-discover
+   writing-rules-skill publisher --auto-discover
    ```
 
 2. **Extract corporate voice** (if not already extracted):
    ```bash
-   invoke style-extraction-skill --type corporate --auto-discover
+   writing-rules-skill style --type corporate --auto-discover
    ```
 
 3. **Ask about content-specific rules based on project intent:**
 
    - **If intent (b) - marketing assets or (a) - positioning:**
-     - Ask: "Extract landing page structure?" → structure-extraction-skill
-     - Ask: "Extract marketing persona?" → persona-extraction-skill
+     - Ask: "Extract landing page structure?" → `writing-rules-skill structure --type landing-page --auto-discover`
+     - Ask: "Extract marketing persona?" → `writing-rules-skill persona --audience-type business --auto-discover`
 
    - **If intent (c) - technical docs:**
-     - Ask: "Extract technical doc style?" → style-extraction-skill --type technical-docs
-     - Ask: "Extract tutorial/guide structure?" → structure-extraction-skill --type tutorial
-     - Ask: "Extract developer persona?" → persona-extraction-skill --audience-type technical
+     - Ask: "Extract technical doc style?" → `writing-rules-skill style --type technical-docs --auto-discover`
+     - Ask: "Extract tutorial/guide structure?" → `writing-rules-skill structure --type tutorial --auto-discover`
+     - Ask: "Extract developer persona?" → `writing-rules-skill persona --audience-type technical --auto-discover`
 
 4. **Update project.md** with extracted rules references
 

@@ -151,8 +151,8 @@ If the user wants to extract rules (from Step 4) AND content is fetched + indexe
 2. **Recommend extraction priority based on what's missing:**
 
    **Priority 1: Foundation rules (if not globally available)**
-   - Publisher profile → `invoke publisher-profile-extraction-skill --auto-discover`
-   - Corporate voice → `invoke style-extraction-skill --type corporate --auto-discover`
+   - Publisher profile → `writing-rules-skill publisher --auto-discover`
+   - Corporate voice → `writing-rules-skill style --type corporate --auto-discover`
 
    **Priority 2: Content-specific rules (based on project intent and targets)**
 

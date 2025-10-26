@@ -353,7 +353,9 @@ Check: Do we have matching rules?
 ✓ Developer persona → rules/personas/technical-implementer.md
 
 Action: Extract tutorial structure from existing targets
-invoke structure-extraction-skill with documents: /sources/docs.company.com/tutorials/*.md
+writing-rules-skill structure with documents: /sources/docs.company.com/tutorials/*.md
+# Or auto-discover
+writing-rules-skill structure --type tutorial --auto-discover
 ```
 
 **Scenario 2: No Target Content (Creating New)**
@@ -389,7 +391,9 @@ Check: Do we have matching rules?
 ✓ Publisher profile → rules/publisher/publisher-profile.md
 
 Action: Extract case study specifics, use general rules for foundation
-invoke structure-extraction-skill with documents: /sources/company.com/case-studies/*.md
+writing-rules-skill structure with documents: /sources/company.com/case-studies/*.md
+# Or auto-discover
+writing-rules-skill structure --type case-study --auto-discover
 ```
 
 ### Rule Matching Algorithm
@@ -492,20 +496,28 @@ Track which rules apply to the project:
 
 ## Integration with Other Skills
 
-### With extraction skills
+### With writing-rules-skill (extraction)
 
 ```bash
 # Extract style patterns
-invoke style-extraction-skill with documents: <similar-content-files>
+writing-rules-skill style with documents: <similar-content-files>
+# Or auto-discover
+writing-rules-skill style --type corporate --auto-discover
 
 # Extract structure templates
-invoke structure-extraction-skill with documents: <similar-content-files>
+writing-rules-skill structure with documents: <similar-content-files>
+# Or auto-discover
+writing-rules-skill structure --type tutorial --auto-discover
 
 # Extract audience personas
-invoke persona-extraction-skill with documents: <target-audience-content>
+writing-rules-skill persona with documents: <target-audience-content>
+# Or auto-discover
+writing-rules-skill persona --audience-type all --auto-discover
 
 # Extract publisher profile
-invoke publisher-profile-extraction-skill with sources: <company-web-pages-and-docs>
+writing-rules-skill publisher with sources: <company-web-pages-and-docs>
+# Or auto-discover
+writing-rules-skill publisher --auto-discover
 ```
 
 ### With ingest-content-skill
@@ -622,7 +634,7 @@ Claude should invoke this skill when user says:
 
 - For content ingestion, see **ingest-content-skill**
 - For document queries, see **document-management-skill**
-- For rules extraction, see **style-extraction-skill**, **structure-extraction-skill**, **persona-extraction-skill**, **publisher-profile-extraction-skill**
+- For rules extraction, see **writing-rules-skill** (consolidates style, structure, persona, and publisher extraction)
 - For content creation (outline/draft/edit), see **content-writing-skill**
 - For project creation, use `/create-project`
 - For resuming work, use `/resume-project`
