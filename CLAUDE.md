@@ -224,3 +224,36 @@ Claude will:
 - **Comment patterns:** `.claude/skills/content-writing-skill/templates/inline-comment-patterns.md`
 - **KURT.md:** Full system documentation
 - **Project example:** `/projects/tutorial-refresh-fusion/project.md` (see "Using Content Writing Skill" section)
+
+---
+
+## Rules System
+
+Kurt has an **extensible rules system**. See `KURT.md` for full details on how rules work.
+
+### Quick Reference for Claude
+
+**Extract rules:**
+```bash
+# Built-in types (always available)
+writing-rules-skill publisher --auto-discover
+writing-rules-skill style --type corporate --auto-discover
+writing-rules-skill structure --type tutorial --auto-discover
+writing-rules-skill persona --audience-type technical --auto-discover
+
+# Custom types (if configured by user)
+writing-rules-skill <custom-type> --type <mode> --auto-discover
+```
+
+**Manage rule types:**
+```bash
+writing-rules-skill list              # See what's configured
+writing-rules-skill add               # Add custom type (wizard)
+writing-rules-skill validate          # Check system health
+```
+
+**Key points:**
+- Rules system is dynamic - check registry for available types
+- System adapts to custom rule types automatically
+- Use `writing-rules-skill list` to see current configuration
+- Point users to `KURT.md` for comprehensive rules documentation

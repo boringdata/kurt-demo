@@ -1,123 +1,293 @@
 ---
 name: writing-rules
-description: Extract style, structure, persona, and publisher rules from content (project)
+description: Extract and manage writing rules (style, structure, persona, publisher, custom) (project)
 ---
 
 # Writing Rules Skill
 
-**Purpose:** Unified rule extraction workflow for creating reusable writing guidelines
-**Subskills:** style, structure, persona, publisher
-**Output:** Rule files in `/rules/` directories for use in content creation
+**Purpose:** Unified system for extracting writing rules AND managing the rule type registry
+**Operations:** Extraction (style, structure, persona, publisher, custom) + Management (list, show, add, validate, generate, onboard)
+**Output:** Rule files in `/rules/` directories + rules-config.yaml registry
 
 ---
 
 ## Usage
 
+### Extraction Operations
+
 ```bash
-# Extract style patterns
+# Extract built-in rule types
 writing-rules-skill style --type corporate --auto-discover
-writing-rules-skill style --type technical-docs --auto-discover
-writing-rules-skill style with documents: <file-paths>
-
-# Extract structure templates
 writing-rules-skill structure --type tutorial --auto-discover
-writing-rules-skill structure --type landing-page --auto-discover
-writing-rules-skill structure with documents: <file-paths>
-
-# Extract audience personas
-writing-rules-skill persona --audience-type all --auto-discover
 writing-rules-skill persona --audience-type technical --auto-discover
-writing-rules-skill persona with documents: <file-paths>
-
-# Extract publisher profile
 writing-rules-skill publisher --auto-discover
-writing-rules-skill publisher with sources: <URLs-and-file-paths>
+
+# Extract custom rule types (after adding them)
+writing-rules-skill verticals --type healthcare --auto-discover
+writing-rules-skill use-cases --type migration with documents: <paths>
+```
+
+### Management Operations
+
+```bash
+# List all rule types (built-in + custom)
+writing-rules-skill list
+
+# Show details about a rule type
+writing-rules-skill show verticals
+
+# Add new custom rule type (interactive with conflict detection)
+writing-rules-skill add
+
+# Validate registry configuration
+writing-rules-skill validate
+
+# Generate extraction subskill for custom type
+writing-rules-skill generate-subskill verticals
+
+# Onboarding wizard for new teams
+writing-rules-skill onboard
 ```
 
 ---
 
 ## Routing Logic
 
-This skill routes to the appropriate subskill based on the first argument:
+This skill routes based on the first argument:
 
-- `style` → subskills/extract-style.md
-- `structure` → subskills/extract-structure.md
-- `persona` → subskills/extract-persona.md
-- `publisher` → subskills/extract-publisher-profile.md
+**Management Operations (hardcoded):**
+- `list` → subskills/manage-list.md
+- `show` → subskills/manage-show.md
+- `add` → subskills/manage-add.md
+- `validate` → subskills/manage-validate.md
+- `generate-subskill` → subskills/manage-generate-subskill.md
+- `onboard` → subskills/manage-onboard.md
+
+**Extraction Operations (loaded dynamically from /rules/rules-config.yaml):**
+- Each enabled rule type → subskills/{extraction.subskill}
+- Built-in types: `style`, `structure`, `persona`, `publisher`
+- Custom types: Any additional types defined in registry
+- Path construction: `subskills/` + `rule_types[{type}].extraction.subskill`
+- Only enabled types are routable
+
+**Dynamic routing benefits:**
+- No code changes needed to add new rule types
+- Registry is single source of truth
+- Automatic validation and error handling
+- Extensible system for team customization
 
 ---
 
 ## Step 1: Parse Arguments
 
-Extract subskill and arguments: $ARGUMENTS
+Extract first argument and remaining arguments: $ARGUMENTS
 
-**Expected format:**
-- First argument: `style`, `structure`, `persona`, or `publisher`
-- Remaining arguments: passed to subskill
+**Argument categories:**
 
-**If no arguments or invalid subskill:**
-Show usage help and available subskills.
+**Management operations** (no registry loading needed):
+- `list`, `show`, `add`, `validate`, `generate-subskill`, `onboard`
+- These operations manage the registry itself
+
+**Extraction operations** (require registry loading):
+- Built-in: `style`, `structure`, `persona`, `publisher`
+- Custom: Any rule type defined in rules-config.yaml
+
+**Parsing logic:**
+1. Extract first argument → `$OPERATION`
+2. Extract remaining arguments → `$REMAINING_ARGS`
+3. Determine operation category (management vs extraction)
+
+**If no arguments:**
+Show usage help with both management and extraction operations.
 
 ---
 
-## Step 2: Load Shared Context
+## Step 2: Determine Operation Type and Load Context
 
-### Project Context (if applicable)
+### Check Operation Type
+
+**If `$OPERATION` IN [list, show, add, validate, generate-subskill, onboard]:**
+- Operation type: **Management**
+- Skip to Step 3 (Route to Management Subskill)
+- Management operations will load registry as needed within their subskills
+
+**Else (extraction operation):**
+- Operation type: **Extraction**
+- Continue with context loading below
+
+### Load Rules Registry (for extraction operations)
+
+```bash
+# Load rules-config.yaml
+registry_file="/rules/rules-config.yaml"
+
+if [ ! -f "$registry_file" ]; then
+  error "Rules registry not found. Run 'writing-rules-skill validate' to check setup."
+  exit 1
+fi
+
+# Parse YAML to extract all rule types
+# This creates a dynamic list of available operations
+all_rule_types=$(yq '.rule_types | keys | .[]' "$registry_file")
+
+# Get enabled rule types only
+enabled_rule_types=$(yq '.rule_types | to_entries | .[] | select(.value.enabled == true) | .key' "$registry_file")
+
+# Check if $OPERATION is in enabled_rule_types
+if ! echo "$enabled_rule_types" | grep -q "^${OPERATION}$"; then
+  # Operation not found or disabled
+  error "Unknown or disabled rule type: '$OPERATION'"
+  echo ""
+  echo "Available enabled rule types:"
+
+  # Dynamically list enabled types with descriptions
+  for type in $enabled_rule_types; do
+    name=$(yq ".rule_types.${type}.name" "$registry_file")
+    is_builtin=$(yq ".rule_types.${type}.built_in" "$registry_file")
+
+    if [ "$is_builtin" = "true" ]; then
+      echo "  • $type - $name (built-in)"
+    else
+      echo "  • $type - $name (custom)"
+    fi
+  done
+
+  echo ""
+  echo "To see all rule types: writing-rules-skill list"
+  echo "To add new rule type: writing-rules-skill add"
+  exit 1
+fi
+
+# Load rule type configuration
+rule_type_config=$(yq ".rule_types.${OPERATION}" "$registry_file")
+
+# Extract key fields
+rule_type_name=$(echo "$rule_type_config" | yq '.name')
+rule_type_directory=$(echo "$rule_type_config" | yq '.directory')
+rule_type_subskill=$(echo "$rule_type_config" | yq '.extraction.subskill')
+rule_type_is_builtin=$(echo "$rule_type_config" | yq '.built_in')
+
+# Construct subskill path dynamically
+subskill_path=".claude/skills/writing-rules-skill/subskills/${rule_type_subskill}"
+
+# Validate subskill file exists
+if [ ! -f "$subskill_path" ]; then
+  error "Extraction subskill not found for '$OPERATION'"
+  echo ""
+  echo "The rule type '$OPERATION' is defined in the registry but no extraction subskill exists."
+  echo "Expected: $subskill_path"
+  echo ""
+
+  if [ "$rule_type_is_builtin" = "false" ]; then
+    echo "Generate one with: writing-rules-skill generate-subskill $OPERATION"
+  else
+    echo "This is a built-in type - the subskill should exist. Run: writing-rules-skill validate"
+  fi
+
+  exit 1
+fi
+```
+
+**What this accomplishes:**
+- Dynamically loads all rule types from registry (no hardcoding)
+- Validates operation against registry in real-time
+- Constructs subskill path from registry configuration
+- Provides helpful error messages with actual available types
+- Distinguishes between built-in and custom types in errors
+
+### Load Project Context (for extraction operations)
 - Check if we're in a project context
 - Locate current project directory (if exists)
 - Read project.md for context about sources and targets
 
-### Source Content Status
-Check if content is ready for extraction:
+### Check Source Content Status (for extraction operations)
 - Are sources fetched? (files in `/sources/`)
 - Are sources indexed? (metadata extracted via `kurt index`)
 
-### Existing Rules
-Load existing rule file paths to understand what's already extracted:
-- Publisher profile: `/rules/publisher/publisher-profile.md`
-- Available style guides: `/rules/style/`
-- Available structure templates: `/rules/structure/`
-- Available personas: `/rules/personas/`
-
-### Validation
-- Log which rules already exist
-- Warn if sources not fetched/indexed (required for extraction)
-- Note any gaps in rule coverage
+### Load Existing Rules (for extraction operations)
+Check what's already been extracted for this rule type:
+- Get directory from registry: `registry.rule_types[$OPERATION].directory`
+- List existing rule files in `/rules/{directory}/`
+- Note which discovery modes have been extracted
 
 ---
 
 ## Step 3: Route to Subskill
 
-**For `style`:**
-Invoke subskills/extract-style.md with arguments:
-- Type flag (--type corporate, technical-docs, blog, etc.)
+### Management Operations
+
+**For `list`:**
+Invoke subskills/manage-list.md
+- No arguments needed
+- Loads registry and displays all rule types
+
+**For `show`:**
+Invoke subskills/manage-show.md with arguments:
+- Rule type name (required)
+- Loads registry and displays detailed information
+
+**For `add`:**
+Invoke subskills/manage-add.md
+- Interactive wizard (no arguments)
+- Runs conflict detection
+- Updates registry
+
+**For `validate`:**
+Invoke subskills/manage-validate.md
+- No arguments needed
+- Validates registry and file system
+- Reports errors and warnings
+
+**For `generate-subskill`:**
+Invoke subskills/manage-generate-subskill.md with arguments:
+- Rule type name (required)
+- Generates extraction subskill from template
+
+**For `onboard`:**
+Invoke subskills/manage-onboard.md
+- Interactive wizard (no arguments)
+- Guides user through rule type configuration
+
+### Extraction Operations
+
+**Dynamic routing based on registry:**
+
+```bash
+# Subskill path was constructed dynamically in Step 2
+# $subskill_path = ".claude/skills/writing-rules-skill/subskills/${rule_type_subskill}"
+
+# Invoke the subskill with full context
+invoke $subskill_path with:
+  - RULE_TYPE: $OPERATION
+  - RULE_TYPE_CONFIG: $rule_type_config (full config from registry)
+  - REMAINING_ARGS: $REMAINING_ARGS
+  - RULES_DIR: /rules/${rule_type_directory}/
+  - EXISTING_RULES: <files in rules directory>
+  - PROJECT_CONTEXT: <project context if available>
+  - SOURCES_STATUS: <fetch/index status>
+```
+
+**All extraction operations support:**
+- Type-specific flags (discovery modes defined in registry)
 - Auto-discovery flag (--auto-discover)
 - Manual document selection (with documents: <paths>)
 - Optional overwrite flag (--overwrite)
-- Loaded context (project, sources, existing styles)
+- Include/exclude patterns (--include, --exclude)
 
-**For `structure`:**
-Invoke subskills/extract-structure.md with arguments:
-- Type flag (--type tutorial, landing-page, api-reference, etc.)
-- Auto-discovery flag (--auto-discover)
-- Manual document selection (with documents: <paths>)
-- Optional overwrite flag (--overwrite)
-- Loaded context (project, sources, existing structures)
+**Built-in types** (style, structure, persona, publisher):
+- Have pre-built extraction subskills
+- Support their documented discovery modes
+- Maintained as part of core system
 
-**For `persona`:**
-Invoke subskills/extract-persona.md with arguments:
-- Audience type flag (--audience-type all, technical, business, customer)
-- Auto-discovery flag (--auto-discover)
-- Manual document selection (with documents: <paths>)
-- Optional overwrite flag (--overwrite)
-- Loaded context (project, sources, existing personas)
+**Custom types** (any enabled type in registry):
+- Generated from template via `generate-subskill`
+- Support discovery modes defined during creation
+- Fully extensible by teams
 
-**For `publisher`:**
-Invoke subskills/extract-publisher-profile.md with arguments:
-- Auto-discovery flag (--auto-discover)
-- Manual source selection (with sources: <URLs-and-paths>)
-- Optional overwrite flag (--overwrite)
-- Loaded context (project, sources, existing profile)
+**Error handling is already done in Step 2:**
+- Registry validation ensures rule type exists and is enabled
+- Subskill existence check ensures file is present
+- Helpful error messages guide users to solutions
 
 ---
 
@@ -125,17 +295,33 @@ Invoke subskills/extract-publisher-profile.md with arguments:
 
 Pass the following to subskills:
 
+### For Management Subskills
+
+**Registry Context:**
+```
+REGISTRY_PATH: /rules/rules-config.yaml
+RULES_BASE_DIR: /rules/
+SUBSKILLS_DIR: .claude/skills/writing-rules-skill/subskills/
+OPERATION: <management-operation>
+ARGUMENTS: <remaining-args>
+```
+
+Management subskills will load registry as needed within their own logic.
+
+### For Extraction Subskills
+
 **Shared Context:**
 ```
 PROJECT_NAME: <name> (if in project context)
 PROJECT_PATH: /projects/<name>/ (if applicable)
 PROJECT_BRIEF: /projects/<name>/project.md (if applicable)
-RULES_PUBLISHER: /rules/publisher/publisher-profile.md (if exists)
-RULES_STYLE_DIR: /rules/style/
-RULES_STRUCTURE_DIR: /rules/structure/
-RULES_PERSONAS_DIR: /rules/personas/
+REGISTRY_PATH: /rules/rules-config.yaml
+RULE_TYPE: <extraction-rule-type>
+RULE_TYPE_CONFIG: <config-from-registry>
+RULES_DIR: /rules/<directory-for-this-type>/
+EXISTING_RULES: <list of existing rule files for this type>
 SOURCES_STATUS: fetched|not_fetched|indexed|not_indexed
-EXISTING_RULES: <list of existing rule files>
+ARGUMENTS: <remaining-args>
 ```
 
 **Content Paths:**
@@ -186,23 +372,43 @@ Once complete, retry extraction.
 
 ## Error Handling
 
-**If subskill invalid:**
+**If operation is invalid:**
 ```
-Error: Unknown subskill '<name>'
+Error: Unknown or disabled rule type: 'invalid-type'
 
-Available subskills:
-  - style      : Extract writing voice, tone, and style patterns
-  - structure  : Extract document organization and format templates
-  - persona    : Extract audience targeting patterns
-  - publisher  : Extract organizational context and brand profile
+Available enabled rule types:
+  • style - Style Guidelines (built-in)
+  • structure - Structure Templates (built-in)
+  • persona - Target Personas (built-in)
+  • publisher - Publisher Profile (built-in)
+  • verticals - Industry Verticals (custom)
+  • channels - Channel Guidelines (custom)
 
-Usage: writing-rules-skill <subskill> [arguments]
+To see all rule types: writing-rules-skill list
+To add new rule type: writing-rules-skill add
+```
+
+**Note:** The list of available types is generated dynamically from the registry, so it always reflects the current system configuration including custom types.
+
+**Management operations help:**
+```
+Usage: writing-rules-skill <operation> [arguments]
+
+Extraction Operations:
+  [Dynamically loaded from registry]
+
+Management Operations:
+  list                - Display all available rule types
+  show <type>         - Show details about a rule type
+  add                 - Create new custom rule type
+  validate            - Check system health
+  generate-subskill   - Generate extraction subskill
+  onboard             - Setup wizard for new teams
 
 Examples:
   writing-rules-skill style --type corporate --auto-discover
-  writing-rules-skill structure --type tutorial --auto-discover
-  writing-rules-skill persona --audience-type technical --auto-discover
-  writing-rules-skill publisher --auto-discover
+  writing-rules-skill list
+  writing-rules-skill add
 ```
 
 **If sources not ready:**

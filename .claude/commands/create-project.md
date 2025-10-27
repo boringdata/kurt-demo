@@ -231,16 +231,20 @@ If the user has added sources in Step 3 AND they are fetched + indexed, ask if t
 
 > Would you like to extract writing rules from your content? This helps ensure consistency when creating/updating content.
 >
-> Rules include:
-> - **Corporate voice** - Brand voice from marketing pages
-> - **Content type styles** - Writing patterns for docs, blog, etc.
-> - **Structure templates** - Document formats (tutorials, API docs, etc.)
-> - **Personas** - Audience targeting patterns
-> - **Publisher profile** - Company messaging and positioning
+> **Built-in rule types:**
+> - **Style Guidelines** - Brand voice and writing patterns
+> - **Structure Templates** - Document formats and organization
+> - **Target Personas** - Audience targeting patterns
+> - **Publisher Profile** - Company messaging and positioning
+>
+> **Custom rule types** (if configured):
+> - Run `writing-rules-skill list` to see all available types
+> - May include: Verticals, Use-cases, Channels, etc.
 >
 > Options:
 > a) Extract rules now (recommended if sources available)
 > b) Skip for now (can extract later)
+> c) See all available rule types first
 
 **If they choose (a) - Extract rules now:**
 
@@ -264,21 +268,24 @@ Please wait... (this may take 10-30 seconds depending on content volume)
 ✓ Indexing complete. Ready to extract rules.
 ```
 
-1. **Start with publisher profile** (if not already extracted):
-   ```bash
-   # Check if publisher profile exists
-   ls /rules/publisher/publisher-profile.md
+**If they choose (c) - See available rule types:**
+```bash
+writing-rules-skill list
+```
+Then ask again whether to extract now or skip.
 
-   # If not, extract from company pages (must be fetched + indexed)
+**Extraction workflow:**
+
+1. **Start with foundation rules** (recommended order):
+   ```bash
+   # 1. Publisher profile (company context - do first)
    writing-rules-skill publisher --auto-discover
-   ```
 
-2. **Extract corporate voice** (if not already extracted):
-   ```bash
+   # 2. Corporate style (brand voice)
    writing-rules-skill style --type corporate --auto-discover
    ```
 
-3. **Ask about content-specific rules based on project intent:**
+2. **Ask about content-specific rules based on project intent:**
 
    - **If intent (b) - marketing assets or (a) - positioning:**
      - Ask: "Extract landing page structure?" → `writing-rules-skill structure --type landing-page --auto-discover`
@@ -288,6 +295,15 @@ Please wait... (this may take 10-30 seconds depending on content volume)
      - Ask: "Extract technical doc style?" → `writing-rules-skill style --type technical-docs --auto-discover`
      - Ask: "Extract tutorial/guide structure?" → `writing-rules-skill structure --type tutorial --auto-discover`
      - Ask: "Extract developer persona?" → `writing-rules-skill persona --audience-type technical --auto-discover`
+
+3. **Ask about custom rule types** (if any are configured):
+   ```bash
+   # Check for custom types in registry
+   custom_types=$(yq '.rule_types | to_entries | .[] | select(.value.built_in == false and .value.enabled == true) | .key' /rules/rules-config.yaml)
+
+   # For each custom type, ask if user wants to extract
+   # Example: "Extract healthcare vertical rules?" → writing-rules-skill verticals --type healthcare --auto-discover
+   ```
 
 4. **Update project.md** with extracted rules references
 

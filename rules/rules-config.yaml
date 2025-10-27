@@ -1,0 +1,418 @@
+# Kurt Rules Registry Configuration
+# Defines all available rule types for content creation
+
+version: 1.0
+updated: 2025-01-27
+description: "Registry of rule types for Kurt content intelligence system"
+
+# Rule Type Definitions
+# Each rule type represents a dimension of content rules that can be extracted and applied
+
+rule_types:
+  # ============================================================================
+  # BUILT-IN RULE TYPES (Foundation)
+  # These are provided out-of-the-box and recommended for all teams
+  # ============================================================================
+
+  style:
+    name: "Style Guidelines"
+    description: "Writing voice, tone, sentence structure, and word choice patterns"
+    directory: "style"
+    enabled: true
+    built_in: true
+    multiple_files: true
+    required_by_default: true
+
+    # What information this rule type extracts
+    extracts:
+      - voice_tone
+      - sentence_structure
+      - word_choice
+      - common_patterns
+      - paragraph_structure
+
+    # What aspects of content this rule type governs
+    governs:
+      - writing_voice
+      - language_formality
+      - expression_patterns
+      - vocabulary_level
+
+    # Typical source documents for extraction
+    source_patterns:
+      - "marketing pages (homepage, product, about)"
+      - "blog posts"
+      - "documentation"
+      - "support content"
+
+    # Extraction configuration
+    extraction:
+      subskill: "extract-style.md"
+      discovery_modes:
+        - corporate
+        - technical-docs
+        - blog
+        - author
+      sample_size: "5-10 documents per style type"
+      instructions: "Analyze voice, tone, sentence patterns, word choice, and recurring expressions"
+
+    # Validation criteria
+    validation:
+      check_for:
+        - voice_characteristics
+        - tone_description
+        - sentence_patterns
+        - vocabulary_guidelines
+
+  structure:
+    name: "Structure Templates"
+    description: "Document organization, section flow, and format patterns"
+    directory: "structure"
+    enabled: true
+    built_in: true
+    multiple_files: true
+    required_by_default: true
+
+    extracts:
+      - document_organization
+      - section_flow
+      - headline_patterns
+      - content_flow_logic
+      - cta_patterns
+      - visual_elements
+
+    governs:
+      - content_organization
+      - section_hierarchy
+      - document_format
+      - structural_flow
+
+    source_patterns:
+      - "tutorials and quickstarts"
+      - "landing pages"
+      - "blog posts"
+      - "API documentation"
+      - "case studies"
+
+    extraction:
+      subskill: "extract-structure.md"
+      discovery_modes:
+        - tutorial
+        - landing-page
+        - api-reference
+        - blog-post
+        - guide
+        - case-study
+      sample_size: "5-8 documents per structure type"
+      instructions: "Extract document organization, section flow, headline patterns, and formatting conventions"
+
+    validation:
+      check_for:
+        - structural_outline
+        - section_purposes
+        - typical_length
+        - flow_logic
+
+  persona:
+    name: "Target Personas"
+    description: "Audience roles, pain points, technical level, and communication preferences"
+    directory: "personas"
+    enabled: true
+    built_in: true
+    multiple_files: true
+    required_by_default: true
+
+    extracts:
+      - audience_roles
+      - pain_points
+      - technical_level
+      - goals_motivations
+      - communication_preferences
+      - knowledge_assumptions
+
+    governs:
+      - audience_targeting
+      - language_complexity
+      - assumed_knowledge
+      - problem_focus
+
+    source_patterns:
+      - "technical documentation"
+      - "product and solution pages"
+      - "support and help content"
+      - "customer success stories"
+
+    extraction:
+      subskill: "extract-persona.md"
+      discovery_modes:
+        - all
+        - technical
+        - business
+        - customer
+      sample_size: "5-10 documents targeting specific audience"
+      instructions: "Infer audience characteristics from language complexity, problems addressed, and communication style"
+
+    validation:
+      check_for:
+        - persona_overview
+        - role_context
+        - pain_points
+        - communication_style
+
+  publisher:
+    name: "Publisher Profile"
+    description: "Organizational identity, products, target market, and brand positioning"
+    directory: "publisher"
+    enabled: true
+    built_in: true
+    multiple_files: false  # Single canonical file
+    required_by_default: true
+
+    extracts:
+      - organizational_identity
+      - products_services
+      - target_market_icp
+      - messaging_positioning
+      - content_strategy
+      - company_culture
+
+    governs:
+      - brand_alignment
+      - value_propositions
+      - competitive_positioning
+      - organizational_voice
+
+    source_patterns:
+      - "homepage (required)"
+      - "about/company pages"
+      - "product and pricing pages"
+      - "customer case studies"
+      - "blog homepage"
+
+    extraction:
+      subskill: "extract-publisher-profile.md"
+      discovery_modes:
+        - auto-discover
+      sample_size: "8-12 key company pages"
+      instructions: "Extract company identity, products, target market, messaging, and thought leadership from key pages"
+
+    validation:
+      check_for:
+        - organizational_identity
+        - products_services
+        - target_market
+        - messaging_positioning
+
+  # ============================================================================
+  # EXAMPLE CUSTOM RULE TYPES (Commented Out)
+  # Uncomment and customize these examples, or create your own using meta-rules-skill
+  # ============================================================================
+
+  # verticals:
+  #   name: "Industry Verticals"
+  #   description: "Industry-specific messaging, terminology, and compliance considerations"
+  #   directory: "verticals"
+  #   enabled: false
+  #   built_in: false
+  #   multiple_files: true
+  #   required_by_default: false
+  #
+  #   # When this rule type is required
+  #   required_for:
+  #     - content_type: "case-study"
+  #     - content_type: "industry-blog"
+  #     - content_type: "vertical-landing-page"
+  #
+  #   extracts:
+  #     - industry_terminology
+  #     - compliance_considerations
+  #     - vertical_pain_points
+  #     - success_metrics
+  #     - regulatory_language
+  #
+  #   governs:
+  #     - industry_language
+  #     - regulatory_compliance
+  #     - vertical_positioning
+  #     - industry_credibility
+  #
+  #   source_patterns:
+  #     - "industry-specific case studies"
+  #     - "vertical landing pages"
+  #     - "industry-focused blog posts"
+  #     - "regulatory documentation"
+  #
+  #   extraction:
+  #     subskill: "extract-verticals.md"
+  #     discovery_modes:
+  #       - healthcare
+  #       - finance
+  #       - retail
+  #       - manufacturing
+  #     sample_size: "3-5 documents per vertical"
+  #     instructions: "Extract industry-specific language, compliance considerations, pain points, and success metrics"
+  #
+  #   validation:
+  #     check_for:
+  #       - industry_terminology
+  #       - compliance_notes
+  #       - vertical_pain_points
+
+  # use_cases:
+  #   name: "Use Case Patterns"
+  #   description: "Use-case-specific problem statements, solution approaches, and outcomes"
+  #   directory: "use-cases"
+  #   enabled: false
+  #   built_in: false
+  #   multiple_files: true
+  #   required_by_default: false
+  #
+  #   required_for:
+  #     - content_type: "solution-brief"
+  #     - content_type: "use-case-tutorial"
+  #     - content_type: "product-documentation"
+  #
+  #   extracts:
+  #     - problem_statements
+  #     - solution_approaches
+  #     - implementation_patterns
+  #     - success_metrics
+  #     - common_objections
+  #
+  #   governs:
+  #     - problem_definition
+  #     - solution_positioning
+  #     - use_case_messaging
+  #
+  #   source_patterns:
+  #     - "use case documentation"
+  #     - "solution briefs"
+  #     - "implementation guides"
+  #     - "success stories by use case"
+  #
+  #   extraction:
+  #     subskill: "extract-use-cases.md"
+  #     discovery_modes:
+  #       - migration
+  #       - optimization
+  #       - integration
+  #       - automation
+  #     sample_size: "3-5 documents per use case"
+  #     instructions: "Extract problem statements, solution approaches, implementation patterns, and outcomes"
+  #
+  #   validation:
+  #     check_for:
+  #       - problem_statement
+  #       - solution_approach
+  #       - success_metrics
+
+  # channels:
+  #   name: "Channel Guidelines"
+  #   description: "Channel-specific formatting constraints, length limits, and voice adaptations"
+  #   directory: "channels"
+  #   enabled: false
+  #   built_in: false
+  #   multiple_files: true
+  #   required_by_default: false
+  #
+  #   required_for:
+  #     - output_channel: "email"
+  #     - output_channel: "social"
+  #     - output_channel: "print"
+  #
+  #   extracts:
+  #     - length_constraints
+  #     - formatting_rules
+  #     - voice_adaptations
+  #     - visual_requirements
+  #     - platform_conventions
+  #
+  #   governs:
+  #     - content_length
+  #     - formatting_constraints
+  #     - channel_voice
+  #     - platform_compliance
+  #
+  #   source_patterns:
+  #     - "email campaigns"
+  #     - "social media posts"
+  #     - "print materials"
+  #     - "platform-specific content"
+  #
+  #   extraction:
+  #     subskill: "extract-channels.md"
+  #     discovery_modes:
+  #       - email
+  #       - social
+  #       - web
+  #       - print
+  #     sample_size: "5-8 examples per channel"
+  #     instructions: "Extract channel-specific constraints, formatting patterns, and voice adaptations"
+  #
+  #   validation:
+  #     check_for:
+  #       - length_constraints
+  #       - formatting_rules
+  #       - voice_adaptation
+
+# ============================================================================
+# CONFLICT RULES
+# Define potential conflicts between rule types to warn users during setup
+# ============================================================================
+
+conflict_rules:
+  - rule_types:
+      - persona
+      - verticals
+    conflict_type: "potential_overlap"
+    severity: "warning"
+    message: "Personas and verticals both target audience characteristics. Ensure personas focus on roles/responsibilities while verticals focus on industry-specific needs and terminology."
+
+  - rule_types:
+      - style
+      - channels
+    conflict_type: "potential_overlap"
+    severity: "warning"
+    message: "Style and channels both govern voice/tone. Ensure style defines your base voice while channels define channel-specific adaptations only."
+
+  - rule_types:
+      - persona
+      - use_cases
+    conflict_type: "complementary"
+    severity: "info"
+    message: "Personas and use-cases work well together. Personas define WHO you're writing for, use-cases define WHAT problems you're solving."
+
+# ============================================================================
+# OVERLAP DETECTION THRESHOLDS
+# Used by meta-rules-skill to detect when new rule types conflict with existing
+# ============================================================================
+
+overlap_thresholds:
+  extracts:
+    error_threshold: 0.50  # >50% overlap in extracts = ERROR
+    warning_threshold: 0.20  # 20-50% overlap = WARNING
+
+  governs:
+    error_threshold: 0.50  # >50% overlap in governs = ERROR
+    warning_threshold: 0.20  # 20-50% overlap = WARNING
+
+  source_patterns:
+    warning_threshold: 1.00  # 100% same sources = WARNING (not error, OK to analyze same content)
+
+# ============================================================================
+# METADATA
+# Information about this configuration
+# ============================================================================
+
+metadata:
+  created: "2025-01-27"
+  last_modified: "2025-01-27"
+  schema_version: "1.0"
+  description: "Rule type registry for Kurt content intelligence framework"
+
+  # Usage statistics (updated by system)
+  stats:
+    total_rule_types: 4
+    enabled_rule_types: 4
+    custom_rule_types: 0
+    projects_using_registry: 0

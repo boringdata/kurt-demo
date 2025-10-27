@@ -58,17 +58,41 @@ If subskill is `outline` or `draft`:
 - Read project.md or project-brief.md for context
 - Check for task-breakdown.md
 
-### Rule Files Context
-Load rule file paths from project directory:
-- Publisher profile: `/rules/publisher/publisher-profile.md`
-- Available style guides: `/rules/style/`
-- Available structure templates: `/rules/structure/`
-- Available personas: `/rules/personas/`
+### Rule Files Context (Dynamic)
+
+Load all available rule types and directories from registry:
+
+```bash
+# Dynamically discover all enabled rule types
+registry="/rules/rules-config.yaml"
+enabled_types=$(yq '.rule_types | to_entries | .[] | select(.value.enabled == true) | .key' "$registry")
+
+# Build context for each rule type
+for type in $enabled_types; do
+  name=$(yq ".rule_types.${type}.name" "$registry")
+  directory=$(yq ".rule_types.${type}.directory" "$registry")
+
+  # Store for context handoff
+  RULES_${type^^}_DIR="/rules/$directory/"
+done
+```
+
+**Result:** Dynamically available rule directories:
+- `RULES_STYLE_DIR`: `/rules/style/` (built-in)
+- `RULES_STRUCTURE_DIR`: `/rules/structure/` (built-in)
+- `RULES_PERSONAS_DIR`: `/rules/personas/` (built-in)
+- `RULES_PUBLISHER_DIR`: `/rules/publisher/` (built-in)
+- `RULES_VERTICALS_DIR`: `/rules/verticals/` (if configured)
+- `RULES_CHANNELS_DIR`: `/rules/channels/` (if configured)
+- `RULES_USE_CASES_DIR`: `/rules/use-cases/` (if configured)
+- _[Any other custom rule types]_
 
 ### Validation
 - Confirm project directory exists
-- Confirm referenced rule files exist
-- Log any missing files as warnings
+- Dynamically load rule types from registry
+- Confirm referenced rule directories exist
+- Log any missing directories as warnings
+- Check if rule files exist in each directory
 
 ---
 
@@ -106,11 +130,22 @@ Pass the following to subskills:
 PROJECT_NAME: <name>
 PROJECT_PATH: /projects/<name>/
 PROJECT_BRIEF: /projects/<name>/project.md
-RULES_PUBLISHER: /rules/publisher/publisher-profile.md
+REGISTRY_PATH: /rules/rules-config.yaml
+
+[Dynamically generated rule directory paths for all enabled types:]
+RULES_PUBLISHER_DIR: /rules/publisher/
 RULES_STYLE_DIR: /rules/style/
 RULES_STRUCTURE_DIR: /rules/structure/
 RULES_PERSONAS_DIR: /rules/personas/
+RULES_VERTICALS_DIR: /rules/verticals/ (if configured)
+RULES_CHANNELS_DIR: /rules/channels/ (if configured)
+RULES_USE_CASES_DIR: /rules/use-cases/ (if configured)
+[... any other custom rule types]
+
+ENABLED_RULE_TYPES: <comma-separated list of enabled types>
 ```
+
+**Note:** Subskills should dynamically iterate over `ENABLED_RULE_TYPES` rather than assuming specific rule types exist. This ensures compatibility with custom rule configurations.
 
 **Asset-Specific Context (outline/draft):**
 ```

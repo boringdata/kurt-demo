@@ -34,6 +34,7 @@ kurt-demo/
 │   ├── blog.company.com/          # Your blog
 │   └── competitor.com/            # Competitor/reference content
 ├── rules/                          # Extracted rules for content creation
+│   ├── rules-config.yaml           # Rule type registry (defines available types)
 │   ├── style/                      # Writing voice/tone patterns
 │   │   ├── technical-documentation.md
 │   │   └── conversational-blog.md
@@ -43,8 +44,10 @@ kurt-demo/
 │   ├── personas/                   # Audience targeting profiles
 │   │   ├── technical-implementer.md
 │   │   └── enterprise-decision-maker.md
-│   └── publisher/                  # Organizational context
-│       └── publisher-profile.md    # Single company profile
+│   ├── publisher/                  # Organizational context
+│   │   └── publisher-profile.md    # Single company profile
+│   └── [custom-types]/             # Optional custom directories
+│       └── ...                     # (verticals, channels, use-cases, etc.)
 ├── projects/                       # Individual projects
 │   └── project-name/
 │       ├── project.md             # Project manifest
@@ -62,10 +65,12 @@ kurt-demo/
 
 **Top-level folders (Shared/Reusable):**
 - `/sources/` - All web content ingested by Kurt (organizational knowledge base)
+- `/rules/rules-config.yaml` - Registry defining all available rule types
 - `/rules/style/` - Style guides, voice/tone patterns extracted from content
 - `/rules/structure/` - Document templates and format patterns extracted from content
 - `/rules/personas/` - Audience targeting profiles extracted from content
 - `/rules/publisher/` - Organizational context and brand profile
+- `/rules/[custom-types]/` - Optional custom rule directories (if configured)
 
 **Project folders (Project-specific):**
 - `projects/name/sources/` - One-off files only for this project (PDFs, internal docs)
@@ -78,6 +83,7 @@ kurt-demo/
 3. **Clear ownership** - Easy to see what's org-wide vs project-specific
 4. **Kurt compatibility** - Works with Kurt's existing ingest system
 5. **Rule-based consistency** - Extracted rules ensure consistent content creation
+6. **Single source of truth** - Registry (`rules-config.yaml`) defines available rule types
 
 ## Project Lifecycle
 
@@ -252,35 +258,135 @@ When resuming a project:
 - Content lives in `/sources/` (org-wide) or `projects/name/sources/` (project-specific)
 - Don't duplicate content; reference it
 
-## Rules Extraction System
+## Rules System
 
-Kurt includes a comprehensive rules extraction system that learns from existing content to create reusable guidelines for content creation.
+Kurt includes a comprehensive **extensible rules system** that learns from existing content to create reusable guidelines for content creation.
 
 ### What Are Rules?
 
-Rules are extracted patterns from existing content that guide consistent content creation:
-- **Style guides** - Voice, tone, sentence structure, word choice
-- **Structure templates** - Document organization, section flow, formatting
-- **Personas** - Audience targeting patterns and communication preferences
-- **Publisher profile** - Organizational context, messaging, brand positioning
+Rules are extracted patterns from existing content that guide consistent content creation.
+
+**Built-in rule types** (always available):
+- **Style Guidelines** - Voice, tone, sentence structure, word choice
+- **Structure Templates** - Document organization, section flow, formatting
+- **Target Personas** - Audience roles, pain points, communication preferences
+- **Publisher Profile** - Company identity, messaging, brand positioning
+
+**Custom rule types** (optional, team-configurable):
+- Teams can add custom rule types like verticals, use-cases, channels, etc.
+- See "Discovering Your Rules Configuration" below
+
+### Registry: Single Source of Truth
+
+All rule types are defined in **`/rules/rules-config.yaml`** - the central registry.
+
+This file defines:
+- Which rule types are enabled
+- What each type extracts and governs
+- How extraction works (discovery modes, sample size)
+
+**To see what's configured:**
+```bash
+writing-rules-skill list
+```
+
+This shows all enabled rule types (built-in + custom) with their directories and extraction status.
 
 ### How Rules Are Created
 
 Rules are **extracted FROM content** using AI analysis, not manually written:
 
 ```bash
-# Extract style patterns from documentation
-invoke style-extraction-skill with documents: /sources/docs.company.com/guides/*.md
+# Extract built-in rule types
+writing-rules-skill publisher --auto-discover
+writing-rules-skill style --type corporate --auto-discover
+writing-rules-skill structure --type tutorial --auto-discover
+writing-rules-skill persona --audience-type technical --auto-discover
 
-# Extract structure templates from tutorials
-invoke structure-extraction-skill with documents: /sources/docs.company.com/tutorials/*.md
-
-# Extract audience personas from blog posts
-invoke persona-extraction-skill with documents: /sources/blog.company.com/*.md
-
-# Extract company profile from website
-invoke publisher-profile-extraction-skill with sources: https://company.com/about https://company.com/products
+# Extract custom rule types (if configured)
+writing-rules-skill verticals --type healthcare --auto-discover
+writing-rules-skill channels --type email --auto-discover
 ```
+
+### Discovering Your Rules Configuration
+
+**See all configured rule types:**
+```bash
+writing-rules-skill list
+```
+
+Output shows:
+- Built-in rule types (4 default)
+- Custom rule types (if any configured)
+- How many rules extracted for each
+- Directory locations
+
+**See details about a specific rule type:**
+```bash
+writing-rules-skill show <type>
+
+# Examples
+writing-rules-skill show style
+writing-rules-skill show verticals  # if configured
+```
+
+**Browse extracted rules:**
+```bash
+# See what rules exist in each directory
+ls /rules/style/
+ls /rules/structure/
+ls /rules/personas/
+ls /rules/publisher/
+
+# If custom types configured
+ls /rules/verticals/    # example
+ls /rules/channels/     # example
+```
+
+**View the registry:**
+```bash
+cat /rules/rules-config.yaml
+```
+
+### Managing Custom Rule Types
+
+Teams can extend Kurt with custom rule types beyond the 4 built-in types.
+
+**Common examples:**
+- **Verticals** - Industry-specific content (healthcare, finance, retail)
+- **Use-cases** - Problem/solution patterns (migration, optimization)
+- **Channels** - Channel-specific formatting (email, social, web)
+- **Journey stages** - Buyer journey positioning (awareness, consideration)
+
+**Add a custom rule type:**
+```bash
+writing-rules-skill add
+```
+
+Interactive wizard that:
+1. Asks for name and description
+2. Defines what it extracts and governs
+3. Automatically detects conflicts with existing types
+4. Configures extraction settings
+
+**Generate extraction workflow for custom type:**
+```bash
+writing-rules-skill generate-subskill <type>
+```
+
+**Validate system health:**
+```bash
+writing-rules-skill validate
+```
+
+Checks registry, file system, overlaps, and missing components.
+
+**For team onboarding:**
+```bash
+writing-rules-skill onboard
+```
+
+Wizard that explains rule types and guides configuration.
 
 ### Extraction Modes
 
@@ -348,10 +454,10 @@ For reliable extraction:
 
 ### Rules Extraction
 
-- **style-extraction-skill** - Extract writing voice/tone patterns from content
-- **structure-extraction-skill** - Extract document format templates from content
-- **persona-extraction-skill** - Extract audience targeting profiles from content
-- **publisher-profile-extraction-skill** - Extract organizational context from company web pages/docs
+- **writing-rules-skill** - Unified skill for extracting and managing all rule types
+  - Extraction operations: style, structure, persona, publisher, custom types
+  - Management operations: list, show, add, validate, generate-subskill, onboard
+  - See `.claude/skills/writing-rules-skill/README.md` for details
 
 ### Content Creation
 

@@ -313,32 +313,58 @@ Claude should:
 
 ## Rule Matching and Validation
 
-When working on target content, ensure appropriate rules exist (style, structure, personas, publisher profile).
+When working on target content, ensure appropriate rules exist. The system dynamically discovers available rule types from `/rules/rules-config.yaml`.
 
 ### Check for Required Rules
 
 Before content work begins:
 
-1. **Inspect target content** to determine requirements:
+1. **Load available rule types from registry:**
+   ```bash
+   # Dynamically discover all enabled rule types
+   registry="/rules/rules-config.yaml"
+   enabled_types=$(yq '.rule_types | to_entries | .[] | select(.value.enabled == true) | .key' "$registry")
+
+   # Get directory for each type
+   for type in $enabled_types; do
+     directory=$(yq ".rule_types.${type}.directory" "$registry")
+     echo "$type → /rules/$directory/"
+   done
+   ```
+
+2. **Inspect target content** to determine requirements:
    - Content type (tutorial, blog, landing page, docs)
    - Content purpose (educational, lead-gen, reference)
    - Target audience (technical, business, general)
    - Tone and complexity level
+   - Industry/vertical (if applicable)
+   - Channel (if applicable)
+   - Any other custom dimensions configured
 
-2. **Search for matching rules:**
+3. **Search for matching rules across ALL rule types:**
    ```bash
-   # Check if appropriate rules exist
-   ls -la rules/style/
-   ls -la rules/structure/
-   ls -la rules/personas/
-   ls -la rules/publisher/
+   # Dynamically check each enabled rule type
+   for type in $enabled_types; do
+     directory=$(yq ".rule_types.${type}.directory" "$registry")
+     name=$(yq ".rule_types.${type}.name" "$registry")
+
+     echo "Checking $name:"
+     ls -la "rules/$directory/" 2>/dev/null || echo "  (no rules extracted yet)"
+   done
    ```
 
-3. **Match requirements to available rules:**
-   - **Style**: Voice, tone, complexity match target needs?
-   - **Structure**: Document format matches target type?
-   - **Persona**: Audience profile matches target audience?
-   - **Publisher**: Organizational context available?
+4. **Match requirements to available rules:**
+   - **Built-in types** (always checked):
+     - **Style**: Voice, tone, complexity match target needs?
+     - **Structure**: Document format matches target type?
+     - **Persona**: Audience profile matches target audience?
+     - **Publisher**: Organizational context available?
+
+   - **Custom types** (if configured):
+     - **Verticals**: Does industry-specific content exist for target vertical?
+     - **Use-cases**: Does problem/solution pattern exist for target use case?
+     - **Channels**: Does channel-specific formatting exist for target channel?
+     - **[Any other custom types]**: Check if rules exist for target's custom dimensions
 
 ### Handle Missing Rules
 
@@ -396,58 +422,118 @@ writing-rules-skill structure with documents: /sources/company.com/case-studies/
 writing-rules-skill structure --type case-study --auto-discover
 ```
 
-### Rule Matching Algorithm
+### Rule Matching Algorithm (Dynamic)
 
 ```
 FOR each target content item:
-  1. Inspect target properties:
+  1. Load rule types from registry:
+     enabled_types = load_enabled_rule_types("/rules/rules-config.yaml")
+
+  2. Inspect target properties:
      - content_type: tutorial | blog | landing-page | docs | case-study | etc.
      - content_purpose: educational | lead-gen | reference | support | etc.
      - target_audience: technical | business | general | executive | etc.
      - complexity_level: beginner | intermediate | advanced
      - tone_required: professional | conversational | authoritative | casual
+     - industry_vertical: [if verticals configured] healthcare | finance | etc.
+     - use_case: [if use-cases configured] migration | optimization | etc.
+     - channel: [if channels configured] email | web | social | etc.
+     - [any other custom dimensions]
 
-  2. Search rules directories:
-     - /rules/style/ for matching voice/tone
-     - /rules/structure/ for matching document format
-     - /rules/personas/ for matching audience profile
-     - /rules/publisher/ for organizational context (always use if exists)
+  3. Search rules directories dynamically:
+     FOR each enabled rule type:
+       directory = get_directory(rule_type)
+       rules = list_rules("/rules/$directory/")
 
-  3. Evaluate matches:
-     IF perfect match found → Use existing rules
-     IF partial match found → Use partial + extract specifics
-     IF no match found → Extract from targets OR ask user for examples
+       IF rules found:
+         check_for_match(rules, target_properties)
 
-  4. Flag missing rules:
-     ⚠️ No style guide for [content_type]
-     ⚠️ No structure template for [content_purpose]
-     ⚠️ No persona for [target_audience]
+  4. Evaluate matches per rule type:
+     FOR each rule type:
+       IF perfect match found → Use existing rule
+       IF partial match found → Use partial + extract specifics
+       IF no match found → Flag as missing
 
-  5. Recommend action:
-     - "Extract from these similar documents: [list]"
-     - "Please provide example or template"
+  5. Flag missing rules dynamically:
+     FOR each rule type with no match:
+       ⚠️ No {rule_type_name} for [target_properties]
+
+     Examples:
+       ⚠️ No style guide for technical tutorials
+       ⚠️ No structure template for case studies
+       ⚠️ No persona for business decision-makers
+       ⚠️ No vertical rules for healthcare content
+       ⚠️ No channel guidelines for email format
+
+  6. Recommend action:
+     - "Extract {rule_type} from these similar documents: [list]"
+     - "Please provide example for {rule_type} extraction"
      - "Proceed with general guidelines? (not recommended)"
 ```
 
+**Key difference from hardcoded approach:**
+- System discovers rule types from registry (not hardcoded to 4 types)
+- Checks ALL enabled rule types (built-in + custom)
+- Error messages reflect actual configured rule types
+- Fully extensible as teams add custom dimensions
+
 ### Add Rules to project.md
 
-Track which rules apply to the project:
+Track which rules apply to the project. The format is **dynamic** based on enabled rule types in the registry:
 
 ```markdown
-## Style Guidelines
+## Rules Configuration
+
+[Dynamically generated sections for each enabled rule type]
+
+### Style Guidelines
 - Technical documentation style: `/rules/style/technical-documentation.md`
 - Conversational blog style: `/rules/style/conversational-blog.md`
 
-## Structure Templates
+### Structure Templates
 - Tutorial structure: `/rules/structure/quickstart-tutorial.md`
 - API reference structure: `/rules/structure/api-reference.md`
 
-## Target Personas
+### Target Personas
 - Developer persona: `/rules/personas/technical-implementer.md`
 - Business decision-maker: `/rules/personas/enterprise-decision-maker.md`
 
-## Publisher Profile
+### Publisher Profile
 - Company profile: `/rules/publisher/publisher-profile.md` (always applicable)
+
+[If custom rule types are configured:]
+
+### Industry Verticals
+- Healthcare vertical: `/rules/verticals/healthcare-vertical.md`
+- Finance vertical: `/rules/verticals/finance-vertical.md`
+
+### Use Case Patterns
+- Migration pattern: `/rules/use-cases/migration-patterns.md`
+
+### Channel Guidelines
+- Email guidelines: `/rules/channels/email-guidelines.md`
+- Social guidelines: `/rules/channels/social-guidelines.md`
+```
+
+**Dynamic section generation:**
+```bash
+# Generate project.md rules sections from registry
+for type in $(yq '.rule_types | to_entries | .[] | select(.value.enabled == true) | .key' /rules/rules-config.yaml); do
+  name=$(yq ".rule_types.${type}.name" /rules/rules-config.yaml)
+  directory=$(yq ".rule_types.${type}.directory" /rules/rules-config.yaml)
+
+  echo "### $name"
+
+  # List rules in this directory
+  for rule_file in /rules/$directory/*.md; do
+    if [ -f "$rule_file" ]; then
+      rule_name=$(basename "$rule_file" .md | sed 's/-/ /g')
+      echo "- ${rule_name^}: \`$rule_file\`"
+    fi
+  done
+
+  echo ""
+done
 ```
 
 ### Workflow: Content Work with Rule Validation
