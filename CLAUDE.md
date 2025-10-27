@@ -169,6 +169,118 @@ Claude will:
 
 ---
 
+## CMS Integration
+
+Kurt integrates with CMS platforms (Sanity, Contentful, WordPress) via the `kurt cms` CLI commands.
+
+### Setup
+
+**Configuration is stored in `.kurt/cms-config.json`** (gitignored).
+
+```json
+{
+  "sanity": {
+    "project_id": "your-project-id",
+    "dataset": "production",
+    "token": "sk...your-read-token",
+    "write_token": "sk...your-write-token",
+    "base_url": "https://yoursite.com"
+  }
+}
+```
+
+### Onboarding
+
+First-time setup to discover content types and configure field mappings:
+
+```bash
+kurt cms onboard
+```
+
+This will:
+1. Test your CMS connection
+2. Discover all content types (with document counts)
+3. Guide you through selecting types to work with
+4. Map custom fields to standard roles (content, title, slug, metadata)
+
+### Common Workflows
+
+**1. Browse CMS Content**
+```bash
+# List content types
+kurt cms types
+
+# Search all content
+kurt cms search --query "tutorial"
+
+# Search specific type
+kurt cms search --content-type article --limit 20
+```
+
+**2. Fetch CMS Content to Local**
+```bash
+# Fetch single document as markdown
+kurt cms fetch --id abc123 --output-dir sources/cms/sanity/
+
+# Output shows: title, type, status, character count
+# Creates markdown file with YAML frontmatter
+```
+
+**3. Import to Kurt Database**
+```bash
+# Import fetched markdown files
+kurt cms import --source-dir sources/cms/sanity/
+
+# Documents added to Kurt DB with CMS metadata preserved
+# Can then index, cluster, extract rules, etc.
+```
+
+**4. Publish Drafts to CMS**
+```bash
+# Update existing document
+kurt cms publish --file draft.md --id abc123
+
+# Create new document
+kurt cms publish --file new-article.md --content-type article
+
+# Publishes as draft in CMS for review
+```
+
+### Integration with Other Workflows
+
+**CMS → Kurt → Content Creation:**
+```bash
+# 1. Fetch existing articles from CMS
+kurt cms search --content-type article
+kurt cms fetch --id <id> --output-dir sources/cms/sanity/
+kurt cms import --source-dir sources/cms/sanity/
+
+# 2. Extract rules from CMS content
+writing-rules-skill style --type corporate --auto-discover
+writing-rules-skill structure --type article --auto-discover
+
+# 3. Create new content using learned patterns
+content-writing-skill outline my-project new-article
+content-writing-skill draft my-project new-article
+
+# 4. Publish back to CMS
+kurt cms publish --file projects/my-project/assets/new-article-draft.md --content-type article
+```
+
+**Benefits:**
+- ✅ Pull existing content from CMS for analysis
+- ✅ Learn writing patterns from published content
+- ✅ Create new content matching CMS style
+- ✅ Round-trip: CMS → Kurt → CMS
+
+### Supported Platforms
+
+- **Sanity** - Full support (search, fetch, import, publish)
+- **Contentful** - Coming soon
+- **WordPress** - Coming soon
+
+---
+
 ## Best Practices
 
 ### For Outline Creation
