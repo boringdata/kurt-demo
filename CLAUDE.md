@@ -281,6 +281,169 @@ kurt cms publish --file projects/my-project/assets/new-article-draft.md --conten
 
 ---
 
+## Research Integration
+
+Kurt integrates with AI research platforms (Perplexity) for daily news monitoring and topic discovery via `kurt research` CLI commands.
+
+### Setup
+
+**Configuration is stored in `.kurt/research-config.json`** (gitignored).
+
+```json
+{
+  "perplexity": {
+    "api_key": "pplx-...",
+    "default_model": "sonar-reasoning",
+    "default_recency": "day",
+    "max_tokens": 4000,
+    "temperature": 0.2
+  }
+}
+```
+
+Get your API key at: https://www.perplexity.ai/settings/api
+
+### Models and Recency
+
+**Available models:**
+- `sonar-reasoning` - Best for comprehensive research (default)
+- `sonar` - Faster, good for quick queries
+- `sonar-pro` - Most powerful, higher cost
+
+**Recency filters:**
+- `hour` - Last hour (breaking news)
+- `day` - Last 24 hours (daily monitoring)
+- `week` - Last 7 days (weekly trends)
+- `month` - Last 30 days (broader research)
+
+### Basic Usage
+
+**Execute research query:**
+```bash
+# Basic query
+kurt research search "latest AI coding assistant news"
+
+# With recency filter
+kurt research search "latest AI coding assistant news" --recency day
+
+# Save results to markdown
+kurt research search "latest AI coding assistant news" --recency day --save
+```
+
+Research results are saved to `sources/research/YYYY-MM-DD-query.md` with:
+- YAML frontmatter (query, citations, metadata)
+- Comprehensive answer with inline citations
+- Full source list
+
+**Browse research history:**
+```bash
+# List recent research
+kurt research list
+
+# View specific result
+kurt research get 2025-10-27-latest-ai-coding-assistant-news
+```
+
+### Research Workflows (research-skill)
+
+For orchestrated workflows, use the **research-skill**:
+
+**1. Daily News Digest**
+```bash
+research-skill daily
+```
+Monitors saved topics, generates time-appropriate queries, presents key insights.
+
+**2. Topic Discovery**
+```bash
+research-skill discover "AI coding tools"
+```
+Broad exploration → Extract topics → Deep dive on selected topics.
+
+**3. Direct Research**
+```bash
+research-skill query "What are the latest developments in Claude Code?"
+```
+Research specific question with appropriate recency.
+
+**4. Browse History**
+```bash
+research-skill browse
+```
+Review past research, organized by date.
+
+**5. Kickoff Content Project**
+```bash
+research-skill kickoff <research-file> <project-name>
+```
+Use research as foundation for new content project.
+
+### Integration with Content Creation
+
+**Research → Content Workflow:**
+```bash
+# 1. Research topic
+kurt research search "Latest trends in AI coding assistants" --recency day --save
+
+# 2. Kickoff project from research
+research-skill kickoff 2025-10-27-latest-trends-in-ai-coding-assistants ai-coding-guide
+
+# 3. Extract rules (if needed)
+writing-rules-skill publisher --auto-discover
+writing-rules-skill style --type technical-docs --auto-discover
+
+# 4. Create outline (references research file as source)
+content-writing-skill outline ai-coding-guide intro-to-ai-coding
+
+# 5. Generate draft (with research citations)
+content-writing-skill draft ai-coding-guide intro-to-ai-coding
+```
+
+**Benefits:**
+- ✅ Stay current with industry trends
+- ✅ Discover content topics backed by research
+- ✅ Track all citations and sources
+- ✅ Feed research into content creation workflow
+- ✅ Maintain lineage from research → outline → draft
+
+### Key Differences: Research vs Documents
+
+**Research files are NOT imported to Kurt database:**
+- Research is ephemeral (news, trends, time-sensitive)
+- Saved as markdown in `sources/research/`
+- Can be referenced as sources in content creation
+- Use `kurt research list` to browse (not `kurt document list`)
+
+**CMS/Web content IS imported:**
+- Documentation, articles, reference material
+- Stable content that updates over time
+- Imported to Kurt DB for indexing and clustering
+- Use `kurt document list` to browse
+
+### Example: Daily Monitoring Workflow
+
+```bash
+# Morning: Check yesterday's news
+research-skill daily
+
+# If interesting topic found:
+kurt research search "Detailed query about topic" --recency day --save
+
+# Kickoff content project if worth writing about:
+research-skill kickoff 2025-10-27-topic-name new-article-project
+
+# Create content:
+content-writing-skill outline new-article-project article
+content-writing-skill draft new-article-project article
+
+# Publish to CMS:
+kurt cms publish --file projects/new-article-project/assets/article-draft.md --content-type article
+```
+
+**Complete cycle:** Monitor → Research → Create → Publish
+
+---
+
 ## Best Practices
 
 ### For Outline Creation
