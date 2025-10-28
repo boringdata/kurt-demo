@@ -2,7 +2,7 @@
 
 **Purpose:** Extract document organization patterns and content templates from existing content
 **Parent Skill:** writing-rules-skill
-**Output:** Structure templates in `/rules/structure/`
+**Output:** Structure templates in `rules/structure/`
 
 ---
 
@@ -11,7 +11,7 @@
 The parent skill provides:
 - `$PROJECT_NAME` - Project name (if in project context)
 - `$PROJECT_PATH` - Full path to project directory (if applicable)
-- `$RULES_STRUCTURE_DIR` - `/rules/structure/`
+- `$RULES_STRUCTURE_DIR` - `rules/structure/`
 - `$EXISTING_RULES` - List of existing structure templates
 - `$SOURCES_STATUS` - fetched|indexed status
 - `$ARGUMENTS` - Subskill arguments
@@ -94,7 +94,7 @@ success=$(kurt document list --url-contains /success-stor --status FETCHED)
    - Content depth guidelines
    - Visual/formatting elements
 5. **Check against existing** - Compare with existing templates
-6. **Create template files** - Generate structure templates in `/rules/structure/`
+6. **Create template files** - Generate structure templates in `rules/structure/`
 7. **Report results** - Show created templates
 
 ---
@@ -180,7 +180,7 @@ source_documents:
    - 1 consistent structural pattern identified
 
 📝 Structure template created:
-   - /rules/structure/quickstart-tutorial-structure.md
+   - rules/structure/quickstart-tutorial-structure.md
 
 🔍 Structure characteristics:
    - Purpose: Educational quickstart guidance

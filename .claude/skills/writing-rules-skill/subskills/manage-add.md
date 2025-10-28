@@ -8,8 +8,8 @@
 
 ## Context Received from Parent Skill
 
-- `$REGISTRY_PATH` - `/rules/rules-config.yaml`
-- `$RULES_BASE_DIR` - `/rules/`
+- `$REGISTRY_PATH` - `rules/rules-config.yaml`
+- `$RULES_BASE_DIR` - `rules/`
 - `$SUBSKILLS_DIR` - `.claude/skills/writing-rules-skill/subskills/`
 
 ---
@@ -480,7 +480,7 @@ Create this rule type? (yes/no) _
 
 ```bash
 # 1. Backup registry
-cp /rules/rules-config.yaml /rules/rules-config.yaml.backup
+cp rules/rules-config.yaml rules/rules-config.yaml.backup
 
 # 2. Add new rule type to registry
 # Insert new entry in rule_types section
@@ -489,7 +489,7 @@ cp /rules/rules-config.yaml /rules/rules-config.yaml.backup
 # Increment custom_rule_types count
 
 # 4. Create directory
-mkdir -p /rules/{{directory}}/
+mkdir -p rules/{{directory}}/
 
 # 5. Save registry
 ```
@@ -499,7 +499,7 @@ mkdir -p /rules/{{directory}}/
 
 Created:
   • Registry entry in rules-config.yaml
-  • Directory: /rules/{{directory}}/
+  • Directory: rules/{{directory}}/
 
 Next steps:
   1. Generate extraction subskill:
@@ -622,14 +622,14 @@ Wait a moment and try again.
 Error: Could not create backup of registry
 
 Registry will not be modified without a backup.
-Check file permissions on /rules/ directory.
+Check file permissions on rules/ directory.
 ```
 
 **If YAML write fails:**
 ```
 Error: Could not update registry file
 
-The registry backup is at: /rules/rules-config.yaml.backup
+The registry backup is at: rules/rules-config.yaml.backup
 Manual intervention may be required.
 ```
 

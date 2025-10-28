@@ -8,8 +8,8 @@
 
 ## Context Received from Parent Skill
 
-- `$REGISTRY_PATH` - `/rules/rules-config.yaml`
-- `$RULES_BASE_DIR` - `/rules/`
+- `$REGISTRY_PATH` - `rules/rules-config.yaml`
+- `$RULES_BASE_DIR` - `rules/`
 - `$ARGUMENTS` - Should contain rule type name
 
 ---
@@ -36,7 +36,7 @@ fi
 
 ```bash
 # Load rules-config.yaml
-registry_file="/rules/rules-config.yaml"
+registry_file="rules/rules-config.yaml"
 
 if [ ! -f "$registry_file" ]; then
   error "Rules registry not found"
@@ -81,7 +81,7 @@ Extract all fields for this rule type:
 ### Step 4: Check Extraction Status
 
 ```bash
-rule_directory="/rules/${directory}/"
+rule_directory="rules/${directory}/"
 
 # Count extracted rules
 if [ -d "$rule_directory" ]; then
@@ -116,7 +116,7 @@ OVERVIEW
   Description: Industry-specific messaging, terminology, and compliance
   Type: Custom Rule Type
   Status: ✓ Enabled
-  Directory: /rules/verticals/
+  Directory: rules/verticals/
 
 WHAT THIS EXTRACTS
   • industry_terminology - Industry-specific language and jargon
@@ -214,7 +214,7 @@ OVERVIEW
   Description: Writing voice, tone, sentence structure, and word choice
   Type: Built-in Rule Type (cannot be modified)
   Status: ✓ Enabled (always enabled)
-  Directory: /rules/style/
+  Directory: rules/style/
 
 WHAT THIS EXTRACTS
   • voice_tone - Writing personality and emotional quality

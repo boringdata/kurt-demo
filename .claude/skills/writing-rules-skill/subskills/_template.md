@@ -2,7 +2,7 @@
 
 **Purpose:** Extract {{DESCRIPTION}}
 **Parent Skill:** writing-rules-skill
-**Output:** {{RULE_TYPE}} files in `/rules/{{DIRECTORY}}/`
+**Output:** {{RULE_TYPE}} files in `rules/{{DIRECTORY}}/`
 
 ---
 
@@ -10,7 +10,7 @@
 
 - `$PROJECT_NAME` - Project name (if in project context)
 - `$PROJECT_PATH` - Full path to project directory (if applicable)
-- `$RULES_DIR` - `/rules/{{DIRECTORY}}/`
+- `$RULES_DIR` - `rules/{{DIRECTORY}}/`
 - `$EXISTING_RULES` - List of existing {{RULE_TYPE}} files
 - `$SOURCES_STATUS` - fetched|indexed status
 - `$ARGUMENTS` - Subskill arguments
@@ -192,7 +192,7 @@ Analyze if documents share:
 
 **Load existing rules from $RULES_DIR:**
 ```bash
-ls -la /rules/{{DIRECTORY}}/
+ls -la rules/{{DIRECTORY}}/
 ```
 
 **For each detected pattern:**
@@ -206,7 +206,7 @@ ls -la /rules/{{DIRECTORY}}/
 - Keep all existing rules
 
 **Overwrite Mode (`--overwrite` flag):**
-- Delete all files in `/rules/{{DIRECTORY}}/`
+- Delete all files in `rules/{{DIRECTORY}}/`
 - Create fresh rules from analysis
 - Report all created rules
 
@@ -229,7 +229,7 @@ Based on type and characteristics:
 - `migration-{{RULE_TYPE}}.md`
 - `email-{{RULE_TYPE}}.md`
 
-### Create File: /rules/{{DIRECTORY}}/<name>.md
+### Create File: rules/{{DIRECTORY}}/<name>.md
 
 **File structure:**
 ```markdown
@@ -270,7 +270,7 @@ source_documents:
 
 ### Save File
 
-Write file to `/rules/{{DIRECTORY}}/<name>.md`
+Write file to `rules/{{DIRECTORY}}/<name>.md`
 
 ---
 
@@ -285,8 +285,8 @@ Write file to `/rules/{{DIRECTORY}}/<name>.md`
    - <count> distinct pattern(s) identified
 
 📝 Rule(s) created:
-   - /rules/{{DIRECTORY}}/<name1>.md
-   - /rules/{{DIRECTORY}}/<name2>.md (if multiple)
+   - rules/{{DIRECTORY}}/<name1>.md
+   - rules/{{DIRECTORY}}/<name2>.md (if multiple)
 
 🔍 Characteristics:
    <Summary of what was extracted>
@@ -302,8 +302,8 @@ Next steps:
 ℹ️ No new {{RULE_TYPE}} patterns detected
 
 Analyzed <count> documents and found patterns already captured in:
-  - /rules/{{DIRECTORY}}/<existing-rule-1>.md
-  - /rules/{{DIRECTORY}}/<existing-rule-2>.md
+  - rules/{{DIRECTORY}}/<existing-rule-1>.md
+  - rules/{{DIRECTORY}}/<existing-rule-2>.md
 
 Options:
   1. Review existing rules - may already have what you need
@@ -319,8 +319,8 @@ Options:
 📝 Created <count> new rule(s) from fresh analysis
 
 Updated {{RULE_TYPE}} library:
-  - /rules/{{DIRECTORY}}/<name1>.md
-  - /rules/{{DIRECTORY}}/<name2>.md
+  - rules/{{DIRECTORY}}/<name1>.md
+  - rules/{{DIRECTORY}}/<name2>.md
   ...
 ```
 
@@ -343,7 +343,7 @@ Updated {{RULE_TYPE}} library:
 ## Directory Management
 
 **Automatic Directory Creation:**
-- Creates `/rules/{{DIRECTORY}}/` if it doesn't exist
+- Creates `rules/{{DIRECTORY}}/` if it doesn't exist
 - No manual setup required
 - Works on first use
 
@@ -378,9 +378,9 @@ d) Use manual document selection
 
 **If directory creation fails:**
 ```
-❌ Error: Could not create directory /rules/{{DIRECTORY}}/
+❌ Error: Could not create directory rules/{{DIRECTORY}}/
 
-Check permissions on /rules/ directory.
+Check permissions on rules/ directory.
 ```
 
 ---
@@ -392,7 +392,7 @@ This template uses the following variables (replaced by manage-generate-subskill
 - `{{RULE_TYPE}}` - Rule type slug (e.g., "verticals")
 - `{{NAME}}` - Display name (e.g., "Industry Verticals")
 - `{{DESCRIPTION}}` - Rule type description
-- `{{DIRECTORY}}` - Directory name in /rules/
+- `{{DIRECTORY}}` - Directory name in rules/
 - `{{DISCOVERY_MODES}}` - Comma-separated list of discovery modes
 - `{{SAMPLE_SIZE}}` - Number of documents to analyze
 - `{{INSTRUCTIONS}}` - LLM extraction instructions

@@ -142,10 +142,10 @@ If the user wants to extract rules (from Step 4) AND content is fetched + indexe
 
 1. **Check what already exists globally:**
    ```bash
-   ls /rules/publisher/publisher-profile.md  # Publisher profile
-   ls /rules/style/  # Style guides
-   ls /rules/structure/  # Structure templates
-   ls /rules/personas/  # Personas
+   ls rules/publisher/publisher-profile.md  # Publisher profile
+   ls rules/style/  # Style guides
+   ls rules/structure/  # Structure templates
+   ls rules/personas/  # Personas
    ```
 
 2. **Recommend extraction priority based on what's missing:**
@@ -184,10 +184,10 @@ If the user wants to extract rules (from Step 4) AND content is fetched + indexe
 Target: Update /docs/quickstart-guide.md
 
 Required rules:
-✓ Technical documentation style: /rules/style/technical-documentation.md
+✓ Technical documentation style: rules/style/technical-documentation.md
 ✗ Tutorial structure: NOT FOUND → Extract from tutorials?
-✓ Developer persona: /rules/personas/technical-implementer.md
-✓ Publisher profile: /rules/publisher/publisher-profile.md
+✓ Developer persona: rules/personas/technical-implementer.md
+✓ Publisher profile: rules/publisher/publisher-profile.md
 
 Recommendation: Extract tutorial structure template before starting work.
 ```

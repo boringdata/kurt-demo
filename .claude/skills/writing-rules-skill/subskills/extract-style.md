@@ -2,7 +2,7 @@
 
 **Purpose:** Extract writing voice, tone, and style patterns from existing content
 **Parent Skill:** writing-rules-skill
-**Output:** Style guides in `/rules/style/`
+**Output:** Style guides in `rules/style/`
 
 ---
 
@@ -12,7 +12,7 @@ The parent skill provides:
 - `$PROJECT_NAME` - Project name (if in project context)
 - `$PROJECT_PATH` - Full path to project directory (if applicable)
 - `$PROJECT_BRIEF` - Path to project.md (if applicable)
-- `$RULES_STYLE_DIR` - `/rules/style/`
+- `$RULES_STYLE_DIR` - `rules/style/`
 - `$EXISTING_RULES` - List of existing style guides
 - `$SOURCES_STATUS` - fetched|indexed status
 - `$ARGUMENTS` - Subskill arguments
@@ -304,7 +304,7 @@ Analyze if documents share:
 
 **Load existing styles from $RULES_STYLE_DIR:**
 ```bash
-ls -la /rules/style/
+ls -la rules/style/
 ```
 
 **For each detected style pattern:**
@@ -318,7 +318,7 @@ ls -la /rules/style/
 - Keep all existing style guides
 
 **Overwrite Mode (`--overwrite` flag):**
-- Delete all files in `/rules/style/`
+- Delete all files in `rules/style/`
 - Create fresh style guides from analysis
 - Report all created guides
 
@@ -342,7 +342,7 @@ Based on analysis:
 - `friendly-support-content.md`
 - `jane-smith-blog-voice.md` (for author styles)
 
-### Create File: /rules/style/<name>.md
+### Create File: rules/style/<name>.md
 
 **File structure:**
 ```markdown
@@ -465,7 +465,7 @@ When applying this style guide:
 
 ### Save File
 
-Write file to `/rules/style/<name>.md`
+Write file to `rules/style/<name>.md`
 
 ---
 
@@ -480,8 +480,8 @@ Write file to `/rules/style/<name>.md`
    - <count> distinct style pattern(s) identified
 
 📝 Style guide(s) created:
-   - /rules/style/<name1>.md
-   - /rules/style/<name2>.md (if multiple)
+   - rules/style/<name1>.md
+   - rules/style/<name2>.md (if multiple)
 
 🔍 Style characteristics:
    <Style 1>:
@@ -504,8 +504,8 @@ Next steps:
 ℹ️ No new style patterns detected
 
 Analyzed <count> documents and found patterns already captured in:
-  - /rules/style/<existing-guide-1>.md
-  - /rules/style/<existing-guide-2>.md
+  - rules/style/<existing-guide-1>.md
+  - rules/style/<existing-guide-2>.md
 
 Options:
   1. Review existing guides - may already have what you need
@@ -521,8 +521,8 @@ Options:
 📝 Created <count> new style guide(s) from fresh analysis
 
 Updated style library:
-  - /rules/style/<name1>.md
-  - /rules/style/<name2>.md
+  - rules/style/<name1>.md
+  - rules/style/<name2>.md
   ...
 ```
 
@@ -567,7 +567,7 @@ Updated style library:
 ## Directory Management
 
 **Automatic Directory Creation:**
-- Creates `/rules/style/` if it doesn't exist
+- Creates `rules/style/` if it doesn't exist
 - No manual setup required
 - Works on first use
 

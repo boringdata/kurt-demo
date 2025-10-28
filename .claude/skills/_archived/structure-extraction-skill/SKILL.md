@@ -4,7 +4,7 @@ Extract document organization patterns and content templates from existing conte
 
 ## Purpose
 
-Analyze content to identify consistent document structures (section flow, headline patterns, content organization) and save them as structure templates in `/rules/structure/` for use in content creation projects.
+Analyze content to identify consistent document structures (section flow, headline patterns, content organization) and save them as structure templates in `rules/structure/` for use in content creation projects.
 
 ## When to Use
 
@@ -71,7 +71,7 @@ echo "Total: 8 pages (focused sample)"
 # Step 4: User approves or refines
 
 # Step 5: Extract tutorial structure template
-# Create: /rules/structure/quickstart-tutorial.md
+# Create: rules/structure/quickstart-tutorial.md
 ```
 
 **For API Reference Structure:**
@@ -141,7 +141,7 @@ invoke structure-extraction-skill --type tutorial --auto-discover
 ```
 
 **Behavior:**
-1. Reads existing structure templates in `/rules/structure/`
+1. Reads existing structure templates in `rules/structure/`
 2. Analyzes provided documents for structural patterns
 3. Compares findings with existing templates
 4. Creates new structure template only if distinct pattern found
@@ -154,7 +154,7 @@ invoke structure-extraction-skill with documents: <file-paths> --overwrite
 ```
 
 **Behavior:**
-1. Deletes all files in `/rules/structure/`
+1. Deletes all files in `rules/structure/`
 2. Performs fresh analysis on all provided documents
 3. Creates completely new structure template library
 
@@ -249,7 +249,7 @@ Each structure template includes:
 ## Directory Management
 
 **Automatic Directory Creation:**
-- Skill creates `/rules/structure/` if it doesn't exist
+- Skill creates `rules/structure/` if it doesn't exist
 - No manual setup required
 - Works on first use
 
@@ -257,7 +257,7 @@ Each structure template includes:
 
 When working on target content:
 1. **Inspect target**: Identify content purpose, type, audience
-2. **Search rules**: Look for matching structure template in `/rules/structure/`
+2. **Search rules**: Look for matching structure template in `rules/structure/`
 3. **Match or extract**:
    - Match found → Use existing structure template
    - No match → Extract from targets OR ask user for example

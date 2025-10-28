@@ -8,8 +8,8 @@
 
 ## Context Received from Parent Skill
 
-- `$REGISTRY_PATH` - `/rules/rules-config.yaml`
-- `$RULES_BASE_DIR` - `/rules/`
+- `$REGISTRY_PATH` - `rules/rules-config.yaml`
+- `$RULES_BASE_DIR` - `rules/`
 
 ---
 

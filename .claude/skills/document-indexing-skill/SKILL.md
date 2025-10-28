@@ -96,5 +96,5 @@ results = asyncio.run(batch_extract_document_metadata(
 
 ## Next Steps
 
-- **content-ingestion-skill** - Fetch documents first
+- **ingest-content-skill** - Fetch documents first
 - **document-management-skill** - Query and manage documents

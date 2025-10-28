@@ -4,7 +4,7 @@ Extract audience targeting patterns from existing content to create audience per
 
 ## Purpose
 
-Analyze content to identify who it's written for - inferred roles, technical level, pain points, goals, and communication preferences - and save them as persona profiles in `/rules/personas/` for use in content creation projects.
+Analyze content to identify who it's written for - inferred roles, technical level, pain points, goals, and communication preferences - and save them as persona profiles in `rules/personas/` for use in content creation projects.
 
 ## When to Use
 
@@ -74,7 +74,7 @@ echo "Total: 10 pages (technical audience)"
 # Step 4: User approves or refines
 
 # Step 5: Extract technical persona
-# Create: /rules/personas/technical-implementer.md or /rules/personas/developer.md
+# Create: rules/personas/technical-implementer.md or rules/personas/developer.md
 ```
 
 **For Business/Executive Personas:**
@@ -127,9 +127,9 @@ echo "Total: 20 pages (diverse audience targeting)"
 # Step 4: User approves
 
 # Step 5: Extract multiple personas
-# May create: /rules/personas/technical-implementer.md
-#            /rules/personas/business-decision-maker.md
-#            /rules/personas/end-user.md
+# May create: rules/personas/technical-implementer.md
+#            rules/personas/business-decision-maker.md
+#            rules/personas/end-user.md
 ```
 
 ### Discovery Patterns by Audience Type
@@ -154,7 +154,7 @@ invoke persona-extraction-skill --audience-type all --auto-discover
 ```
 
 **Behavior:**
-1. Reads existing persona profiles in `/rules/personas/`
+1. Reads existing persona profiles in `rules/personas/`
 2. Analyzes provided documents for audience targeting patterns
 3. Compares findings with existing personas
 4. Creates new persona profile only if distinct audience found
@@ -167,7 +167,7 @@ invoke persona-extraction-skill with documents: <file-paths> --overwrite
 ```
 
 **Behavior:**
-1. Deletes all files in `/rules/personas/`
+1. Deletes all files in `rules/personas/`
 2. Performs fresh analysis on all provided documents
 3. Creates completely new persona library
 
@@ -265,7 +265,7 @@ Each persona profile includes:
 ## Directory Management
 
 **Automatic Directory Creation:**
-- Skill creates `/rules/personas/` if it doesn't exist
+- Skill creates `rules/personas/` if it doesn't exist
 - No manual setup required
 - Works on first use
 
@@ -273,7 +273,7 @@ Each persona profile includes:
 
 When working on target content:
 1. **Inspect target**: Identify intended audience, technical level, context
-2. **Search rules**: Look for matching persona in `/rules/personas/`
+2. **Search rules**: Look for matching persona in `rules/personas/`
 3. **Match or extract**:
    - Match found → Use existing persona profile
    - No match → Extract from targets OR ask user for audience description

@@ -8,8 +8,8 @@
 
 ## Context Received from Parent Skill
 
-- `$REGISTRY_PATH` - `/rules/rules-config.yaml`
-- `$RULES_BASE_DIR` - `/rules/`
+- `$REGISTRY_PATH` - `rules/rules-config.yaml`
+- `$RULES_BASE_DIR` - `rules/`
 - `$SUBSKILLS_DIR` - `.claude/skills/writing-rules-skill/subskills/`
 
 ---
@@ -19,17 +19,17 @@
 ### Step 1: Validate Registry File Existence
 
 ```bash
-registry_file="/rules/rules-config.yaml"
+registry_file="rules/rules-config.yaml"
 
 if [ ! -f "$registry_file" ]; then
   echo "❌ ERROR: Rules registry not found"
   echo ""
-  echo "Expected location: /rules/rules-config.yaml"
+  echo "Expected location: rules/rules-config.yaml"
   echo ""
   echo "The registry file is missing. This file defines all available rule types."
   echo ""
   echo "Action needed:"
-  echo "  • Check if /rules/ directory exists"
+  echo "  • Check if rules/ directory exists"
   echo "  • Restore rules-config.yaml from backup or repository"
   exit 1
 fi
@@ -107,7 +107,7 @@ fi
 
 1. **Check if directory exists:**
 ```bash
-rule_dir="/rules/${directory}/"
+rule_dir="rules/${directory}/"
 
 if [ ! -d "$rule_dir" ]; then
   echo "⚠️  WARNING: Directory missing for enabled rule type '$slug'"
@@ -133,12 +133,12 @@ fi
 
 3. **Check for orphaned directories:**
 ```bash
-# Find directories in /rules/ that aren't in registry
-for dir in /rules/*/; do
+# Find directories in rules/ that aren't in registry
+for dir in rules/*/; do
   dir_name=$(basename "$dir")
 
   if ! is_in_registry("$dir_name"); then
-    echo "⚠️  WARNING: Orphaned directory found: /rules/$dir_name/"
+    echo "⚠️  WARNING: Orphaned directory found: rules/$dir_name/"
     echo "   This directory is not defined in the registry"
     echo "   Action: Add to registry or remove directory"
     orphans++
@@ -230,7 +230,7 @@ Kurt Rules Registry - Validation Report
 ═══════════════════════════════════════════════════════
 
 REGISTRY FILE
-  Location: /rules/rules-config.yaml
+  Location: rules/rules-config.yaml
   ✓ File exists
   ✓ Valid YAML syntax
   ✓ Schema valid
@@ -249,12 +249,12 @@ BUILT-IN TYPES (4)
 
 CUSTOM TYPES (2)
   ✓ verticals - OK
-    └─ Directory exists: /rules/verticals/
+    └─ Directory exists: rules/verticals/
     └─ Subskill exists: extract-verticals.md
     └─ 2 rules extracted
 
   ⚠️  use-cases - WARNINGS
-    └─ Directory exists: /rules/use-cases/
+    └─ Directory exists: rules/use-cases/
     └─ Subskill missing: extract-use-cases.md
     └─ Action: Run 'writing-rules-skill generate-subskill use-cases'
 

@@ -8,8 +8,8 @@
 
 ## Context Received from Parent Skill
 
-- `$REGISTRY_PATH` - `/rules/rules-config.yaml`
-- `$RULES_BASE_DIR` - `/rules/`
+- `$REGISTRY_PATH` - `rules/rules-config.yaml`
+- `$RULES_BASE_DIR` - `rules/`
 
 ---
 
@@ -19,7 +19,7 @@
 
 ```bash
 # Load rules-config.yaml
-registry_file="/rules/rules-config.yaml"
+registry_file="rules/rules-config.yaml"
 
 if [ ! -f "$registry_file" ]; then
   error "Rules registry not found at $registry_file"
@@ -46,7 +46,7 @@ For each rule type in registry:
 
 For each enabled rule type:
 ```bash
-rule_directory="/rules/{directory}/"
+rule_directory="rules/{directory}/"
 
 if [ -d "$rule_directory" ]; then
   # Count markdown files (exclude README if present)
@@ -65,29 +65,29 @@ Kurt Rules Registry - Available Rule Types
 
 BUILT-IN RULE TYPES (Enabled)
   ✓ style - Writing voice, tone, and style patterns
-    Directory: /rules/style/
+    Directory: rules/style/
     Extracted: 3 rules (corporate-brand-voice, technical-documentation, conversational-blog)
 
   ✓ structure - Document organization and format templates
-    Directory: /rules/structure/
+    Directory: rules/structure/
     Extracted: 2 rules (quickstart-tutorial, landing-page-structure)
 
   ✓ persona - Audience targeting patterns
-    Directory: /rules/personas/
+    Directory: rules/personas/
     Extracted: 2 rules (technical-implementer, business-decision-maker)
 
   ✓ publisher - Organizational context and brand profile
-    Directory: /rules/publisher/
+    Directory: rules/publisher/
     Extracted: 1 profile (publisher-profile)
 
 CUSTOM RULE TYPES (Enabled)
   ✓ verticals - Industry-specific messaging and terminology
-    Directory: /rules/verticals/
+    Directory: rules/verticals/
     Extracted: 2 rules (healthcare-vertical, finance-vertical)
     Discovery modes: healthcare, finance, retail, manufacturing
 
   ✓ use-cases - Use-case-specific problem statements and solutions
-    Directory: /rules/use-cases/
+    Directory: rules/use-cases/
     Extracted: 0 rules (not extracted yet)
     Discovery modes: migration, optimization, integration, automation
 
@@ -139,7 +139,7 @@ Next steps:
 For each enabled type, show:
 ```
 ✓ {slug} - {description}
-  Directory: /rules/{directory}/
+  Directory: rules/{directory}/
   Extracted: {count} rules [{list-of-files}]
   [Discovery modes: {modes}] (for custom types)
 ```
@@ -168,14 +168,14 @@ Calculate and display:
 ```
 Error: Could not parse rules registry
 
-The file /rules/rules-config.yaml appears to be malformed YAML.
+The file rules/rules-config.yaml appears to be malformed YAML.
 
 Run 'writing-rules-skill validate' to check for syntax errors.
 ```
 
 **If rules directory doesn't exist:**
 ```
-Warning: Rules directory not found at /rules/
+Warning: Rules directory not found at rules/
 
 This is your first time using Kurt. Consider running the onboarding wizard:
   writing-rules-skill onboard

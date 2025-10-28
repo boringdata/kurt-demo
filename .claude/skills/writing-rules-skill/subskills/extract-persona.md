@@ -2,7 +2,7 @@
 
 **Purpose:** Extract audience targeting patterns from existing content
 **Parent Skill:** writing-rules-skill
-**Output:** Persona profiles in `/rules/personas/`
+**Output:** Persona profiles in `rules/personas/`
 
 ---
 
@@ -11,7 +11,7 @@
 The parent skill provides:
 - `$PROJECT_NAME` - Project name (if in project context)
 - `$PROJECT_PATH` - Full path to project directory (if applicable)
-- `$RULES_PERSONAS_DIR` - `/rules/personas/`
+- `$RULES_PERSONAS_DIR` - `rules/personas/`
 - `$EXISTING_RULES` - List of existing personas
 - `$SOURCES_STATUS` - fetched|indexed status
 - `$ARGUMENTS` - Subskill arguments
@@ -93,7 +93,7 @@ blog=$(kurt document list --url-contains /blog/ --status FETCHED | head -5)
    - Technical level (beginner, intermediate, expert)
    - Decision authority (IC, influencer, decision-maker)
 6. **Check against existing** - Compare with existing personas
-7. **Create persona files** - Generate profiles in `/rules/personas/`
+7. **Create persona files** - Generate profiles in `rules/personas/`
 8. **Report results** - Show created personas
 
 ---
@@ -179,8 +179,8 @@ source_documents:
    - 2 distinct audience personas identified
 
 📝 Persona profiles created:
-   - /rules/personas/technical-implementer.md
-   - /rules/personas/business-decision-maker.md
+   - rules/personas/technical-implementer.md
+   - rules/personas/business-decision-maker.md
 
 🔍 Persona characteristics:
 

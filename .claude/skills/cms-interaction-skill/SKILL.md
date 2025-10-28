@@ -54,7 +54,7 @@ From your Sanity project dashboard:
 
 ### Step 2: Create Initial Config
 
-Create `.claude/scripts/cms-config.json`:
+Create `.kurt/cms-config.json`:
 
 ```json
 {
@@ -68,10 +68,7 @@ Create `.claude/scripts/cms-config.json`:
 }
 ```
 
-Add to `.gitignore`:
-```bash
-echo ".claude/scripts/cms-config.json" >> .gitignore
-```
+**Note:** The `.kurt/` directory is already gitignored, so your credentials are safe.
 
 ### Step 3: Run Onboarding
 

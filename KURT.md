@@ -65,12 +65,12 @@ kurt-demo/
 
 **Top-level folders (Shared/Reusable):**
 - `/sources/` - All web content ingested by Kurt (organizational knowledge base)
-- `/rules/rules-config.yaml` - Registry defining all available rule types
-- `/rules/style/` - Style guides, voice/tone patterns extracted from content
-- `/rules/structure/` - Document templates and format patterns extracted from content
-- `/rules/personas/` - Audience targeting profiles extracted from content
-- `/rules/publisher/` - Organizational context and brand profile
-- `/rules/[custom-types]/` - Optional custom rule directories (if configured)
+- `rules/rules-config.yaml` - Registry defining all available rule types
+- `rules/style/` - Style guides, voice/tone patterns extracted from content
+- `rules/structure/` - Document templates and format patterns extracted from content
+- `rules/personas/` - Audience targeting profiles extracted from content
+- `rules/publisher/` - Organizational context and brand profile
+- `rules/[custom-types]/` - Optional custom rule directories (if configured)
 
 **Project folders (Project-specific):**
 - `projects/name/sources/` - One-off files only for this project (PDFs, internal docs)
@@ -199,25 +199,25 @@ a/b/c/d/e from project creation
 ## Style Guidelines
 
 *Extracted writing patterns applicable to this project's content:*
-- Technical documentation style: `/rules/style/technical-documentation.md`
-- Conversational blog style: `/rules/style/conversational-blog.md`
+- Technical documentation style: `rules/style/technical-documentation.md`
+- Conversational blog style: `rules/style/conversational-blog.md`
 
 ## Structure Templates
 
 *Document format templates applicable to this project's content:*
-- Quickstart tutorial: `/rules/structure/quickstart-tutorial.md`
-- API reference: `/rules/structure/api-reference.md`
+- Quickstart tutorial: `rules/structure/quickstart-tutorial.md`
+- API reference: `rules/structure/api-reference.md`
 
 ## Target Personas
 
 *Audience profiles for this project's target content:*
-- Developer persona: `/rules/personas/technical-implementer.md`
-- Business decision-maker: `/rules/personas/enterprise-decision-maker.md`
+- Developer persona: `rules/personas/technical-implementer.md`
+- Business decision-maker: `rules/personas/enterprise-decision-maker.md`
 
 ## Publisher Profile
 
 *Organizational context for brand consistency:*
-- Company profile: `/rules/publisher/publisher-profile.md`
+- Company profile: `rules/publisher/publisher-profile.md`
 
 ## Progress
 - [x] Task completed (YYYY-MM-DD)
@@ -229,7 +229,7 @@ a/b/c/d/e from project creation
 
 **Note on Rules Sections:**
 - List only the rules that apply to **this specific project**
-- Reference rules from `/rules/` directories
+- Reference rules from `rules/` directories
 - Leave empty if no rules have been extracted yet
 - Update as new rules are extracted or identified
 
@@ -278,7 +278,7 @@ Rules are extracted patterns from existing content that guide consistent content
 
 ### Registry: Single Source of Truth
 
-All rule types are defined in **`/rules/rules-config.yaml`** - the central registry.
+All rule types are defined in **`rules/rules-config.yaml`** - the central registry.
 
 This file defines:
 - Which rule types are enabled
@@ -333,19 +333,19 @@ writing-rules-skill show verticals  # if configured
 **Browse extracted rules:**
 ```bash
 # See what rules exist in each directory
-ls /rules/style/
-ls /rules/structure/
-ls /rules/personas/
-ls /rules/publisher/
+ls rules/style/
+ls rules/structure/
+ls rules/personas/
+ls rules/publisher/
 
 # If custom types configured
-ls /rules/verticals/    # example
-ls /rules/channels/     # example
+ls rules/verticals/    # example
+ls rules/channels/     # example
 ```
 
 **View the registry:**
 ```bash
-cat /rules/rules-config.yaml
+cat rules/rules-config.yaml
 ```
 
 ### Managing Custom Rule Types
@@ -407,7 +407,7 @@ Wizard that explains rule types and guides configuration.
 When working on target content, Kurt automatically:
 
 1. **Inspects target** - Determines content type, purpose, audience, tone
-2. **Searches rules** - Looks for matching style/structure/persona in `/rules/`
+2. **Searches rules** - Looks for matching style/structure/persona in `rules/`
 3. **Flags missing rules** - Warns if no appropriate rules exist
 4. **Recommends action** - Extract from similar content OR ask user for examples
 

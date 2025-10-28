@@ -2,7 +2,7 @@
 
 **Purpose:** Extract organizational context and brand profile from company content
 **Parent Skill:** writing-rules-skill
-**Output:** Publisher profile at `/rules/publisher/publisher-profile.md` (single canonical file)
+**Output:** Publisher profile at `rules/publisher/publisher-profile.md` (single canonical file)
 
 ---
 
@@ -11,7 +11,7 @@
 The parent skill provides:
 - `$PROJECT_NAME` - Project name (if in project context)
 - `$PROJECT_PATH` - Full path to project directory (if applicable)
-- `$RULES_PUBLISHER` - `/rules/publisher/publisher-profile.md`
+- `$RULES_PUBLISHER` - `rules/publisher/publisher-profile.md`
 - `$EXISTING_RULES` - Existing publisher profile (if exists)
 - `$SOURCES_STATUS` - fetched|indexed status
 - `$ARGUMENTS` - Subskill arguments
@@ -112,7 +112,7 @@ Check which pages are FETCHED, fetch remaining, then index all.
    - Content strategy (topics, thought leadership)
    - Company culture & team (expertise, recognition)
 6. **Check existing profile** - Incremental or overwrite?
-7. **Create/update profile** - Write to `/rules/publisher/publisher-profile.md`
+7. **Create/update profile** - Write to `rules/publisher/publisher-profile.md`
 8. **Report results** - Show extraction summary
 
 ---
@@ -272,7 +272,7 @@ source_documents:
    - 0 local documents
 
 📝 Profile action: Created new profile
-   Location: /rules/publisher/publisher-profile.md
+   Location: rules/publisher/publisher-profile.md
 
 🔍 Key findings:
    - Organization: B2B SaaS, Series B growth stage

@@ -4,7 +4,7 @@ Extract writing voice, tone, and style patterns from existing content to create 
 
 ## Purpose
 
-Analyze content to identify consistent writing patterns (voice, tone, sentence structure, word choice) and save them as style guides in `/rules/style/` for use in content creation projects.
+Analyze content to identify consistent writing patterns (voice, tone, sentence structure, word choice) and save them as style guides in `rules/style/` for use in content creation projects.
 
 ## When to Use
 
@@ -152,7 +152,7 @@ invoke style-extraction-skill --type corporate --auto-discover
 ```
 
 **Behavior:**
-1. Reads existing style guides in `/rules/style/`
+1. Reads existing style guides in `rules/style/`
 2. Analyzes provided documents for style patterns
 3. Compares findings with existing guides
 4. Creates new style guide only if distinct pattern found
@@ -165,7 +165,7 @@ invoke style-extraction-skill with documents: <file-paths> --overwrite
 ```
 
 **Behavior:**
-1. Deletes all files in `/rules/style/`
+1. Deletes all files in `rules/style/`
 2. Performs fresh analysis on all provided documents
 3. Creates completely new style guide library
 
@@ -254,7 +254,7 @@ done
 # 6. Extract corporate voice style
 # Read documents from /sources/company.com/...
 # Analyze for voice, tone, sentence structure, word choice
-# Create: /rules/style/corporate-brand-voice.md
+# Create: rules/style/corporate-brand-voice.md
 ```
 
 ### Example 2: Extract Technical Documentation Voice
@@ -280,7 +280,7 @@ echo "Total: 8 pages (diverse sample)"
 # 4. User approves or adds specific docs
 
 # 5. Extract technical documentation style
-# Create: /rules/style/technical-documentation.md
+# Create: rules/style/technical-documentation.md
 ```
 
 ### Example 3: Extract Individual Author Voice
@@ -289,8 +289,8 @@ echo "Total: 8 pages (diverse sample)"
 # User wants to write blog post in John Doe's voice
 
 # 1. Check if corporate + blog voice already extracted
-ls /rules/style/corporate*.md  # ✓ exists
-ls /rules/style/blog*.md  # ✓ exists
+ls rules/style/corporate*.md  # ✓ exists
+ls rules/style/blog*.md  # ✓ exists
 
 # 2. Ask: "Extract individual author voice or use general blog voice?"
 # User: "Extract John's voice - I want to match his personal style"
@@ -308,7 +308,7 @@ echo "Topics: AI, product launches, company culture"
 # 5. User approves: "Use the 6 most recent"
 
 # 6. Extract individual author style
-# Create: /rules/style/john-doe-blog-voice.md
+# Create: rules/style/john-doe-blog-voice.md
 ```
 
 ### Example 4: Diverse Sampling for General Style
@@ -334,7 +334,7 @@ echo "Total: 9 pages (balanced mix)"
 # 4. User approves
 
 # 5. Extract general company style
-# Create: /rules/style/general-company-style.md
+# Create: rules/style/general-company-style.md
 # Note: May identify multiple distinct styles in output
 ```
 
@@ -370,7 +370,7 @@ echo "Total: 9 pages (balanced mix)"
 ## Directory Management
 
 **Automatic Directory Creation:**
-- Skill creates `/rules/style/` if it doesn't exist
+- Skill creates `rules/style/` if it doesn't exist
 - No manual setup required
 - Works on first use
 
@@ -378,7 +378,7 @@ echo "Total: 9 pages (balanced mix)"
 
 When working on target content:
 1. **Inspect target**: Identify content type, tone, audience
-2. **Search rules**: Look for matching style guide in `/rules/style/`
+2. **Search rules**: Look for matching style guide in `rules/style/`
 3. **Match or extract**:
    - Match found → Use existing style guide
    - No match → Extract from targets OR ask user for example

@@ -8,7 +8,7 @@
 
 ## Context Received from Parent Skill
 
-- `$REGISTRY_PATH` - `/rules/rules-config.yaml`
+- `$REGISTRY_PATH` - `rules/rules-config.yaml`
 - `$SUBSKILLS_DIR` - `.claude/skills/writing-rules-skill/subskills/`
 - `$ARGUMENTS` - Should contain rule type name
 
@@ -35,7 +35,7 @@ fi
 
 ```bash
 # Load rules-config.yaml
-registry_file="/rules/rules-config.yaml"
+registry_file="rules/rules-config.yaml"
 
 if [ ! -f "$registry_file" ]; then
   error "Rules registry not found"
@@ -279,7 +279,7 @@ The template uses these placeholders:
 - `{{RULE_TYPE}}` - Rule type slug (e.g., "verticals")
 - `{{NAME}}` - Display name (e.g., "Industry Verticals")
 - `{{DESCRIPTION}}` - Description text
-- `{{DIRECTORY}}` - Directory name in /rules/
+- `{{DIRECTORY}}` - Directory name in rules/
 
 **Extraction Config:**
 - `{{DISCOVERY_MODES}}` - Comma-separated list of modes
@@ -306,7 +306,7 @@ For rule type "verticals":
 
 **Purpose:** Extract Industry-specific messaging, terminology, and compliance
 **Parent Skill:** writing-rules-skill
-**Output:** verticals files in `/rules/verticals/`
+**Output:** verticals files in `rules/verticals/`
 
 ---
 

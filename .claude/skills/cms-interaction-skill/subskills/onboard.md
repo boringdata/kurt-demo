@@ -10,7 +10,7 @@
 
 The parent skill provides:
 - `$CMS_NAME` - CMS to onboard (default: sanity)
-- `$CMS_CONFIG_PATH` - Path to .claude/scripts/cms-config.json
+- `$CMS_CONFIG_PATH` - Path to .kurt/cms-config.json
 - `$CMS_PROJECT_ID` - Project ID from config
 - `$CMS_DATASET` - Dataset from config
 - `$SCRIPTS_DIR` - Path to scripts directory
@@ -41,7 +41,7 @@ Before running onboarding, check if config file exists and has valid credentials
 ### Check if config exists
 
 ```bash
-if [ ! -f .claude/scripts/cms-config.json ]; then
+if [ ! -f .kurt/cms-config.json ]; then
   echo "Config file not found. Creating template..."
   # Create template
 fi
@@ -52,9 +52,9 @@ fi
 If config doesn't exist, create template:
 
 ```bash
-mkdir -p .claude/scripts
+mkdir -p .kurt
 
-cat > .claude/scripts/cms-config.json << 'EOF'
+cat > .kurt/cms-config.json << 'EOF'
 {
   "sanity": {
     "project_id": "YOUR_PROJECT_ID_HERE",
@@ -66,8 +66,7 @@ cat > .claude/scripts/cms-config.json << 'EOF'
 }
 EOF
 
-# Add to gitignore
-echo ".claude/scripts/cms-config.json" >> .gitignore
+# Note: .kurt/ directory is already gitignored
 ```
 
 ### Instruct User to Fill Credentials
@@ -75,11 +74,11 @@ echo ".claude/scripts/cms-config.json" >> .gitignore
 Display instructions to user:
 
 ```
-✋ Configuration file created: .claude/scripts/cms-config.json
+✋ Configuration file created: .kurt/cms-config.json
 
 Please fill in your Sanity credentials:
 
-1. Open: .claude/scripts/cms-config.json
+1. Open: .kurt/cms-config.json
 
 2. Replace the placeholder values:
    - project_id: Your Sanity project ID
@@ -107,8 +106,8 @@ IMPORTANT: This file is gitignored and won't be committed to version control.
 Before proceeding, check that placeholders have been replaced:
 
 ```bash
-if grep -q "YOUR_PROJECT_ID_HERE\|YOUR_READ_TOKEN_HERE" .claude/scripts/cms-config.json; then
-  echo "❌ Please fill in your credentials in .claude/scripts/cms-config.json"
+if grep -q "YOUR_PROJECT_ID_HERE\|YOUR_READ_TOKEN_HERE" .kurt/cms-config.json; then
+  echo "❌ Please fill in your credentials in .kurt/cms-config.json"
   exit 1
 fi
 ```
@@ -231,7 +230,7 @@ Test 4: Conversion test
 
 === Configuration Complete ===
 
-Configuration saved to: .claude/scripts/cms-config.json
+Configuration saved to: .kurt/cms-config.json
 
 Generated mappings for:
   ✓ article (123 documents)
@@ -338,7 +337,7 @@ After successful onboarding, inform user:
 ```
 ✅ Onboarding complete!
 
-Configuration saved to: .claude/scripts/cms-config.json
+Configuration saved to: .kurt/cms-config.json
 
 You can now use these subskills:
 

@@ -4,7 +4,7 @@ Extract organizational context from company web pages and content to create a pu
 
 ## Purpose
 
-Analyze company websites, marketing materials, and product documentation to build comprehensive organizational context (identity, products, target market, messaging, thought leadership) and save as a publisher profile in `/rules/publisher/publisher-profile.md`.
+Analyze company websites, marketing materials, and product documentation to build comprehensive organizational context (identity, products, target market, messaging, thought leadership) and save as a publisher profile in `rules/publisher/publisher-profile.md`.
 
 ## When to Use
 
@@ -137,7 +137,7 @@ invoke publisher-profile-extraction-skill with sources: <URLs-and-file-paths>
 ```
 
 **Behavior:**
-1. Checks if `/rules/publisher/publisher-profile.md` exists
+1. Checks if `rules/publisher/publisher-profile.md` exists
 2. If exists: Adds "Recent Analysis" section with new findings and date
 3. If not: Creates comprehensive new profile
 
@@ -311,7 +311,7 @@ echo "Products: $product_pages"
 ## Single Profile Pattern
 
 Unlike other extraction skills (which create multiple files), this skill maintains **one canonical publisher profile**:
-- **File location**: `/rules/publisher/publisher-profile.md`
+- **File location**: `rules/publisher/publisher-profile.md`
 - **Update pattern**: Incremental additions with dated "Recent Analysis" sections
 - **Overwrite option**: Complete replacement when organizational context changes significantly
 
@@ -362,7 +362,7 @@ Publisher profile includes:
 ## Directory Management
 
 **Automatic Directory Creation:**
-- Skill creates `/rules/publisher/` if it doesn't exist
+- Skill creates `rules/publisher/` if it doesn't exist
 - No manual setup required
 - Works on first use
 
@@ -393,7 +393,7 @@ When creating or updating content:
      • Brand guidelines
 
 📝 Profile action: Created new profile
-   Location: /rules/publisher/publisher-profile.md
+   Location: rules/publisher/publisher-profile.md
 
 🔍 Key findings:
    - Organization: B2B SaaS, Series B growth stage

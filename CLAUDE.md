@@ -10,13 +10,13 @@ This is a **Kurt** project - a document intelligence system that helps teams man
 
 ## Project Organization
 
-- `/sources/` - Organizational knowledge base (all web content)
-- `/rules/` - Extracted rules for content creation
-  - `/rules/style/` - Writing voice/tone patterns
-  - `/rules/structure/` - Document format templates
-  - `/rules/personas/` - Audience targeting profiles
-  - `/rules/publisher/` - Company/brand profile
-- `/projects/` - Individual content projects
+- `sources/` - Organizational knowledge base (all web content)
+- `rules/` - Extracted rules for content creation
+  - `rules/style/` - Writing voice/tone patterns
+  - `rules/structure/` - Document format templates
+  - `rules/personas/` - Audience targeting profiles
+  - `rules/publisher/` - Company/brand profile
+- `projects/` - Individual content projects
 
 ---
 

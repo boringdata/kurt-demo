@@ -230,7 +230,7 @@ Before planning content work, optionally extract reusable rules from existing co
 **5.5.1: Extract Publisher Profile**
 ```bash
 # Extract organizational context from company pages
-invoke publisher-profile-extraction-skill with sources: <company-homepage-url> <about-page-url> <products-page-url>
+writing-rules-skill publisher --auto-discover
 ```
 
 **5.5.2: Extract Style Guides**
@@ -240,7 +240,8 @@ invoke publisher-profile-extraction-skill with sources: <company-homepage-url> <
 # Example: "Let's extract style from your blog posts and technical docs"
 
 # Extract from specific content types
-invoke style-extraction-skill with documents: /sources/<domain>/<content-path>/*.md
+writing-rules-skill style --type technical-docs --auto-discover
+writing-rules-skill style --type blog --auto-discover
 
 # Can run multiple extractions for different styles
 # Example: Technical docs style + Blog post style + Marketing style
@@ -253,7 +254,8 @@ invoke style-extraction-skill with documents: /sources/<domain>/<content-path>/*
 # Example: "Let's extract structure from tutorials and API docs"
 
 # Extract from specific content types
-invoke structure-extraction-skill with documents: /sources/<domain>/<content-type>/*.md
+writing-rules-skill structure --type tutorial --auto-discover
+writing-rules-skill structure --type api-reference --auto-discover
 
 # Can run multiple extractions for different structures
 # Example: Tutorial structure + API reference structure + Landing page structure
@@ -266,7 +268,8 @@ invoke structure-extraction-skill with documents: /sources/<domain>/<content-typ
 # Example: "Let's extract personas from developer docs and business blog"
 
 # Extract from audience-specific content
-invoke persona-extraction-skill with documents: /sources/<domain>/<audience-content>/*.md
+writing-rules-skill persona --audience-type technical --auto-discover
+writing-rules-skill persona --audience-type business --auto-discover
 
 # Can extract multiple personas if content targets different audiences
 ```
@@ -274,19 +277,19 @@ invoke persona-extraction-skill with documents: /sources/<domain>/<audience-cont
 **Update project.md with extracted rules:**
 ```markdown
 ## Style Guidelines
-- Technical documentation style: `/rules/style/technical-documentation.md` (extracted: YYYY-MM-DD)
-- Conversational blog style: `/rules/style/conversational-blog.md` (extracted: YYYY-MM-DD)
+- Technical documentation style: `rules/style/technical-documentation.md` (extracted: YYYY-MM-DD)
+- Conversational blog style: `rules/style/conversational-blog.md` (extracted: YYYY-MM-DD)
 
 ## Structure Templates
-- Quickstart tutorial: `/rules/structure/quickstart-tutorial.md` (extracted: YYYY-MM-DD)
-- API reference: `/rules/structure/api-reference.md` (extracted: YYYY-MM-DD)
+- Quickstart tutorial: `rules/structure/quickstart-tutorial.md` (extracted: YYYY-MM-DD)
+- API reference: `rules/structure/api-reference.md` (extracted: YYYY-MM-DD)
 
 ## Target Personas
-- Developer persona: `/rules/personas/technical-implementer.md` (extracted: YYYY-MM-DD)
-- Business decision-maker: `/rules/personas/business-decision-maker.md` (extracted: YYYY-MM-DD)
+- Developer persona: `rules/personas/technical-implementer.md` (extracted: YYYY-MM-DD)
+- Business decision-maker: `rules/personas/business-decision-maker.md` (extracted: YYYY-MM-DD)
 
 ## Publisher Profile
-- Company profile: `/rules/publisher/publisher-profile.md` (extracted: YYYY-MM-DD)
+- Company profile: `rules/publisher/publisher-profile.md` (extracted: YYYY-MM-DD)
 ```
 
 **Quality checks:**
@@ -543,7 +546,6 @@ After onboarding completes, recommend these skills:
 - **ingest-content-skill**: Fetch and manage document content
 - **document-management-skill**: Query, filter, and analyze documents
 - **project-management-skill**: Add sources/targets, check rule coverage, track progress
-- **style-extraction-skill**: Extract additional writing patterns as needed
-- **structure-extraction-skill**: Extract additional document templates as needed
-- **persona-extraction-skill**: Extract additional audience profiles as needed
-- **publisher-profile-extraction-skill**: Update company profile as messaging evolves
+- **writing-rules-skill**: Extract additional writing rules (style, structure, persona, publisher) as needed
+- **content-writing-skill**: Create content with comprehensive lineage tracking
+- **research-skill**: Set up project monitoring and research workflows

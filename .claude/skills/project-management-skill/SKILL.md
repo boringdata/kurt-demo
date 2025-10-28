@@ -313,7 +313,7 @@ Claude should:
 
 ## Rule Matching and Validation
 
-When working on target content, ensure appropriate rules exist. The system dynamically discovers available rule types from `/rules/rules-config.yaml`.
+When working on target content, ensure appropriate rules exist. The system dynamically discovers available rule types from `rules/rules-config.yaml`.
 
 ### Check for Required Rules
 
@@ -322,13 +322,13 @@ Before content work begins:
 1. **Load available rule types from registry:**
    ```bash
    # Dynamically discover all enabled rule types
-   registry="/rules/rules-config.yaml"
+   registry="rules/rules-config.yaml"
    enabled_types=$(yq '.rule_types | to_entries | .[] | select(.value.enabled == true) | .key' "$registry")
 
    # Get directory for each type
    for type in $enabled_types; do
      directory=$(yq ".rule_types.${type}.directory" "$registry")
-     echo "$type → /rules/$directory/"
+     echo "$type → rules/$directory/"
    done
    ```
 
@@ -427,7 +427,7 @@ writing-rules-skill structure --type case-study --auto-discover
 ```
 FOR each target content item:
   1. Load rule types from registry:
-     enabled_types = load_enabled_rule_types("/rules/rules-config.yaml")
+     enabled_types = load_enabled_rule_types("rules/rules-config.yaml")
 
   2. Inspect target properties:
      - content_type: tutorial | blog | landing-page | docs | case-study | etc.
@@ -443,7 +443,7 @@ FOR each target content item:
   3. Search rules directories dynamically:
      FOR each enabled rule type:
        directory = get_directory(rule_type)
-       rules = list_rules("/rules/$directory/")
+       rules = list_rules("rules/$directory/")
 
        IF rules found:
          check_for_match(rules, target_properties)
@@ -487,45 +487,45 @@ Track which rules apply to the project. The format is **dynamic** based on enabl
 [Dynamically generated sections for each enabled rule type]
 
 ### Style Guidelines
-- Technical documentation style: `/rules/style/technical-documentation.md`
-- Conversational blog style: `/rules/style/conversational-blog.md`
+- Technical documentation style: `rules/style/technical-documentation.md`
+- Conversational blog style: `rules/style/conversational-blog.md`
 
 ### Structure Templates
-- Tutorial structure: `/rules/structure/quickstart-tutorial.md`
-- API reference structure: `/rules/structure/api-reference.md`
+- Tutorial structure: `rules/structure/quickstart-tutorial.md`
+- API reference structure: `rules/structure/api-reference.md`
 
 ### Target Personas
-- Developer persona: `/rules/personas/technical-implementer.md`
-- Business decision-maker: `/rules/personas/enterprise-decision-maker.md`
+- Developer persona: `rules/personas/technical-implementer.md`
+- Business decision-maker: `rules/personas/enterprise-decision-maker.md`
 
 ### Publisher Profile
-- Company profile: `/rules/publisher/publisher-profile.md` (always applicable)
+- Company profile: `rules/publisher/publisher-profile.md` (always applicable)
 
 [If custom rule types are configured:]
 
 ### Industry Verticals
-- Healthcare vertical: `/rules/verticals/healthcare-vertical.md`
-- Finance vertical: `/rules/verticals/finance-vertical.md`
+- Healthcare vertical: `rules/verticals/healthcare-vertical.md`
+- Finance vertical: `rules/verticals/finance-vertical.md`
 
 ### Use Case Patterns
-- Migration pattern: `/rules/use-cases/migration-patterns.md`
+- Migration pattern: `rules/use-cases/migration-patterns.md`
 
 ### Channel Guidelines
-- Email guidelines: `/rules/channels/email-guidelines.md`
-- Social guidelines: `/rules/channels/social-guidelines.md`
+- Email guidelines: `rules/channels/email-guidelines.md`
+- Social guidelines: `rules/channels/social-guidelines.md`
 ```
 
 **Dynamic section generation:**
 ```bash
 # Generate project.md rules sections from registry
-for type in $(yq '.rule_types | to_entries | .[] | select(.value.enabled == true) | .key' /rules/rules-config.yaml); do
-  name=$(yq ".rule_types.${type}.name" /rules/rules-config.yaml)
-  directory=$(yq ".rule_types.${type}.directory" /rules/rules-config.yaml)
+for type in $(yq '.rule_types | to_entries | .[] | select(.value.enabled == true) | .key' rules/rules-config.yaml); do
+  name=$(yq ".rule_types.${type}.name" rules/rules-config.yaml)
+  directory=$(yq ".rule_types.${type}.directory" rules/rules-config.yaml)
 
   echo "### $name"
 
   # List rules in this directory
-  for rule_file in /rules/$directory/*.md; do
+  for rule_file in rules/$directory/*.md; do
     if [ -f "$rule_file" ]; then
       rule_name=$(basename "$rule_file" .md | sed 's/-/ /g')
       echo "- ${rule_name^}: \`$rule_file\`"

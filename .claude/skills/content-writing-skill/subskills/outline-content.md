@@ -60,13 +60,13 @@ If exists, find outline task for this asset:
 - Which style guide to use?
 - Which structure template to use?
 - Which target persona?
-- Publisher profile (default: /rules/publisher/publisher-profile.md)
+- Publisher profile (default: rules/publisher/publisher-profile.md)
 
 **If not specified in project/task:**
 Ask user to select from available rules:
-- List style guides in `/rules/style/`
-- List structure templates in `/rules/structure/`
-- List personas in `/rules/personas/`
+- List style guides in `rules/style/`
+- List structure templates in `rules/structure/`
+- List personas in `rules/personas/`
 
 ---
 
@@ -104,7 +104,7 @@ Path: Determined in Step 2
 - Writing patterns to follow
 
 ### Read Publisher Profile
-Path: `$RULES_PUBLISHER` or /rules/publisher/publisher-profile.md
+Path: `$RULES_PUBLISHER` or rules/publisher/publisher-profile.md
 
 **Extract:**
 - Brand positioning
@@ -379,7 +379,7 @@ Display summary:
 Error: Structure template not found: [path]
 
 Available templates:
-  [list files in /rules/structure/]
+  [list files in rules/structure/]
 
 Specify with: --template-override <name>
 Or update project.md with template reference
@@ -400,10 +400,10 @@ Continue anyway? Sources can be added to outline manually.
 Error: No target persona specified
 
 Available personas:
-  [list files in /rules/personas/]
+  [list files in rules/personas/]
 
 Update project.md with:
-  target_persona: /rules/personas/[filename].md
+  target_persona: rules/personas/[filename].md
 ```
 
 ---

@@ -4,4 +4,3 @@ sources/*
 projects/*
 artefacts/*
 .DS_Store
-.claude/scripts/cms-config.json

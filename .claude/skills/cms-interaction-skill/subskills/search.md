@@ -10,7 +10,7 @@
 
 The parent skill provides:
 - `$CMS_NAME` - CMS to search (default: sanity)
-- `$CMS_CONFIG_PATH` - Path to cms-config.json
+- `$CMS_CONFIG_PATH` - Path to .kurt/cms-config.json
 - `$CONTENT_TYPE_MAPPINGS` - Configured content type mappings
 - `$ENABLED_TYPES` - List of enabled content types
 - `$SCRIPTS_DIR` - Path to scripts directory

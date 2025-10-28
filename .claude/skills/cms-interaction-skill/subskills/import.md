@@ -10,7 +10,7 @@
 
 The parent skill provides:
 - `$CMS_NAME` - CMS name (for URL construction)
-- `$CMS_CONFIG_PATH` - Path to cms-config.json
+- `$CMS_CONFIG_PATH` - Path to .kurt/cms-config.json
 - `$SCRIPTS_DIR` - Path to scripts directory
 - `$ARGUMENTS` - CLI arguments (source dir or file)
 

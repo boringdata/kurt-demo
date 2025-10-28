@@ -7,7 +7,7 @@ description: Extract and manage writing rules (style, structure, persona, publis
 
 **Purpose:** Unified system for extracting writing rules AND managing the rule type registry
 **Operations:** Extraction (style, structure, persona, publisher, custom) + Management (list, show, add, validate, generate, onboard)
-**Output:** Rule files in `/rules/` directories + rules-config.yaml registry
+**Output:** Rule files in `rules/` directories + rules-config.yaml registry
 
 ---
 
@@ -63,7 +63,7 @@ This skill routes based on the first argument:
 - `generate-subskill` → subskills/manage-generate-subskill.md
 - `onboard` → subskills/manage-onboard.md
 
-**Extraction Operations (loaded dynamically from /rules/rules-config.yaml):**
+**Extraction Operations (loaded dynamically from rules/rules-config.yaml):**
 - Each enabled rule type → subskills/{extraction.subskill}
 - Built-in types: `style`, `structure`, `persona`, `publisher`
 - Custom types: Any additional types defined in registry
@@ -119,7 +119,7 @@ Show usage help with both management and extraction operations.
 
 ```bash
 # Load rules-config.yaml
-registry_file="/rules/rules-config.yaml"
+registry_file="rules/rules-config.yaml"
 
 if [ ! -f "$registry_file" ]; then
   error "Rules registry not found. Run 'writing-rules-skill validate' to check setup."
@@ -207,7 +207,7 @@ fi
 ### Load Existing Rules (for extraction operations)
 Check what's already been extracted for this rule type:
 - Get directory from registry: `registry.rule_types[$OPERATION].directory`
-- List existing rule files in `/rules/{directory}/`
+- List existing rule files in `rules/{directory}/`
 - Note which discovery modes have been extracted
 
 ---
@@ -261,7 +261,7 @@ invoke $subskill_path with:
   - RULE_TYPE: $OPERATION
   - RULE_TYPE_CONFIG: $rule_type_config (full config from registry)
   - REMAINING_ARGS: $REMAINING_ARGS
-  - RULES_DIR: /rules/${rule_type_directory}/
+  - RULES_DIR: rules/${rule_type_directory}/
   - EXISTING_RULES: <files in rules directory>
   - PROJECT_CONTEXT: <project context if available>
   - SOURCES_STATUS: <fetch/index status>
@@ -299,8 +299,8 @@ Pass the following to subskills:
 
 **Registry Context:**
 ```
-REGISTRY_PATH: /rules/rules-config.yaml
-RULES_BASE_DIR: /rules/
+REGISTRY_PATH: rules/rules-config.yaml
+RULES_BASE_DIR: rules/
 SUBSKILLS_DIR: .claude/skills/writing-rules-skill/subskills/
 OPERATION: <management-operation>
 ARGUMENTS: <remaining-args>
@@ -315,10 +315,10 @@ Management subskills will load registry as needed within their own logic.
 PROJECT_NAME: <name> (if in project context)
 PROJECT_PATH: /projects/<name>/ (if applicable)
 PROJECT_BRIEF: /projects/<name>/project.md (if applicable)
-REGISTRY_PATH: /rules/rules-config.yaml
+REGISTRY_PATH: rules/rules-config.yaml
 RULE_TYPE: <extraction-rule-type>
 RULE_TYPE_CONFIG: <config-from-registry>
-RULES_DIR: /rules/<directory-for-this-type>/
+RULES_DIR: rules/<directory-for-this-type>/
 EXISTING_RULES: <list of existing rule files for this type>
 SOURCES_STATUS: fetched|not_fetched|indexed|not_indexed
 ARGUMENTS: <remaining-args>
@@ -431,7 +431,7 @@ Next steps:
 ```
 Warning: No project context found
 
-Rule extraction will create global rules in /rules/.
+Rule extraction will create global rules in rules/.
 These will be available to all projects.
 
 Continue? (Y/n)
@@ -446,10 +446,10 @@ Continue? (Y/n)
 - Prerequisites validated (content fetched + indexed)
 - Shared context loaded and validated
 - Subskill execution completes
-- Output includes rule files in `/rules/` directories
+- Output includes rule files in `rules/` directories
 
 ✅ **Rule extraction complete** when:
-- New rule file(s) created in appropriate `/rules/` subdirectory
+- New rule file(s) created in appropriate `rules/` subdirectory
 - Rule files include proper YAML frontmatter
 - Source documents tracked in rule metadata
 - Extraction date and method documented
@@ -534,7 +534,7 @@ Next steps:
    - <count> local documents
 
 📝 Profile action: <Created new|Updated existing> profile
-   Location: /rules/publisher/publisher-profile.md
+   Location: rules/publisher/publisher-profile.md
 
 Next steps:
   1. Review organizational identity and messaging

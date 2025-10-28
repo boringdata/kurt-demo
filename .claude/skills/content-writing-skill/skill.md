@@ -64,7 +64,7 @@ Load all available rule types and directories from registry:
 
 ```bash
 # Dynamically discover all enabled rule types
-registry="/rules/rules-config.yaml"
+registry="rules/rules-config.yaml"
 enabled_types=$(yq '.rule_types | to_entries | .[] | select(.value.enabled == true) | .key' "$registry")
 
 # Build context for each rule type
@@ -73,18 +73,18 @@ for type in $enabled_types; do
   directory=$(yq ".rule_types.${type}.directory" "$registry")
 
   # Store for context handoff
-  RULES_${type^^}_DIR="/rules/$directory/"
+  RULES_${type^^}_DIR="rules/$directory/"
 done
 ```
 
 **Result:** Dynamically available rule directories:
-- `RULES_STYLE_DIR`: `/rules/style/` (built-in)
-- `RULES_STRUCTURE_DIR`: `/rules/structure/` (built-in)
-- `RULES_PERSONAS_DIR`: `/rules/personas/` (built-in)
-- `RULES_PUBLISHER_DIR`: `/rules/publisher/` (built-in)
-- `RULES_VERTICALS_DIR`: `/rules/verticals/` (if configured)
-- `RULES_CHANNELS_DIR`: `/rules/channels/` (if configured)
-- `RULES_USE_CASES_DIR`: `/rules/use-cases/` (if configured)
+- `RULES_STYLE_DIR`: `rules/style/` (built-in)
+- `RULES_STRUCTURE_DIR`: `rules/structure/` (built-in)
+- `RULES_PERSONAS_DIR`: `rules/personas/` (built-in)
+- `RULES_PUBLISHER_DIR`: `rules/publisher/` (built-in)
+- `RULES_VERTICALS_DIR`: `rules/verticals/` (if configured)
+- `RULES_CHANNELS_DIR`: `rules/channels/` (if configured)
+- `RULES_USE_CASES_DIR`: `rules/use-cases/` (if configured)
 - _[Any other custom rule types]_
 
 ### Validation
@@ -130,16 +130,16 @@ Pass the following to subskills:
 PROJECT_NAME: <name>
 PROJECT_PATH: /projects/<name>/
 PROJECT_BRIEF: /projects/<name>/project.md
-REGISTRY_PATH: /rules/rules-config.yaml
+REGISTRY_PATH: rules/rules-config.yaml
 
 [Dynamically generated rule directory paths for all enabled types:]
-RULES_PUBLISHER_DIR: /rules/publisher/
-RULES_STYLE_DIR: /rules/style/
-RULES_STRUCTURE_DIR: /rules/structure/
-RULES_PERSONAS_DIR: /rules/personas/
-RULES_VERTICALS_DIR: /rules/verticals/ (if configured)
-RULES_CHANNELS_DIR: /rules/channels/ (if configured)
-RULES_USE_CASES_DIR: /rules/use-cases/ (if configured)
+RULES_PUBLISHER_DIR: rules/publisher/
+RULES_STYLE_DIR: rules/style/
+RULES_STRUCTURE_DIR: rules/structure/
+RULES_PERSONAS_DIR: rules/personas/
+RULES_VERTICALS_DIR: rules/verticals/ (if configured)
+RULES_CHANNELS_DIR: rules/channels/ (if configured)
+RULES_USE_CASES_DIR: rules/use-cases/ (if configured)
 [... any other custom rule types]
 
 ENABLED_RULE_TYPES: <comma-separated list of enabled types>
@@ -198,7 +198,7 @@ Create a new project with: /create-project "<name>"
 **If rule files missing:**
 ```
 Warning: Some rule files not found:
-  - /rules/personas/data-engineer.md
+  - rules/personas/data-engineer.md
 
 Continue anyway? (Y/n)
 ```

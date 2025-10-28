@@ -2,7 +2,7 @@
 
 **Purpose:** Unified skill for extracting reusable writing rules from existing content
 **Location:** `.claude/skills/writing-rules-skill/`
-**Output:** Rule files in `/rules/` directories
+**Output:** Rule files in `rules/` directories
 
 ---
 
@@ -53,7 +53,7 @@ The writing-rules-skill includes a meta-rules system that allows teams to custom
 
 ### Rule Type Registry
 
-All rule types are defined in `/rules/rules-config.yaml`, which serves as the central registry for:
+All rule types are defined in `rules/rules-config.yaml`, which serves as the central registry for:
 - Built-in rule types (style, structure, persona, publisher)
 - Custom rule types (verticals, use-cases, channels, etc.)
 - Conflict detection rules
@@ -80,28 +80,28 @@ Kurt Writing Rules - Available Rule Types
 
 BUILT-IN RULE TYPES (4)
   ✓ style - Style Guidelines
-    Directory: /rules/style/
+    Directory: rules/style/
     Extracted: 3 rules
 
   ✓ structure - Structure Templates
-    Directory: /rules/structure/
+    Directory: rules/structure/
     Extracted: 2 rules
 
   ✓ persona - Target Personas
-    Directory: /rules/personas/
+    Directory: rules/personas/
     Extracted: 4 rules
 
   ✓ publisher - Publisher Profile
-    Directory: /rules/publisher/
+    Directory: rules/publisher/
     Extracted: 1 rule
 
 CUSTOM RULE TYPES (2)
   ✓ verticals - Industry Verticals
-    Directory: /rules/verticals/
+    Directory: rules/verticals/
     Extracted: 2 rules
 
   ✓ channels - Channel Guidelines
-    Directory: /rules/channels/
+    Directory: rules/channels/
     Extracted: 0 rules (not yet extracted)
 
 Total: 6 rule types (6 enabled, 0 disabled)
@@ -403,7 +403,7 @@ writing-rules-skill style --type blog --auto-discover
 writing-rules-skill style with documents: /sources/example.com/page1.md /sources/example.com/page2.md
 ```
 
-**Output:** `/rules/style/<name>.md`
+**Output:** `rules/style/<name>.md`
 
 **Modes:**
 - Incremental (default) - Adds new styles if patterns differ from existing
@@ -430,7 +430,7 @@ writing-rules-skill structure --type api-reference --auto-discover
 writing-rules-skill structure with documents: /sources/docs.com/tutorial1.md /sources/docs.com/tutorial2.md
 ```
 
-**Output:** `/rules/structure/<name>.md`
+**Output:** `rules/structure/<name>.md`
 
 **Modes:**
 - Incremental (default) - Adds new structures if patterns differ from existing
@@ -460,7 +460,7 @@ writing-rules-skill persona --audience-type customer --auto-discover
 writing-rules-skill persona with documents: /sources/docs.com/technical-guide.md
 ```
 
-**Output:** `/rules/personas/<name>.md`
+**Output:** `rules/personas/<name>.md`
 
 **Modes:**
 - Incremental (default) - Adds new personas if audiences differ from existing
@@ -487,7 +487,7 @@ writing-rules-skill publisher --auto-discover
 writing-rules-skill publisher --auto-discover --overwrite
 ```
 
-**Output:** `/rules/publisher/publisher-profile.md` (single canonical file)
+**Output:** `rules/publisher/publisher-profile.md` (single canonical file)
 
 **Modes:**
 - Incremental (default) - Adds "Recent Analysis" section to existing profile
@@ -515,7 +515,7 @@ writing-rules-skill verticals with documents: /sources/site.com/healthcare-page.
 writing-rules-skill verticals --type healthcare --auto-discover --overwrite
 ```
 
-**Output:** `/rules/verticals/<name>.md`
+**Output:** `rules/verticals/<name>.md`
 
 **Custom rule types support:**
 - All same flags as built-in types (`--auto-discover`, `--overwrite`, `with documents:`)
@@ -624,7 +624,7 @@ Rules are automatically referenced when creating content via `content-writing-sk
 ## Output Directory Structure
 
 ```
-/rules/
+rules/
 ├── rules-config.yaml                 # Rule type registry (management)
 ├── publisher/
 │   └── publisher-profile.md          # Single canonical profile

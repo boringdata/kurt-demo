@@ -10,7 +10,7 @@
 
 The parent skill provides:
 - `$CMS_NAME` - CMS to fetch from (default: sanity)
-- `$CMS_CONFIG_PATH` - Path to cms-config.json
+- `$CMS_CONFIG_PATH` - Path to .kurt/cms-config.json
 - `$CONTENT_TYPE_MAPPINGS` - Field mappings for content extraction
 - `$SCRIPTS_DIR` - Path to scripts directory
 - `$ARGUMENTS` - CLI arguments (document IDs, output dir, etc.)

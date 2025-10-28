@@ -299,7 +299,7 @@ Then ask again whether to extract now or skip.
 3. **Ask about custom rule types** (if any are configured):
    ```bash
    # Check for custom types in registry
-   custom_types=$(yq '.rule_types | to_entries | .[] | select(.value.built_in == false and .value.enabled == true) | .key' /rules/rules-config.yaml)
+   custom_types=$(yq '.rule_types | to_entries | .[] | select(.value.built_in == false and .value.enabled == true) | .key' rules/rules-config.yaml)
 
    # For each custom type, ask if user wants to extract
    # Example: "Extract healthcare vertical rules?" → writing-rules-skill verticals --type healthcare --auto-discover
