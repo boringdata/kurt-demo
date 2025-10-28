@@ -422,6 +422,54 @@ content-writing-skill draft ai-coding-guide intro-to-ai-coding
 
 ### Example: Daily Monitoring Workflow
 
+**Option 1: Project-Based Monitoring (Recommended)**
+
+Set up monitoring for a specific project:
+
+```bash
+# Interactive setup (guides you through configuration)
+research-skill setup-monitoring data-tools-watch
+
+# Claude will ask:
+# - What subreddits to monitor
+# - What keywords to filter
+# - What HN keywords to search
+# - What RSS feeds to track
+# - Minimum score thresholds
+# Then creates monitoring-config.yaml and runs first monitoring sweep
+
+# OR manual setup:
+cp .kurt/monitoring-config-template.yaml projects/data-tools-watch/monitoring-config.yaml
+# Edit monitoring-config.yaml manually
+
+# Daily: Run project monitoring
+kurt research monitor projects/data-tools-watch
+
+# Result:
+# - Monitors all configured sources
+# - Saves signals to projects/data-tools-watch/research/signals/
+# - Shows top 10 signals by relevance
+
+# Deep dive on interesting signal:
+kurt research search "topic from signal" --recency day --save
+mv sources/research/[file].md projects/data-tools-watch/research/
+
+# Create content:
+content-writing-skill outline data-tools-watch article-name
+content-writing-skill draft data-tools-watch article-name
+
+# Publish:
+kurt cms publish --file projects/data-tools-watch/assets/article-draft.md --content-type article
+```
+
+**Benefits:**
+- All research lives with the project
+- Clear lineage: signals → research → content
+- Configure once, run daily
+- Track trends over time
+
+**Option 2: Standalone Research (Quick Ad-Hoc)**
+
 ```bash
 # Morning: Check yesterday's news
 research-skill daily
@@ -441,6 +489,10 @@ kurt cms publish --file projects/new-article-project/assets/article-draft.md --c
 ```
 
 **Complete cycle:** Monitor → Research → Create → Publish
+
+**See Also:**
+- Full monitoring setup: `.kurt/README.md` (Project-Based Monitoring section)
+- Example project: `projects/data-tools-watch/`
 
 ---
 

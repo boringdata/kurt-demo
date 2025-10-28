@@ -27,7 +27,13 @@ This skill orchestrates research workflows for content creators:
 ## Usage Examples
 
 ```bash
-# Daily news digest
+# Setup monitoring for a project (interactive)
+research-skill setup-monitoring <project-name>
+
+# Project-based monitoring (recommended)
+research-skill daily <project-name>
+
+# Daily news digest (standalone)
 research-skill daily
 
 # Discover topics in a specific area
@@ -76,9 +82,82 @@ mkdir -p sources/research
 
 ## Workflows
 
-### Workflow 1: Daily News Digest
+### Workflow 1: Project-Based Monitoring
 
-**Purpose:** Get daily digest of industry news and trends
+**Purpose:** Track community discussions, blog posts, and news for a specific project
+
+**Arguments:**
+- `<project-name>` - Name of project in `projects/` directory
+
+**Steps:**
+
+1. **Check monitoring config exists**
+```bash
+if [ ! -f "projects/$project_name/monitoring-config.yaml" ]; then
+  echo "No monitoring config found. Let's set one up."
+  # Run interactive setup (see Setup Workflow below)
+  research-skill setup-monitoring $project_name
+fi
+```
+
+2. **Run monitoring**
+```bash
+kurt research monitor projects/$project_name
+```
+
+This will:
+- Monitor configured Reddit subreddits
+- Track Hacker News stories
+- Check RSS feeds
+- Filter by keywords and minimum scores
+- Calculate relevance scores
+- Save signals to `projects/$project_name/research/signals/YYYY-MM-DD-signals.json`
+
+3. **Present top signals**
+   - Show top 10 signals by relevance
+   - Display: source, title, score, relevance
+   - Ask user: "Which signal interests you?"
+
+4. **Deep dive on selected signal**
+   - User picks a signal
+   - Extract key terms from signal
+   - Run Perplexity research:
+```bash
+kurt research search "comprehensive analysis of [signal topic]" \
+  --recency day \
+  --save
+
+# Move to project research folder
+mv sources/research/YYYY-MM-DD-[topic].md \
+   projects/$project_name/research/
+```
+
+5. **Offer next steps**
+   - "Create outline from this research?"
+   - "Save signal for weekly digest?"
+   - "Check more signals?"
+
+**Output:**
+- Signals: `projects/$project_name/research/signals/YYYY-MM-DD-signals.json`
+- Research: `projects/$project_name/research/YYYY-MM-DD-[topic].md`
+
+**Example:**
+```bash
+research-skill daily data-tools-watch
+
+# Runs monitoring
+# Shows: "Found 6 signals - top is 'Migrating to DBT' (23 upvotes, 15 comments)"
+# User picks signal
+# Researches: "dbt migration best practices from stored procedures"
+# Saves research to project
+# Offers: "Create outline for migration guide?"
+```
+
+---
+
+### Workflow 2: Daily News Digest (Standalone)
+
+**Purpose:** Get daily digest without project-based monitoring
 
 **Steps:**
 
@@ -281,6 +360,211 @@ EOF
    - Create outline: `content-writing-skill outline $project_name [asset-name]`
 
 **Output:** New project in `projects/$project_name/` ready for content creation
+
+---
+
+### Workflow 6: Interactive Monitoring Setup
+
+**Purpose:** Help user create monitoring configuration for a project
+
+**Arguments:**
+- `<project-name>` - Name of project to configure monitoring for
+
+**Steps:**
+
+1. **Introduction**
+   - Explain monitoring: "I can help you set up automated monitoring for Reddit discussions, Hacker News stories, and blog RSS feeds related to your project."
+   - Ask: "What topics or areas do you want to monitor?"
+
+2. **Configure Reddit Monitoring**
+   - Ask: "Do you want to monitor Reddit? (yes/no)"
+   - If yes:
+     - **Subreddits:** "Which subreddits should I monitor? (e.g., dataengineering, datascience)"
+       - Accept comma-separated list
+       - Validate subreddits exist (optional)
+       - Suggest common ones based on project description
+     - **Keywords:** "Any specific keywords to filter for? (e.g., dbt, fivetran) - leave blank for all posts"
+       - Accept comma-separated list
+     - **Minimum score:** "Minimum upvotes to consider? (default: 20)"
+       - Suggest 10 for active subs, 20-50 for larger ones
+     - **Timeframe:** "How far back to check? (hour/day/week/month, default: day)"
+
+3. **Configure Hacker News Monitoring**
+   - Ask: "Do you want to monitor Hacker News? (yes/no)"
+   - If yes:
+     - **Keywords:** "What keywords to search for on HN? (e.g., data pipeline, dbt)"
+       - Required - HN monitoring is keyword-based
+     - **Minimum score:** "Minimum points to consider? (default: 50)"
+       - Suggest 30-50 for niche topics, 50-100 for popular ones
+     - **Timeframe:** "How far back to check? (hour/day/week/month, default: day)"
+
+4. **Configure RSS Feed Monitoring**
+   - Ask: "Do you want to monitor any RSS feeds? (yes/no)"
+   - If yes:
+     - **Add feeds iteratively:**
+       - "Enter RSS feed URL (or 'done' to finish):"
+       - For each URL:
+         - Validate feed (try to fetch it)
+         - Ask: "Name for this feed? (e.g., 'dbt Blog')"
+         - Ask: "Any keywords to filter entries? (leave blank for all)"
+       - Continue until user says "done"
+     - **Timeframe:** "How far back to check feeds? (e.g., '7 days', default: '7 days')"
+
+5. **Output Preferences**
+   - Signal threshold: "Minimum signals needed to create a digest? (default: 3)"
+   - Auto-save: "Save signals automatically? (yes/no, default: yes)"
+
+6. **Generate Configuration File**
+   - Create YAML structure:
+```yaml
+project_name: <project-name>
+description: <from project.md or ask user>
+
+sources:
+  reddit:
+    enabled: <true/false>
+    subreddits: [<list>]
+    keywords: [<list>]
+    min_score: <number>
+    timeframe: <hour/day/week/month>
+
+  hackernews:
+    enabled: <true/false>
+    keywords: [<list>]
+    min_score: <number>
+    timeframe: <hour/day/week/month>
+
+  feeds:
+    enabled: <true/false>
+    urls:
+      - url: <url>
+        name: <name>
+        keywords: [<list>]
+    since: <timeframe>
+
+output:
+  save_signals: true
+  save_perplexity: true
+  signal_threshold: <number>
+
+schedule:
+  frequency: daily
+  time: "09:00"
+```
+
+7. **Save Configuration**
+```bash
+# Ensure project directory exists
+mkdir -p projects/$project_name
+
+# Save configuration
+cat > projects/$project_name/monitoring-config.yaml <<'EOF'
+<generated YAML>
+EOF
+```
+
+8. **Validate Configuration**
+```bash
+# Try loading it with yq or python
+python3 -c "import yaml; yaml.safe_load(open('projects/$project_name/monitoring-config.yaml'))"
+```
+
+9. **First Monitoring Run**
+   - Ask: "Configuration saved! Would you like to run monitoring now? (yes/no)"
+   - If yes:
+```bash
+kurt research monitor projects/$project_name
+```
+
+10. **Next Steps**
+   - Show saved config location
+   - Explain how to edit: "You can edit `projects/$project_name/monitoring-config.yaml` anytime to adjust settings"
+   - Suggest daily routine: "Run `research-skill daily $project_name` each morning to check for new signals"
+   - Show automation option: "Want to set up automated daily monitoring? (yes/no)"
+     - If yes, provide cron setup instructions
+
+**Example Interaction:**
+
+```
+User: research-skill setup-monitoring data-tools-watch
+
+Claude: I can help you set up automated monitoring for Reddit discussions,
+Hacker News stories, and blog RSS feeds related to your project.
+
+What topics or areas do you want to monitor?
+
+User: I want to track dbt, Fivetran, and modern data stack tools
+
+Claude: Great! Let's configure your monitoring sources.
+
+Do you want to monitor Reddit? (yes/no)
+
+User: yes
+
+Claude: Which subreddits should I monitor? (e.g., dataengineering, datascience)
+
+User: dataengineering, dbt, datascience
+
+Claude: Any specific keywords to filter for? (e.g., dbt, fivetran)
+- leave blank for all posts
+
+User: dbt, fivetran, airbyte, data pipeline
+
+Claude: Minimum upvotes to consider? (default: 20)
+
+User: 20
+
+Claude: How far back to check? (hour/day/week/month, default: day)
+
+User: day
+
+Claude: Do you want to monitor Hacker News? (yes/no)
+
+User: yes
+
+Claude: What keywords to search for on HN? (e.g., data pipeline, dbt)
+
+User: dbt, fivetran, data pipeline
+
+Claude: Minimum points to consider? (default: 50)
+
+User: 50
+
+Claude: How far back to check? (hour/day/week/month, default: day)
+
+User: day
+
+Claude: Do you want to monitor any RSS feeds? (yes/no)
+
+User: yes
+
+Claude: Enter RSS feed URL (or 'done' to finish):
+
+User: https://blog.getdbt.com/rss.xml
+
+Claude: Name for this feed? (e.g., 'dbt Blog')
+
+User: dbt Blog
+
+Claude: Any keywords to filter entries? (leave blank for all)
+
+User: [enter]
+
+Claude: Enter RSS feed URL (or 'done' to finish):
+
+User: done
+
+Claude: Configuration saved to projects/data-tools-watch/monitoring-config.yaml!
+
+Would you like to run monitoring now? (yes/no)
+
+User: yes
+
+Claude: [Runs kurt research monitor projects/data-tools-watch]
+Found 6 signals! Top signal: "Migrating to DBT" (23 upvotes, 15 comments)
+
+Run `research-skill daily data-tools-watch` each morning to check for new signals.
+```
 
 ---
 
