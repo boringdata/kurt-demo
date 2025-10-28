@@ -93,11 +93,22 @@ Parse the project.md file and check for gaps:
 ⚠️ No ground truth sources found.
 
 Do you have source material to add?
-- Product specs or documentation (for your project type)
-- Reference materials
-- Internal docs or notes
 
-Would you like to add sources now?
+Available source types:
+
+**1. Web Content** - URLs or entire websites
+   Example: "docs.example.com/features"
+
+**2. CMS Content** - Sanity (if configured)
+   Example: "existing tutorials about authentication"
+
+**3. Local Content** - Files, transcripts, notes
+   Example: "conversation transcript from research"
+
+**4. Research** - Competitive analysis (if available)
+   Example: "research Auth0 and Okta patterns"
+
+Describe the sources you need, or skip for now:
 ```
 
 **If no targets found:**
@@ -125,7 +136,13 @@ Would you like to extract rules now?
 ```
 
 **If user wants to add content:**
-- Use project-management-skill to guide them through adding sources/targets
+- Parse their description to identify source types (see create-project.md Step 3 for full workflow)
+- Route to appropriate skills:
+  - **Web content:** kurt ingest map/fetch/index
+  - **CMS content:** cms-interaction search/fetch/import
+  - **Local content:** Save files and optionally import to Kurt
+  - **Research:** Conduct research and save notes
+- Update project.md accordingly
 
 **If user wants to extract rules (NEW):**
 - First verify content is fetched + indexed (Step 5)

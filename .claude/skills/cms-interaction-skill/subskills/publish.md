@@ -66,7 +66,7 @@ python .claude/skills/cms-interaction-skill/scripts/cms_publish.py \
 
 ```bash
 cms-interaction publish \
-  --file projects/my-project/assets/quickstart-v2-draft.md \
+  --file projects/my-project/drafts/quickstart-v2-draft.md \
   --document-id abc-123
 ```
 
@@ -74,7 +74,7 @@ cms-interaction publish \
 
 ```bash
 cms-interaction publish \
-  --file projects/new-content/assets/postgres-guide.md \
+  --file projects/new-content/drafts/postgres-guide.md \
   --create-new \
   --content-type article \
   --slug "postgres-integration-guide" \
@@ -181,7 +181,7 @@ Opens Sanity Studio for review.
 ## Output Example
 
 ```
-Reading: projects/tutorial-refresh/assets/quickstart-v2-draft.md
+Reading: projects/tutorial-refresh/drafts/quickstart-v2-draft.md
 
 Publishing to sanity...
 

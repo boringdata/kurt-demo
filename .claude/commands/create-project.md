@@ -43,17 +43,50 @@ Ask the user for source material they'll be working FROM:
 > - **(c) Docs updates**: Technical specs, feature documentation
 >
 > Options:
-> a) Add sources now (URLs or local files)
+> a) Add sources now
 > b) Skip for now (add later)
 
 **If they choose (a) - Add sources now:**
 
-1. Ask: "What sources do you have?"
-   - Web pages (URLs)
-   - Local files (PDFs, markdown, etc.)
-   - Both
+Ask the user to describe what sources they need. Be explicit about available options:
 
-2. **For web content:**
+> **What sources would be helpful for this project?**
+>
+> You can describe multiple sources - I'll help you fetch them. Available source types:
+>
+> **1. Web Content (URLs/Websites)**
+> - Individual URLs or entire websites
+> - Automatically fetch and index content
+> - Example: "docs.example.com/features" or "blog.company.com"
+>
+> **2. CMS Content**
+> - **Sanity** (if configured)
+> - Search and fetch by content type, tags, dates
+> - Example: "existing tutorials from Sanity about authentication"
+>
+> **3. Local Content**
+> - Files, conversation transcripts, notes docs
+> - Copy-paste or provide file paths
+> - Example: "conversation transcript from customer research"
+>
+> **4. Research Content** (if available)
+> - Perplexity, Hacker News, Reddit, etc.
+> - Research competitive patterns or topics
+> - Example: "research what Auth0 and Okta are doing for authentication"
+>
+> Describe the sources you need:
+
+**Wait for user's response, then parse and route:**
+
+1. **Identify source types from their description:**
+   - URLs/domains → Web content
+   - "from Sanity" / "CMS" / "existing content" → CMS
+   - "transcript" / "notes" / "paste" → Local files
+   - "research" / "what are competitors" → Research
+
+2. **Handle each source type:**
+
+### For Web Content (URLs/Websites):
 
    **Step 2a: Map (discover URLs)**
    ```bash
@@ -87,13 +120,112 @@ Ask the user for source material they'll be working FROM:
    - **Fetch** creates the file in `/sources/`
    - **Index** extracts metadata (title, author, topics) via LLM analysis
    - Both are required for full content intelligence
-
    - Note the source paths in project.md
 
-3. **For local files:**
-   - Ask for file paths
-   - Copy to `projects/<project-name>/sources/`
+### For CMS Content (Sanity):
+
+   **Prerequisites:** Check if Sanity is configured:
+   ```bash
+   # Check if config exists
+   test -f .kurt/cms-config.json && echo "✓ Sanity configured" || echo "✗ Need to run: cms-interaction onboard"
+   ```
+
+   **If not configured:**
+   ```
+   To use CMS content, first run: cms-interaction onboard
+   This will connect to your Sanity CMS and map your content types.
+   ```
+
+   **If configured, proceed with:**
+
+   **Step 2a: Search CMS**
+   ```bash
+   # Search by query
+   cms-interaction search --query "authentication" --output json > cms-results.json
+
+   # Or filter by content type and tags
+   cms-interaction search --content-type article --filter "tags=[tutorial]" --output json > cms-results.json
+
+   # Review results
+   cat cms-results.json | jq '.[] | {title, id, published_date}'
+   ```
+
+   **Step 2b: Fetch from CMS**
+   ```bash
+   # Fetch from search results
+   cat cms-results.json | cms-interaction fetch --from-stdin
+
+   # Verify files created
+   ls -la sources/cms/sanity/
+   ```
+
+   **Step 2c: Import to Kurt**
+   ```bash
+   # Import to Kurt database
+   cms-interaction import --source-dir sources/cms/sanity/
+
+   # Verify import
+   kurt document list --url-prefix sanity://
+   ```
+
+   **Important:**
+   - CMS content is fetched to `sources/cms/sanity/`
+   - Automatically organized by content type
+   - Import creates Kurt records for querying
+   - Note the source paths in project.md
+
+### For Local Content (Files/Transcripts):
+
+   Ask for the content:
+   - **File paths:** Copy to `projects/<project-name>/sources/`
+   - **Paste content:** Save as markdown file in `projects/<project-name>/sources/`
+
+   **For pasted content:**
+   ```
+   Please paste the content (conversation transcript, notes, etc.):
+   [User pastes content]
+
+   Save to: projects/<project-name>/sources/<descriptive-name>.md
+   ```
+
+   **Import to Kurt (optional):**
+   ```bash
+   # If you want to query/analyze this content
+   kurt ingest add file://projects/<project-name>/sources/<file>.md
+   python .claude/scripts/import_markdown.py \
+     --file-path projects/<project-name>/sources/<file>.md
+   kurt index file://projects/<project-name>/sources/<file>.md
+   ```
+
    - Note the files in project.md
+
+### For Research Content (if available):
+
+   **Check for available research tools:**
+   - Perplexity (if configured)
+   - Web search capabilities
+   - Other research integrations
+
+   **Research workflow:**
+   ```
+   I'll research: [topic from user description]
+
+   Example: "Auth0 and Okta authentication patterns"
+   → Search for official docs, comparison articles, feature pages
+   → Summarize key patterns and differences
+   → Save research notes to: projects/<project-name>/sources/research-<topic>.md
+   ```
+
+   **Then import research notes:**
+   ```bash
+   # Add to Kurt for querying
+   kurt ingest add file://projects/<project-name>/sources/research-<topic>.md
+   python .claude/scripts/import_markdown.py \
+     --file-path projects/<project-name>/sources/research-<topic>.md
+   kurt index file://projects/<project-name>/sources/research-<topic>.md
+   ```
+
+   - Note the research in project.md
 
 4. Update project.md Sources section
 
@@ -323,7 +455,7 @@ Once you have the name, goal, and optionally sources/targets/rules:
 1. Create the project directory structure:
    ```bash
    mkdir -p projects/<project-name>/sources
-   mkdir -p projects/<project-name>/targets/drafts
+   mkdir -p projects/<project-name>/drafts
    ```
 
 2. Create `projects/<project-name>/project.md` with this template:

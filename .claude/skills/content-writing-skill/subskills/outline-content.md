@@ -315,7 +315,7 @@ Following the structure template, create detailed section breakdown:
 ## Step 9: Save Outline
 
 **Output path:**
-`$PROJECT_PATH/assets/$ASSET_NAME-outline.md`
+`$PROJECT_PATH/drafts/$ASSET_NAME-outline.md`
 
 **File structure:**
 1. Enhanced YAML frontmatter (from Step 7)
@@ -343,7 +343,7 @@ Display summary:
 ```markdown
 ✅ **Outline Created Successfully**
 
-**File:** $PROJECT_PATH/assets/$ASSET_NAME-outline.md
+**File:** $PROJECT_PATH/drafts/$ASSET_NAME-outline.md
 **Word Count Planned:** [X] words across [Y] sections
 **Sources Mapped:** [X] ground truth + [Y] existing content
 **Update Patterns:** [list if applicable]
@@ -360,7 +360,7 @@ Display summary:
    `content-writing-skill draft $PROJECT_NAME $ASSET_NAME`
 
 3. Check source mapping:
-   `grep "section_source_mapping:" $PROJECT_PATH/assets/$ASSET_NAME-outline.md`
+   `grep "section_source_mapping:" $PROJECT_PATH/drafts/$ASSET_NAME-outline.md`
 
 **Writer Instructions:**
 - Follow section structure and word count targets

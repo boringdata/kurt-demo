@@ -663,7 +663,7 @@ sources/research/
 projects/
 └── tutorial-ai-coding/
     ├── project.md                               # Links to research source
-    └── assets/
+    └── drafts/
         └── intro-outline.md                     # Cites research file
 ```
 

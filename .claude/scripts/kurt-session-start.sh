@@ -2,8 +2,20 @@
 # Kurt Session Start Hook
 # Checks Kurt project status and provides context to Claude
 
-# Exit early if kurt.config doesn't exist (not a Kurt project)
-if [[ ! -f "kurt.config" ]]; then
+# Check if this is a Kurt project (has .kurt/ directory or kurt.config)
+if [[ ! -f "kurt.config" ]] && [[ ! -d ".kurt" ]]; then
+  # Not a Kurt project at all
+  exit 0
+fi
+
+# If .kurt/ exists but no kurt.config, prompt to initialize
+if [[ -d ".kurt" ]] && [[ ! -f "kurt.config" ]]; then
+  cat <<EOF
+{
+  "systemMessage": $(echo -e "⚠ **Kurt project not initialized**\n\nYou have Kurt configuration files but haven't run initialization.\n\nRun \`kurt init\` to set up your project." | jq -Rs .),
+  "additionalContext": $(echo -e "Kurt project detected (.kurt/ directory exists) but kurt.config missing. User should run 'kurt init'." | jq -Rs .)
+}
+EOF
   exit 0
 fi
 

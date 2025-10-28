@@ -38,7 +38,7 @@ Arguments received: $ARGUMENTS
 ## Step 2: Gather Writing Requirements
 
 ### Load Outline
-**Primary source:** `$OUTLINE_PATH` or `$PROJECT_PATH/assets/$ASSET_NAME-outline.md`
+**Primary source:** `$OUTLINE_PATH` or `$PROJECT_PATH/drafts/$ASSET_NAME-outline.md`
 
 **If outline doesn't exist:**
 ❓ "No outline found for $ASSET_NAME. Would you like to:
@@ -386,7 +386,7 @@ completeness_check:
 ## Step 10: Save Draft
 
 **Output path:**
-`$PROJECT_PATH/assets/$ASSET_NAME-draft.md`
+`$PROJECT_PATH/drafts/$ASSET_NAME-draft.md`
 
 **File structure:**
 1. Enhanced YAML frontmatter (from Steps 5 & 9)
@@ -410,8 +410,8 @@ completeness_check:
 
 **Next steps:**
 1. Review draft for accuracy
-2. Edit: `content-writing-skill edit $PROJECT_PATH/assets/$ASSET_NAME-draft.md --instructions "..."`
-3. Check lineage: `grep "<!-- SECTION:" $PROJECT_PATH/assets/$ASSET_NAME-draft.md`
+2. Edit: `content-writing-skill edit $PROJECT_PATH/drafts/$ASSET_NAME-draft.md --instructions "..."`
+3. Check lineage: `grep "<!-- SECTION:" $PROJECT_PATH/drafts/$ASSET_NAME-draft.md`
 
 ---
 *Template: .claude/skills/content-writing-skill/subskills/draft-content.md*
@@ -432,7 +432,7 @@ Display:
 ```markdown
 ✅ **Draft Created Successfully**
 
-**File:** $PROJECT_PATH/assets/$ASSET_NAME-draft.md
+**File:** $PROJECT_PATH/drafts/$ASSET_NAME-draft.md
 
 **Content Metrics:**
 - **Word Count:** [X] words (target: [Y], variance: [+/-]Z%)
@@ -470,7 +470,7 @@ head -100 $ASSET_NAME-draft.md
 **Next Steps:**
 1. Review draft content
 2. Edit as needed:
-   `content-writing-skill edit $PROJECT_PATH/assets/$ASSET_NAME-draft.md --instructions "improve clarity in prerequisites section"`
+   `content-writing-skill edit $PROJECT_PATH/drafts/$ASSET_NAME-draft.md --instructions "improve clarity in prerequisites section"`
 
 3. Validate lineage completeness
 4. Proceed to review/publishing workflow

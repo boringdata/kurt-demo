@@ -150,9 +150,9 @@ ENABLED_RULE_TYPES: <comma-separated list of enabled types>
 **Asset-Specific Context (outline/draft):**
 ```
 ASSET_NAME: <name>
-ASSET_OUTPUT_DIR: /projects/<name>/assets/
-OUTLINE_PATH: /projects/<name>/assets/<name>-outline.md (if exists)
-DRAFT_PATH: /projects/<name>/assets/<name>-draft.md (if exists)
+ASSET_OUTPUT_DIR: /projects/<name>/drafts/
+OUTLINE_PATH: /projects/<name>/drafts/<name>-outline.md (if exists)
+DRAFT_PATH: /projects/<name>/drafts/<name>-draft.md (if exists)
 ```
 
 ---
@@ -256,7 +256,7 @@ After successful subskill execution, suggest next steps:
 
 **After outline:**
 ```
-✅ Outline created: /projects/<name>/assets/<name>-outline.md
+✅ Outline created: /projects/<name>/drafts/<name>-outline.md
 
 Next steps:
   1. Review outline structure and section flow
@@ -266,7 +266,7 @@ Next steps:
 
 **After draft:**
 ```
-✅ Draft created: /projects/<name>/assets/<name>-draft.md
+✅ Draft created: /projects/<name>/drafts/<name>-draft.md
    Word count: X words
    Rule compliance: Y%
 

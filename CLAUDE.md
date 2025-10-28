@@ -65,7 +65,7 @@ writing-rules-skill persona --audience-type business --auto-discover
 content-writing-skill outline <project-name> <asset-name>
 ```
 
-**Output:** `/projects/<project-name>/assets/<asset-name>-outline.md`
+**Output:** `/projects/<project-name>/drafts/<asset-name>-outline.md`
 
 **Contains:**
 - YAML frontmatter with source documents listed
@@ -78,7 +78,7 @@ content-writing-skill outline <project-name> <asset-name>
 content-writing-skill draft <project-name> <asset-name>
 ```
 
-**Output:** `/projects/<project-name>/assets/<asset-name>-draft.md`
+**Output:** `/projects/<project-name>/drafts/<asset-name>-draft.md`
 
 **Contains:**
 - Enhanced YAML frontmatter with section sources
@@ -88,7 +88,7 @@ content-writing-skill draft <project-name> <asset-name>
 
 **Step 4: Edit as Needed**
 ```bash
-content-writing-skill edit projects/<project-name>/assets/<asset-name>-draft.md --instructions "specific edit instructions"
+content-writing-skill edit projects/<project-name>/drafts/<asset-name>-draft.md --instructions "specific edit instructions"
 ```
 
 **Updates:**
@@ -138,15 +138,15 @@ content-writing-skill draft tutorial-refresh-fusion bigquery-quickstart
 # 4. Review draft for accuracy
 
 # 5. Edit to add missing content
-content-writing-skill edit projects/tutorial-refresh-fusion/assets/bigquery-quickstart-draft.md --instructions "Add limitations callout per Type 5 pattern"
+content-writing-skill edit projects/tutorial-refresh-fusion/drafts/bigquery-quickstart-draft.md --instructions "Add limitations callout per Type 5 pattern"
 
 # 6. Validate pattern application
-grep "UPDATE PATTERN:" projects/tutorial-refresh-fusion/assets/bigquery-quickstart-draft.md
+grep "UPDATE PATTERN:" projects/tutorial-refresh-fusion/drafts/bigquery-quickstart-draft.md
 
 # 7. Check which tutorials use which patterns (across all tutorials)
 for pattern in type_{1..7}; do
   echo "=== $pattern ==="
-  grep -r "$pattern" projects/tutorial-refresh-fusion/assets/
+  grep -r "$pattern" projects/tutorial-refresh-fusion/drafts/
 done
 ```
 
@@ -264,7 +264,7 @@ content-writing-skill outline my-project new-article
 content-writing-skill draft my-project new-article
 
 # 4. Publish back to CMS
-kurt cms publish --file projects/my-project/assets/new-article-draft.md --content-type article
+kurt cms publish --file projects/my-project/drafts/new-article-draft.md --content-type article
 ```
 
 **Benefits:**
@@ -459,7 +459,7 @@ content-writing-skill outline data-tools-watch article-name
 content-writing-skill draft data-tools-watch article-name
 
 # Publish:
-kurt cms publish --file projects/data-tools-watch/assets/article-draft.md --content-type article
+kurt cms publish --file projects/data-tools-watch/drafts/article-draft.md --content-type article
 ```
 
 **Benefits:**
@@ -485,7 +485,7 @@ content-writing-skill outline new-article-project article
 content-writing-skill draft new-article-project article
 
 # Publish to CMS:
-kurt cms publish --file projects/new-article-project/assets/article-draft.md --content-type article
+kurt cms publish --file projects/new-article-project/drafts/article-draft.md --content-type article
 ```
 
 **Complete cycle:** Monitor → Research → Create → Publish
@@ -531,7 +531,7 @@ kurt cms publish --file projects/new-article-project/assets/article-draft.md --c
 
 ## Files Created by Content-Writing-Skill
 
-**Location:** `/projects/<project-name>/assets/`
+**Location:** `/projects/<project-name>/drafts/`
 
 **File types:**
 - `<asset-name>-outline.md` - Outline with source mapping

@@ -100,8 +100,8 @@ Update project.md to reference content in `/sources/`:
 Update project.md with planned location:
 ```markdown
 ### New Content to Create
-- [ ] New tutorial: `targets/drafts/new-tutorial.md` (planned)
-- [ ] Blog post: `targets/drafts/blog-post.md` (planned)
+- [ ] New tutorial: `drafts/new-tutorial.md` (planned)
+- [ ] Blog post: `drafts/blog-post.md` (planned)
 ```
 
 ### List Project Sources and Targets
@@ -257,7 +257,7 @@ Claude should:
    ```
    Draft complete! You can now:
    - Review the draft content
-   - Edit if needed: content-writing-skill edit projects/<project-name>/assets/<asset-name>-draft.md --instructions "..."
+   - Edit if needed: content-writing-skill edit projects/<project-name>/drafts/<asset-name>-draft.md --instructions "..."
    - Check lineage: grep "<!-- SECTION:" <draft-file>
    ```
 
@@ -301,8 +301,8 @@ Claude should:
 - [x] Guide: `/sources/docs.company.com/guide.md` (updated: YYYY-MM-DD)
 
 ### New Content to Create
-- [ ] New tutorial: `targets/drafts/new-tutorial.md` (planned)
-- [x] Blog post: `targets/drafts/blog-post.md` (drafted: YYYY-MM-DD)
+- [ ] New tutorial: `drafts/new-tutorial.md` (planned)
+- [x] Blog post: `drafts/blog-post.md` (drafted: YYYY-MM-DD)
 ```
 
 **Format rules:**
@@ -645,7 +645,7 @@ content-writing-skill outline <project-name> <asset-name>
 content-writing-skill draft <project-name> <asset-name>
 
 # Step 3: Edit with session history tracking
-content-writing-skill edit projects/<project-name>/assets/<asset-name>-draft.md --instructions "..."
+content-writing-skill edit projects/<project-name>/drafts/<asset-name>-draft.md --instructions "..."
 ```
 
 **When to recommend content-writing-skill:**
