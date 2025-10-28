@@ -39,6 +39,59 @@ kurt cms publish --file draft.md --id abc-123
 
 ---
 
+## Search-Then-Fetch Preview Mode
+
+**When invoked from `/create-project` or `/resume-project`**, use search-then-fetch to provide preview:
+
+### Pattern: Search → Preview → Approve → Fetch
+
+1. **Search first** - Show user what content matches
+   ```bash
+   kurt cms search --query "authentication" --content-type article --output json > cms-results.json
+
+   echo "Found X results. Preview:"
+   cat cms-results.json | jq -r '.[] | "\(.title) (\(.published_date))"' | head -10
+   ```
+
+2. **Get approval** - Ask if user wants to fetch all or selective
+   ```
+   Found 24 articles matching "authentication"
+
+   Preview (first 10):
+   1. "Authentication Best Practices" (2024-08-15)
+   2. "OAuth 2.0 Guide" (2024-07-22)
+   3. "JWT Tokens Explained" (2024-06-10)
+   ...
+
+   Fetch all 24? Or select specific ones? (all/select/cancel)
+   ```
+
+3. **Fetch approved content**
+   ```bash
+   # If all:
+   cat cms-results.json | kurt cms fetch --from-stdin
+
+   # If selective (user provides IDs):
+   kurt cms fetch --id abc-123 --id def-456 --output-dir sources/cms/sanity/
+   ```
+
+4. **Import to Kurt**
+   ```bash
+   kurt cms import --source-dir sources/cms/sanity/
+   ```
+
+This provides **Checkpoint 1** (preview) for the iterative source gathering pattern.
+
+### Why Search-Then-Fetch?
+
+- CMS may contain thousands of documents
+- Search is fast (API call, no downloads)
+- Preview shows titles and metadata before fetching
+- Fetch is slow (downloads + conversion)
+- Selective fetching saves time and storage
+
+---
+
 ## Getting Started with Sanity
 
 **If you have an existing Sanity account, here's how to get started:**

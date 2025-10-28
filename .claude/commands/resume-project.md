@@ -65,7 +65,36 @@ Once you have the project name:
 - **Last Updated:** <file modification time if available>
 ```
 
-## Step 4: Check for Missing Content (Gap Detection)
+## Step 4: Check Organizational Foundation & Project Content
+
+**Before diving into project-specific work**, verify organizational foundation exists.
+
+### 4.1: Check Organizational Foundation
+
+**Execute the shared foundation check:**
+
+Follow the workflow in `.claude/commands/_shared/check-organizational-foundation.md`
+
+**This checks:**
+1. **Content Map** - Organizational content in `/sources/`
+2. **Core Rules** - Publisher profile + Primary voice + Personas
+
+**If foundation exists:**
+- Show quick summary
+- Continue to Step 4.2
+
+**If foundation missing:**
+- Offer to set up before project work
+- "Your organizational foundation isn't complete. Would you like to set it up now? This helps ensure consistency across all projects."
+- If user declines: "You can set this up later. For now, I'll focus on project-specific content."
+
+**Why this matters:**
+- Core rules ensure consistency across all content
+- Content map shows what exists organizationally
+- Prevents duplicating effort across projects
+- Foundation rules benefit all future projects
+
+### 4.2: Check Project-Specific Content
 
 Parse the project.md file and check for gaps:
 
@@ -127,7 +156,7 @@ Would you like to identify targets now?
 ⚠️ No writing rules extracted yet.
 
 Rules help ensure consistency when creating/updating content:
-- Corporate voice and content styles
+- Primary voice and content styles
 - Document structure templates
 - Audience personas
 - Company messaging/positioning
@@ -136,78 +165,49 @@ Would you like to extract rules now?
 ```
 
 **If user wants to add content:**
-- Parse their description to identify source types (see create-project.md Step 3 for full workflow)
-- Route to appropriate skills:
-  - **Web content:** kurt ingest map/fetch/index
-  - **CMS content:** cms-interaction search/fetch/import
-  - **Local content:** Save files and optionally import to Kurt
-  - **Research:** Conduct research and save notes
-- Update project.md accordingly
+
+Follow the **iterative source gathering workflow** in:
+`.claude/commands/_shared/iterative-source-gathering.md`
+
+This provides two-checkpoint validation:
+1. Proposal & preview (before fetching)
+2. Review & iterate (after fetching)
+
+Supports conversational exploration for research queries.
 
 **If user wants to extract rules (NEW):**
-- First verify content is fetched + indexed (Step 5)
-- Then guide through extraction workflow (see Step 5.7 below)
+
+Follow the **iterative rule extraction workflow** in:
+`.claude/commands/_shared/iterative-rule-extraction.md`
+
+This provides:
+1. Analysis of available content
+2. Preview of sample documents before extraction
+3. Iterative extraction until satisfied
 
 ## Step 5.7: Extract Rules (If Missing and Content Ready)
 
-If the user wants to extract rules (from Step 4) AND content is fetched + indexed (from Step 5), guide them through extraction:
+**If user wants to extract rules**, follow the **iterative rule extraction workflow**:
+
+`.claude/commands/_shared/iterative-rule-extraction.md`
 
 **Prerequisites:**
-- ✅ Sources must be FETCHED (files in `/sources/`)
-- ✅ Sources must be INDEXED (metadata extracted)
-- If not, complete Step 5.3 and 5.5 first
+- ✅ Content must be FETCHED + INDEXED (verify with Step 5)
+- ✅ At least 10 indexed pages for foundation rules
 
-1. **Check what already exists globally:**
-   ```bash
-   ls rules/publisher/publisher-profile.md  # Publisher profile
-   ls rules/style/  # Style guides
-   ls rules/structure/  # Structure templates
-   ls rules/personas/  # Personas
-   ```
+**The workflow will:**
+1. Analyze available content
+2. Propose rules with sample document preview
+3. Prioritize based on:
+   - Foundation rules (if missing globally)
+   - Content-specific rules (based on project intent/targets)
+4. Get approval before each extraction
+5. Review extracted rules
+6. Iterate until satisfied
 
-2. **Recommend extraction priority based on what's missing:**
-
-   **Priority 1: Foundation rules (if not globally available)**
-   - Publisher profile → `writing-rules-skill publisher --auto-discover`
-   - Corporate voice → `writing-rules-skill style --type corporate --auto-discover`
-
-   **Priority 2: Content-specific rules (based on project intent and targets)**
-
-   - **If intent (a) - positioning or (b) - marketing:**
-     - Landing page structure
-     - Marketing persona
-     - Product page style
-
-   - **If intent (c) - technical docs:**
-     - Technical documentation style
-     - Tutorial/guide structure
-     - Developer persona
-
-   - **Check target content types** to determine specific needs
-
-3. **Extract recommended rules:**
-   - Use auto-discovery mode for each extraction
-   - Show user proposed documents
-   - Get approval and extract
-   - Update project.md with rule references
-
-4. **Validate rule coverage for targets:**
-   - For each target content item, check if appropriate rules exist
-   - Flag any gaps: "Target: blog post, but no blog style guide"
-   - Offer to extract missing rules
-
-**Example rule validation workflow:**
-```
-Target: Update /docs/quickstart-guide.md
-
-Required rules:
-✓ Technical documentation style: rules/style/technical-documentation.md
-✗ Tutorial structure: NOT FOUND → Extract from tutorials?
-✓ Developer persona: rules/personas/technical-implementer.md
-✓ Publisher profile: rules/publisher/publisher-profile.md
-
-Recommendation: Extract tutorial structure template before starting work.
-```
+**Integrate with project:**
+- Update project.md with extracted rules
+- Validate rule coverage for target content
 
 ## Step 5: Analyze Content Status & Fetch/Index Gaps
 
@@ -362,14 +362,14 @@ Based on the project intent and current status, recommend specific next actions:
 4. Proceed with content work
 
 **If intent is (a) - Update positioning/messaging:**
-- Check: Publisher profile + corporate voice extracted?
+- Check: Publisher profile + primary voice extracted?
 - Check: Landing page structure + marketing persona extracted?
 - Suggest fetching product/marketing pages if not done
 - Recommend extracting claims and entities
 - Offer to analyze gaps in current messaging
 
 **If intent is (b) - Write marketing assets:**
-- Check: Publisher profile + corporate voice extracted?
+- Check: Publisher profile + primary voice extracted?
 - Check: Relevant structure template for asset type?
 - Suggest reviewing similar past content in clusters
 - Recommend extracting positioning elements
@@ -404,7 +404,7 @@ Based on the project intent and current status, recommend specific next actions:
    - Run `kurt cluster compute` to analyze topics (optional)
 
 5. **Content ready, but no rules extracted:**
-   - Extract foundation rules (publisher + corporate voice)
+   - Extract foundation rules (publisher + primary voice)
    - Extract content-specific rules based on intent
 
 6. **Rules incomplete for targets:**

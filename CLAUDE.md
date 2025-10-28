@@ -46,8 +46,8 @@ When working on content creation or updates for a Kurt project, use the **conten
 # Extract publisher profile (foundation)
 writing-rules-skill publisher --auto-discover
 
-# Extract corporate style
-writing-rules-skill style --type corporate --auto-discover
+# Extract primary voice
+writing-rules-skill style --type primary --auto-discover
 
 # Extract content-specific rules based on what you're creating:
 # For technical docs:
@@ -256,7 +256,7 @@ kurt cms fetch --id <id> --output-dir sources/cms/sanity/
 kurt cms import --source-dir sources/cms/sanity/
 
 # 2. Extract rules from CMS content
-writing-rules-skill style --type corporate --auto-discover
+writing-rules-skill style --type primary --auto-discover
 writing-rules-skill structure --type article --auto-discover
 
 # 3. Create new content using learned patterns
@@ -564,7 +564,7 @@ Kurt has an **extensible rules system**. See `KURT.md` for full details on how r
 ```bash
 # Built-in types (always available)
 writing-rules-skill publisher --auto-discover
-writing-rules-skill style --type corporate --auto-discover
+writing-rules-skill style --type primary --auto-discover
 writing-rules-skill structure --type tutorial --auto-discover
 writing-rules-skill persona --audience-type technical --auto-discover
 

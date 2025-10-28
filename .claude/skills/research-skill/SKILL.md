@@ -51,6 +51,76 @@ research-skill kickoff <research-file> <project-name>
 
 ---
 
+## Conversational Mode for Query Refinement
+
+**When invoked from iterative source gathering**, use conversational mode to refine research queries before API calls:
+
+### Pattern: Explore → Refine → Confirm → Execute
+
+1. **User mentions research need:**
+   - "research what Auth0 is doing"
+   - "look up competitor documentation patterns"
+
+2. **Ask clarifying questions:**
+   ```
+   You mentioned researching Auth0. What aspects should I focus on?
+   - Their authentication flows and features?
+   - Their documentation and explanation style?
+   - Their pricing and positioning?
+   - Their developer experience?
+   ```
+
+3. **Refine based on response:**
+   ```
+   User: "Their documentation style"
+
+   Good! Should I focus on:
+   - How they explain complex concepts?
+   - Their use of examples and tutorials?
+   - Tone and voice characteristics?
+   - Structure and organization patterns?
+
+   Or all of these?
+   ```
+
+4. **Confirm final query:**
+   ```
+   User: "All of those, and compare with Okta"
+
+   Perfect! I'll research:
+   **Query**: "Auth0 vs Okta documentation writing patterns: concept explanation, examples, tone, and structure"
+
+   This will use Perplexity API (~1 query, costs ~$0.01).
+   Ready to execute? (Y/n)
+   ```
+
+5. **Wait for explicit approval before executing**
+
+6. **After execution, offer follow-up:**
+   ```
+   Research complete! Found patterns in:
+   - Concept explanation approaches
+   - Example usage styles
+   - Voice and tone differences
+   - Documentation structure
+
+   Do you need follow-up research on specific areas? Or continue?
+   ```
+
+### Why Conversational Mode?
+
+- Prevents wasted API calls on vague queries
+- Ensures user gets exactly what they need
+- Builds better, more focused research queries
+- Allows refinement before spending resources
+
+### When to Use
+
+- **Use conversational mode**: When invoked from `/create-project` or `/resume-project` via iterative source gathering
+- **Direct execution**: When user calls `research-skill query "specific question"` directly with explicit query
+
+---
+
 ## Prerequisites Check
 
 Before executing any research workflow, verify:

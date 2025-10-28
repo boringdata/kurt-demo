@@ -31,7 +31,42 @@ Ask the user for:
 - Be specific: `q4-launch-content` not `marketing`
 - Keep it short: 2-4 words maximum
 
+## Step 2.5: Check Organizational Foundation
+
+**Before collecting project-specific sources**, verify that organizational context exists.
+
+**Execute the shared foundation check:**
+
+Follow the complete workflow in `.claude/commands/_shared/check-organizational-foundation.md`
+
+**This will:**
+1. **Check for Content Map** - Organizational content in `/sources/`
+   - If missing: Guide user to provide root domains/sitemaps
+   - For each domain: Map → Fetch → Index workflow
+
+2. **Check for Core Rules** - Publisher profile + Primary voice + Personas
+   - If missing: Extract from indexed content
+   - Uses writing-rules-skill with --auto-discover
+
+**If foundation exists:**
+- Show quick summary
+- Continue to Step 3
+
+**If foundation missing:**
+- Guide user through setup
+- Takes 5-10 minutes for first-time setup
+- Veteran users skip this automatically
+
+**Why this matters:**
+- Organizational context informs which project sources to use
+- Having core rules before project work ensures consistency
+- Content map shows what already exists (avoid duplication)
+
+Once foundation check is complete, continue to Step 3.
+
 ## Step 3: Collect Ground Truth Sources (Skippable)
+
+**Now that organizational context is established**, gather project-specific sources.
 
 Ask the user for source material they'll be working FROM:
 
@@ -48,186 +83,31 @@ Ask the user for source material they'll be working FROM:
 
 **If they choose (a) - Add sources now:**
 
-Ask the user to describe what sources they need. Be explicit about available options:
+Follow the **iterative source gathering workflow** in:
 
-> **What sources would be helpful for this project?**
->
-> You can describe multiple sources - I'll help you fetch them. Available source types:
->
-> **1. Web Content (URLs/Websites)**
-> - Individual URLs or entire websites
-> - Automatically fetch and index content
-> - Example: "docs.example.com/features" or "blog.company.com"
->
-> **2. CMS Content**
-> - **Sanity** (if configured)
-> - Search and fetch by content type, tags, dates
-> - Example: "existing tutorials from Sanity about authentication"
->
-> **3. Local Content**
-> - Files, conversation transcripts, notes docs
-> - Copy-paste or provide file paths
-> - Example: "conversation transcript from customer research"
->
-> **4. Research Content** (if available)
-> - Perplexity, Hacker News, Reddit, etc.
-> - Research competitive patterns or topics
-> - Example: "research what Auth0 and Okta are doing for authentication"
->
-> Describe the sources you need:
+`.claude/commands/_shared/iterative-source-gathering.md`
 
-**Wait for user's response, then parse and route:**
+**This workflow will:**
+1. Ask user to describe sources needed
+2. **CHECKPOINT 1**: Propose specific actions with preview
+   - Show what will be fetched
+   - Conversational exploration for research queries
+   - User approves/refines/cancels each action
+3. **EXECUTE**: Run approved actions with progress updates
+4. **CHECKPOINT 2**: Review what was fetched
+   - Show summary of fetched documents
+   - Offer: Add more sources / Refine / Continue
+5. **ITERATE**: Loop back until user is satisfied
 
-1. **Identify source types from their description:**
-   - URLs/domains → Web content
-   - "from Sanity" / "CMS" / "existing content" → CMS
-   - "transcript" / "notes" / "paste" → Local files
-   - "research" / "what are competitors" → Research
+**Key features:**
+- Preview before fetching (see what will be discovered)
+- Conversational refinement for research queries
+- Review after fetching (evaluate if more sources needed)
+- Two checkpoints ensure user validation before and after execution
 
-2. **Handle each source type:**
-
-### For Web Content (URLs/Websites):
-
-   **Step 2a: Map (discover URLs)**
-   ```bash
-   kurt ingest map <url>
-   # Or with date discovery for blogs/docs
-   kurt ingest map <url> --discover-dates
-   ```
-
-   **Step 2b: Fetch (download content)**
-   ```bash
-   # Check current fetch status
-   kurt document list --url-prefix <url> --status NOT_FETCHED
-
-   # Fetch content
-   kurt ingest fetch --url-prefix <url>
-
-   # Verify fetch completed
-   kurt document list --url-prefix <url> --status FETCHED
-   ```
-
-   **Step 2c: Index (extract metadata + topics)**
-   ```bash
-   # Index fetched content for LLM analysis
-   kurt index --url-prefix <url>
-
-   # Verify indexing completed (check for topics/metadata)
-   kurt document get <url>  # Should show extracted metadata
-   ```
-
-   **Important:**
-   - **Fetch** creates the file in `/sources/`
-   - **Index** extracts metadata (title, author, topics) via LLM analysis
-   - Both are required for full content intelligence
-   - Note the source paths in project.md
-
-### For CMS Content (Sanity):
-
-   **Prerequisites:** Check if Sanity is configured:
-   ```bash
-   # Check if config exists
-   test -f .kurt/cms-config.json && echo "✓ Sanity configured" || echo "✗ Need to run: cms-interaction onboard"
-   ```
-
-   **If not configured:**
-   ```
-   To use CMS content, first run: cms-interaction onboard
-   This will connect to your Sanity CMS and map your content types.
-   ```
-
-   **If configured, proceed with:**
-
-   **Step 2a: Search CMS**
-   ```bash
-   # Search by query
-   cms-interaction search --query "authentication" --output json > cms-results.json
-
-   # Or filter by content type and tags
-   cms-interaction search --content-type article --filter "tags=[tutorial]" --output json > cms-results.json
-
-   # Review results
-   cat cms-results.json | jq '.[] | {title, id, published_date}'
-   ```
-
-   **Step 2b: Fetch from CMS**
-   ```bash
-   # Fetch from search results
-   cat cms-results.json | cms-interaction fetch --from-stdin
-
-   # Verify files created
-   ls -la sources/cms/sanity/
-   ```
-
-   **Step 2c: Import to Kurt**
-   ```bash
-   # Import to Kurt database
-   cms-interaction import --source-dir sources/cms/sanity/
-
-   # Verify import
-   kurt document list --url-prefix sanity://
-   ```
-
-   **Important:**
-   - CMS content is fetched to `sources/cms/sanity/`
-   - Automatically organized by content type
-   - Import creates Kurt records for querying
-   - Note the source paths in project.md
-
-### For Local Content (Files/Transcripts):
-
-   Ask for the content:
-   - **File paths:** Copy to `projects/<project-name>/sources/`
-   - **Paste content:** Save as markdown file in `projects/<project-name>/sources/`
-
-   **For pasted content:**
-   ```
-   Please paste the content (conversation transcript, notes, etc.):
-   [User pastes content]
-
-   Save to: projects/<project-name>/sources/<descriptive-name>.md
-   ```
-
-   **Import to Kurt (optional):**
-   ```bash
-   # If you want to query/analyze this content
-   kurt ingest add file://projects/<project-name>/sources/<file>.md
-   python .claude/scripts/import_markdown.py \
-     --file-path projects/<project-name>/sources/<file>.md
-   kurt index file://projects/<project-name>/sources/<file>.md
-   ```
-
-   - Note the files in project.md
-
-### For Research Content (if available):
-
-   **Check for available research tools:**
-   - Perplexity (if configured)
-   - Web search capabilities
-   - Other research integrations
-
-   **Research workflow:**
-   ```
-   I'll research: [topic from user description]
-
-   Example: "Auth0 and Okta authentication patterns"
-   → Search for official docs, comparison articles, feature pages
-   → Summarize key patterns and differences
-   → Save research notes to: projects/<project-name>/sources/research-<topic>.md
-   ```
-
-   **Then import research notes:**
-   ```bash
-   # Add to Kurt for querying
-   kurt ingest add file://projects/<project-name>/sources/research-<topic>.md
-   python .claude/scripts/import_markdown.py \
-     --file-path projects/<project-name>/sources/research-<topic>.md
-   kurt index file://projects/<project-name>/sources/research-<topic>.md
-   ```
-
-   - Note the research in project.md
-
-4. Update project.md Sources section
+**When iteration complete:**
+- Update project.md with source list
+- Continue to Step 4
 
 **If they choose (b) - Skip:**
 - Note in project.md that sources will be added later
@@ -363,90 +243,43 @@ If the user has added sources in Step 3 AND they are fetched + indexed, ask if t
 
 > Would you like to extract writing rules from your content? This helps ensure consistency when creating/updating content.
 >
-> **Built-in rule types:**
-> - **Style Guidelines** - Brand voice and writing patterns
-> - **Structure Templates** - Document formats and organization
-> - **Target Personas** - Audience targeting patterns
-> - **Publisher Profile** - Company messaging and positioning
->
-> **Custom rule types** (if configured):
-> - Run `writing-rules-skill list` to see all available types
-> - May include: Verticals, Use-cases, Channels, etc.
->
 > Options:
 > a) Extract rules now (recommended if sources available)
 > b) Skip for now (can extract later)
-> c) See all available rule types first
 
 **If they choose (a) - Extract rules now:**
 
-**Prerequisites check:**
-```bash
-# Verify sources are fetched + indexed
-kurt document list --url-prefix <url> --status FETCHED
-kurt document get <url>  # Should show metadata
+Follow the **iterative rule extraction workflow** in:
 
-# If not indexed, must run:
-kurt index --url-prefix <url>
-```
+`.claude/commands/_shared/iterative-rule-extraction.md`
 
-**⚠️ If sources not indexed:**
-```
-Cannot extract rules yet - content must be indexed first.
+**This workflow will:**
+1. **Prerequisites check**: Verify content is indexed (10+ pages minimum)
+2. **Analyze**: Inventory available content by domain, type, date range
+3. **Propose with preview**:
+   - Show 3-5 sample document titles/URLs for each rule type
+   - Show coverage stats (page count, date range, content types)
+   - Explain what patterns could be learned
+4. **User decision**: Approve / Refine (use different docs) / Skip
+5. **Execute**: Run approved extractions with progress updates
+6. **Review**: Show extracted rule file + key characteristics
+7. **Iterate**: Offer to extract more rules or continue
 
-Running: kurt index --url-prefix <url>
-Please wait... (this may take 10-30 seconds depending on content volume)
+**Key features:**
+- Preview sample documents before extraction
+- Start with foundation rules (publisher + primary voice)
+- Propose content-specific rules based on project intent
+- Explicit approval before each extraction
+- Review extracted rules before continuing
+- Iterative: continue until user is satisfied
 
-✓ Indexing complete. Ready to extract rules.
-```
-
-**If they choose (c) - See available rule types:**
-```bash
-writing-rules-skill list
-```
-Then ask again whether to extract now or skip.
-
-**Extraction workflow:**
-
-1. **Start with foundation rules** (recommended order):
-   ```bash
-   # 1. Publisher profile (company context - do first)
-   writing-rules-skill publisher --auto-discover
-
-   # 2. Corporate style (brand voice)
-   writing-rules-skill style --type corporate --auto-discover
-   ```
-
-2. **Ask about content-specific rules based on project intent:**
-
-   - **If intent (b) - marketing assets or (a) - positioning:**
-     - Ask: "Extract landing page structure?" → `writing-rules-skill structure --type landing-page --auto-discover`
-     - Ask: "Extract marketing persona?" → `writing-rules-skill persona --audience-type business --auto-discover`
-
-   - **If intent (c) - technical docs:**
-     - Ask: "Extract technical doc style?" → `writing-rules-skill style --type technical-docs --auto-discover`
-     - Ask: "Extract tutorial/guide structure?" → `writing-rules-skill structure --type tutorial --auto-discover`
-     - Ask: "Extract developer persona?" → `writing-rules-skill persona --audience-type technical --auto-discover`
-
-3. **Ask about custom rule types** (if any are configured):
-   ```bash
-   # Check for custom types in registry
-   custom_types=$(yq '.rule_types | to_entries | .[] | select(.value.built_in == false and .value.enabled == true) | .key' rules/rules-config.yaml)
-
-   # For each custom type, ask if user wants to extract
-   # Example: "Extract healthcare vertical rules?" → writing-rules-skill verticals --type healthcare --auto-discover
-   ```
-
-4. **Update project.md** with extracted rules references
+**When iteration complete:**
+- Update project.md with extracted rules
+- Continue to Step 6
 
 **If they choose (b) - Skip:**
 - Note in project.md that rules can be extracted later
 - Continue to Step 6
-
-**Important notes:**
-- Publisher profile + corporate voice are most important (do first)
-- Content-specific rules depend on what user will create
-- Can always extract more rules later as needed
 
 ## Step 6: Create Project Structure
 

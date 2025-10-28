@@ -51,6 +51,78 @@ writing-rules-skill onboard
 
 ---
 
+## Preview Mode for Iterative Extraction
+
+**When invoked from iterative rule extraction**, use preview mode before executing extractions:
+
+### Pattern: Analyze → Preview → Approve → Extract
+
+1. **Analyze available content:**
+   - List all indexed documents
+   - Group by domain, content type, date range
+   - Identify which rule types are possible
+
+2. **Preview documents before extraction:**
+   ```
+   **Propose: Extract Technical Documentation Style**
+
+   Sample documents I'll analyze (5 of 30):
+   1. docs.example.com/api/authentication - "Authentication API"
+   2. docs.example.com/concepts/architecture - "Architecture Overview"
+   3. docs.example.com/guides/deployment - "Deployment Guide"
+   4. docs.example.com/reference/cli - "CLI Reference"
+   5. docs.example.com/troubleshooting - "Troubleshooting"
+
+   **Coverage:**
+   - 30 pages from /docs/*
+   - Content types: API reference, guides, concepts
+   - Technical depth: High (developer-focused)
+
+   **What I'll extract:**
+   - Technical writing patterns
+   - Example usage patterns
+   - Warning and note styles
+   - Code snippet formatting
+
+   Extract from these documents? (Y/n)
+   > Or: "Use different documents" / "Skip for now"
+   ```
+
+3. **Handle user response:**
+   - **Approve**: Execute extraction with `--auto-discover`
+   - **Refine**: User requests different documents → Adjust and re-preview
+   - **Skip**: Move to next rule type
+
+4. **After extraction, show what was created:**
+   ```
+   **Extraction Complete: Technical Documentation Style**
+
+   ✓ Created: rules/style/technical-documentation.md
+
+   **Key characteristics extracted:**
+   - Tone: Professional, direct, precise
+   - Structure: Short paragraphs, clear headings
+   - Examples: Code-heavy with inline comments
+   - Technical depth: High (assumes developer knowledge)
+
+   This rule will be applied to technical content you create.
+   ```
+
+### Why Preview Mode?
+
+- User sees which documents will be analyzed before API calls
+- Prevents extracting from wrong/irrelevant content
+- Allows content selection refinement
+- Builds confidence in extraction quality
+- Transparent about what's being used
+
+### When to Use
+
+- **Use preview mode**: When invoked from `/create-project` or `/resume-project` via iterative rule extraction module
+- **Direct execution**: When user calls `writing-rules-skill <type> --auto-discover` directly (no preview, immediate execution)
+
+---
+
 ## Routing Logic
 
 This skill routes based on the first argument:

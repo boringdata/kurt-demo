@@ -40,6 +40,40 @@ kurt ingest fetch --url-prefix https://www.anthropic.com/
 2. **Review**: Examine discovered URLs using document management commands
 3. **Fetch**: Download content selectively (single or batch)
 
+### Integration with Iterative Source Gathering
+
+**When invoked from `/create-project` or `/resume-project`**, use map-then-fetch to provide preview:
+
+1. **Map first** - Show user what URLs were discovered
+   ```bash
+   kurt ingest map https://docs.example.com
+   echo "Discovered X URLs. Preview:"
+   kurt document list --url-prefix https://docs.example.com --status NOT_FETCHED | head -10
+   ```
+
+2. **Get approval** - Ask if user wants to fetch all or selective
+   ```
+   Found 150 URLs from docs.example.com
+
+   Preview (first 10):
+   1. https://docs.example.com/quickstart
+   2. https://docs.example.com/api/authentication
+   ...
+
+   Fetch all 150 pages? Or selective? (all/selective/cancel)
+   ```
+
+3. **Fetch approved content**
+   ```bash
+   # If all:
+   kurt ingest fetch --url-prefix https://docs.example.com
+
+   # If selective (user specifies path pattern):
+   kurt ingest fetch --url-prefix https://docs.example.com/api/
+   ```
+
+This provides **Checkpoint 1** (preview) for the iterative source gathering pattern.
+
 ## Core Operations
 
 ### Map Sitemap URLs
