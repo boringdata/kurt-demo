@@ -86,6 +86,28 @@ content-writing-skill draft <project-name> <asset-name>
 - Update pattern applications documented
 - Rule compliance tracked
 
+**Step 3.5: Get Persona-Based Feedback (Recommended)**
+```bash
+content-writing-skill feedback <project-name> <asset-name>
+```
+
+**Output:** `/projects/<project-name>/feedback/<asset-name>-feedback.md`
+
+**Analyzes from each target persona's perspective:**
+- **Comprehension issues** - Unexplained jargon, missing context
+- **Technical depth** - Too advanced or too basic for their level
+- **Missing information** - Gaps they'd need filled
+- **Tone/style mismatches** - Not aligned with their preferences
+- **Length issues** - Too verbose or too terse for their needs
+- **Structure problems** - Flow doesn't match their mental model
+
+**Provides:**
+- Section-level issues with line numbers
+- Concrete fix suggestions
+- Persona alignment scores
+- Critical vs nice-to-have prioritization
+- Recommended edit instructions
+
 **Step 4: Edit as Needed**
 ```bash
 content-writing-skill edit projects/<project-name>/drafts/<asset-name>-draft.md --instructions "specific edit instructions"
@@ -105,7 +127,8 @@ content-writing-skill edit projects/<project-name>/drafts/<asset-name>-draft.md 
 2. **Reasoning** - Why content was written this way
 3. **Rules Applied** - Style, structure, persona, publisher compliance
 4. **Update Patterns** - Project-specific transformation patterns (if applicable)
-5. **Edit History** - All changes with session IDs, instructions, timestamps
+5. **Persona Feedback** - Review sessions with alignment scores and issues found
+6. **Edit History** - All changes with session IDs, instructions, timestamps
 
 **Query lineage:**
 ```bash
@@ -114,6 +137,9 @@ grep "<!-- SECTION:" <draft-file>.md
 
 # Find update patterns applied
 grep "UPDATE PATTERN:" <draft-file>.md
+
+# View persona feedback sessions
+head -100 <draft-file>.md | grep "feedback_sessions:" -A 30
 
 # View edit history
 head -100 <draft-file>.md | grep "edit_sessions:" -A 20
@@ -135,10 +161,14 @@ content-writing-skill outline tutorial-refresh-fusion bigquery-quickstart
 # 3. Generate draft (applies patterns, cites sources inline)
 content-writing-skill draft tutorial-refresh-fusion bigquery-quickstart
 
-# 4. Review draft for accuracy
+# 4. Get persona-based feedback
+content-writing-skill feedback tutorial-refresh-fusion bigquery-quickstart
 
-# 5. Edit to add missing content
-content-writing-skill edit projects/tutorial-refresh-fusion/drafts/bigquery-quickstart-draft.md --instructions "Add limitations callout per Type 5 pattern"
+# Result: Analytics Engineer 85% aligned, Data Scientist 60% aligned
+# Critical issues: Missing setup validation, no analysis examples, unexplained jargon
+
+# 5. Apply critical fixes from feedback
+content-writing-skill edit projects/tutorial-refresh-fusion/drafts/bigquery-quickstart-draft.md --instructions "Apply critical fixes: add setup validation section, add analysis examples, explain data warehouse terminology in intro"
 
 # 6. Validate pattern application
 grep "UPDATE PATTERN:" projects/tutorial-refresh-fusion/drafts/bigquery-quickstart-draft.md

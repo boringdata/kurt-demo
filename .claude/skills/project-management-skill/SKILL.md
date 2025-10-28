@@ -255,16 +255,45 @@ Claude should:
 
 5. **After draft is created:**
    ```
-   Draft complete! You can now:
-   - Review the draft content
-   - Edit if needed: content-writing-skill edit projects/<project-name>/drafts/<asset-name>-draft.md --instructions "..."
-   - Check lineage: grep "<!-- SECTION:" <draft-file>
+   Draft complete! Recommended next steps:
+
+   a) **Get persona-based feedback** (recommended) - Review from target audience perspective
+      content-writing-skill feedback <project-name> <asset-name>
+
+      This analyzes the draft from each target persona's perspective to identify:
+      - Comprehension issues (unclear jargon, missing context)
+      - Technical depth mismatches (too advanced or too basic)
+      - Missing information (gaps in content)
+      - Tone/style issues (doesn't match persona preferences)
+      - Length problems (too long or too short for persona)
+
+   b) **Review manually** - Read the draft yourself
+
+   c) **Edit directly** - Make changes now
+      content-writing-skill edit projects/<project-name>/drafts/<asset-name>-draft.md --instructions "..."
+
+   d) **Check lineage** - Verify source attribution
+      grep "<!-- SECTION:" <draft-file>
+
+   What would you like to do? (a/b/c/d)
    ```
 
-6. **Update project.md Progress section:**
+6. **If user chooses persona feedback:**
+   ```
+   Use the Skill tool: content-writing feedback <project-name> <asset-name>
+
+   After feedback is generated, offer to:
+   - Apply critical fixes automatically
+   - Review full feedback report
+   - Make selective edits
+   - Continue without changes
+   ```
+
+7. **Update project.md Progress section:**
    - Mark outline as complete
    - Mark draft as complete (if done)
-   - Add next steps (review, editing, publishing)
+   - Mark feedback reviewed (if completed)
+   - Add next steps (editing, publishing)
 
 **Important**: Always check for rules before recommending content creation. If rules are missing, suggest extraction first.
 

@@ -6,8 +6,8 @@ description: Create outlines, drafts, and edited content with comprehensive line
 # Content Writing Skill
 
 **Purpose:** Unified content creation workflow with comprehensive lineage tracking
-**Subskills:** outline, draft, edit
-**Lineage:** Tracks sources, reasoning, rule compliance, and edit history through YAML frontmatter + inline HTML comments
+**Subskills:** outline, draft, edit, feedback
+**Lineage:** Tracks sources, reasoning, rule compliance, edit history, and persona feedback through YAML frontmatter + inline HTML comments
 
 ---
 
@@ -19,6 +19,9 @@ content-writing-skill outline <project-name> <asset-name> [--interactive]
 
 # Generate draft
 content-writing-skill draft <project-name> <asset-name> [--section "Section Name"]
+
+# Review draft with persona-based feedback
+content-writing-skill feedback <project-name> <asset-name> [--persona "name"] [--focus "area"]
 
 # Edit content
 content-writing-skill edit <file-path> --instructions "Edit instructions" [--section "Section Name"]
@@ -32,6 +35,7 @@ This skill routes to the appropriate subskill based on the first argument:
 
 - `outline` → subskills/outline-content.md
 - `draft` → subskills/draft-content.md
+- `feedback` → subskills/feedback-content.md
 - `edit` → subskills/edit-content.md
 
 ---
@@ -41,7 +45,7 @@ This skill routes to the appropriate subskill based on the first argument:
 Extract subskill and arguments: $ARGUMENTS
 
 **Expected format:**
-- First argument: `outline`, `draft`, or `edit`
+- First argument: `outline`, `draft`, `feedback`, or `edit`
 - Remaining arguments: passed to subskill
 
 **If no arguments or invalid subskill:**
@@ -51,12 +55,13 @@ Show usage help and available subskills.
 
 ## Step 2: Load Shared Context
 
-### Project Context (for outline/draft)
-If subskill is `outline` or `draft`:
+### Project Context (for outline/draft/feedback)
+If subskill is `outline`, `draft`, or `feedback`:
 - Project name from arguments
 - Locate project directory: `/projects/<project-name>/`
 - Read project.md or project-brief.md for context
 - Check for task-breakdown.md
+- Locate draft file (for feedback subskill)
 
 ### Rule Files Context (Dynamic)
 
