@@ -66,13 +66,18 @@ kurt cms publish --file draft.md --id abc-123
    Fetch all 24? Or select specific ones? (all/select/cancel)
    ```
 
-3. **Fetch approved content**
+3. **Fetch approved content** - **⚠️ CRITICAL: Use SINGLE command, NEVER loop!**
    ```bash
-   # If all:
-   cat cms-results.json | kurt cms fetch --from-stdin
+   # ✅ CORRECT: Fetch all in single command
+   cat cms-results.json | kurt cms fetch --from-stdin --output-dir sources/cms/sanity/
 
-   # If selective (user provides IDs):
-   kurt cms fetch --id abc-123 --id def-456 --output-dir sources/cms/sanity/
+   # ✅ CORRECT: Fetch specific IDs in single command with multiple --id flags
+   kurt cms fetch --id abc-123 --id def-456 --id ghi-789 --output-dir sources/cms/sanity/
+
+   # ❌ WRONG: DO NOT loop individual fetch calls!
+   # for id in "${ids[@]}"; do
+   #   kurt cms fetch --id "$id"  # NEVER DO THIS - causes 100+ duplicate calls!
+   # done
    ```
 
 4. **Import to Kurt**
@@ -89,6 +94,16 @@ This provides **Checkpoint 1** (preview) for the iterative source gathering patt
 - Preview shows titles and metadata before fetching
 - Fetch is slow (downloads + conversion)
 - Selective fetching saves time and storage
+
+### ⚠️ CRITICAL: Batching Requirements
+
+**ALWAYS batch multiple IDs into a SINGLE command:**
+- Prevents hundreds of duplicate API calls
+- Much faster (batched internally by CLI)
+- Cleaner output
+- Less resource usage
+
+**Never use loops for CMS fetch operations** - the `kurt cms fetch` command is designed to handle multiple IDs in a single call.
 
 ---
 

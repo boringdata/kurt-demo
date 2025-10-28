@@ -166,44 +166,47 @@ Would you like to extract rules now?
 
 **If user wants to add content:**
 
-Follow the **iterative source gathering workflow** in:
-`.claude/commands/_shared/iterative-source-gathering.md`
+Use **project-management gather-sources** subskill:
 
-This provides two-checkpoint validation:
-1. Proposal & preview (before fetching)
-2. Review & iterate (after fetching)
+`project-management gather-sources`
 
-Supports conversational exploration for research queries.
+This orchestrates iterative source gathering:
+- Routes to appropriate domain skills (research, ingest, cms)
+- Two-checkpoint validation (proposal → execute → review)
+- Conversational exploration for research queries
+- Batch operations (no looping)
 
 **If user wants to extract rules (NEW):**
 
-Follow the **iterative rule extraction workflow** in:
-`.claude/commands/_shared/iterative-rule-extraction.md`
+Use **project-management extract-rules** subskill:
 
-This provides:
-1. Analysis of available content
-2. Preview of sample documents before extraction
-3. Iterative extraction until satisfied
+`project-management extract-rules`
+
+This orchestrates iterative rule extraction:
+- Routes to writing-rules-skill with preview mode
+- Shows sample documents before extraction
+- Iterates until user satisfied
 
 ## Step 5.7: Extract Rules (If Missing and Content Ready)
 
-**If user wants to extract rules**, follow the **iterative rule extraction workflow**:
+**If user wants to extract rules**, use **project-management extract-rules** subskill:
 
-`.claude/commands/_shared/iterative-rule-extraction.md`
+`project-management extract-rules`
 
 **Prerequisites:**
 - ✅ Content must be FETCHED + INDEXED (verify with Step 5)
 - ✅ At least 10 indexed pages for foundation rules
 
-**The workflow will:**
+**The subskill will:**
 1. Analyze available content
-2. Propose rules with sample document preview
+2. Propose rules with sample document preview (via writing-rules-skill)
 3. Prioritize based on:
    - Foundation rules (if missing globally)
    - Content-specific rules (based on project intent/targets)
 4. Get approval before each extraction
-5. Review extracted rules
-6. Iterate until satisfied
+5. Execute via writing-rules-skill --auto-discover
+6. Review extracted rules
+7. Iterate until satisfied
 
 **Integrate with project:**
 - Update project.md with extracted rules

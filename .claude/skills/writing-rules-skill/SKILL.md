@@ -620,38 +620,38 @@ Next steps:
 
 ### Example 1: Extract Foundation Rules for New Project
 
-```bash
-# Step 1: Extract publisher profile (company context)
-writing-rules-skill publisher --auto-discover
+Use the Skill tool to extract rules in this order:
 
-# Step 2: Extract corporate voice (brand style)
-writing-rules-skill style --type corporate --auto-discover
+**Step 1: Extract publisher profile (company context)**
+`writing-rules publisher --auto-discover`
 
-# Step 3: Extract content-specific rules based on targets
-writing-rules-skill structure --type tutorial --auto-discover
-writing-rules-skill persona --audience-type technical --auto-discover
+**Step 2: Extract corporate voice (brand style)**
+`writing-rules style --type corporate --auto-discover`
 
-# Now ready for content creation with full rule coverage
-```
+**Step 3: Extract content-specific rules based on targets**
+`writing-rules structure --type tutorial --auto-discover`
+`writing-rules persona --audience-type technical --auto-discover`
+
+Now ready for content creation with full rule coverage.
 
 ### Example 2: Extract Rules for Specific Content Type
 
-```bash
-# Need to create blog posts in new voice
-writing-rules-skill style --type blog --auto-discover
-writing-rules-skill structure --type blog-post --auto-discover
-writing-rules-skill persona --audience-type business --auto-discover
-```
+Use the Skill tool to extract blog-specific rules:
+
+**Need to create blog posts in new voice:**
+`writing-rules style --type blog --auto-discover`
+`writing-rules structure --type blog-post --auto-discover`
+`writing-rules persona --audience-type business --auto-discover`
 
 ### Example 3: Update Existing Rules
 
-```bash
-# Company rebrand - update publisher profile
-writing-rules-skill publisher --auto-discover --overwrite
+Use the Skill tool to update rules:
 
-# New blog author - extract their voice
-writing-rules-skill style --type author --author-name "Jane Smith" --auto-discover
-```
+**Company rebrand - update publisher profile:**
+`writing-rules publisher --auto-discover --overwrite`
+
+**New blog author - extract their voice:**
+`writing-rules style --type author --author-name "Jane Smith" --auto-discover`
 
 ---
 

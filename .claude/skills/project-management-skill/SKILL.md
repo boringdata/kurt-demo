@@ -379,9 +379,10 @@ Check: Do we have matching rules?
 ✓ Developer persona → rules/personas/technical-implementer.md
 
 Action: Extract tutorial structure from existing targets
-writing-rules-skill structure with documents: /sources/docs.company.com/tutorials/*.md
-# Or auto-discover
-writing-rules-skill structure --type tutorial --auto-discover
+
+Use the Skill tool with one of these approaches:
+- `writing-rules structure with documents: /sources/docs.company.com/tutorials/*.md`
+- `writing-rules structure --type tutorial --auto-discover` (auto-discover)
 ```
 
 **Scenario 2: No Target Content (Creating New)**
@@ -400,7 +401,7 @@ Options:
 3. Proceed with general guidelines (not recommended)
 
 Recommended: "I don't have rules for blog content. Can you provide:
-- Example blog post to extract style/structure from, OR
+- Example blog post to extract style/structure from (I'll use writing-rules-skill), OR
 - Style guidelines document, OR
 - Description of desired tone and structure?"
 ```
@@ -417,9 +418,10 @@ Check: Do we have matching rules?
 ✓ Publisher profile → rules/publisher/publisher-profile.md
 
 Action: Extract case study specifics, use general rules for foundation
-writing-rules-skill structure with documents: /sources/company.com/case-studies/*.md
-# Or auto-discover
-writing-rules-skill structure --type case-study --auto-discover
+
+Use the Skill tool with one of these approaches:
+- `writing-rules structure with documents: /sources/company.com/case-studies/*.md`
+- `writing-rules structure --type case-study --auto-discover` (auto-discover)
 ```
 
 ### Rule Matching Algorithm (Dynamic)
@@ -584,27 +586,23 @@ done
 
 ### With writing-rules-skill (extraction)
 
-```bash
-# Extract style patterns
-writing-rules-skill style with documents: <similar-content-files>
-# Or auto-discover
-writing-rules-skill style --type corporate --auto-discover
+Use the Skill tool to extract rules:
 
-# Extract structure templates
-writing-rules-skill structure with documents: <similar-content-files>
-# Or auto-discover
-writing-rules-skill structure --type tutorial --auto-discover
+**Extract style patterns:**
+- `writing-rules style with documents: <similar-content-files>`
+- `writing-rules style --type corporate --auto-discover` (auto-discover)
 
-# Extract audience personas
-writing-rules-skill persona with documents: <target-audience-content>
-# Or auto-discover
-writing-rules-skill persona --audience-type all --auto-discover
+**Extract structure templates:**
+- `writing-rules structure with documents: <similar-content-files>`
+- `writing-rules structure --type tutorial --auto-discover` (auto-discover)
 
-# Extract publisher profile
-writing-rules-skill publisher with sources: <company-web-pages-and-docs>
-# Or auto-discover
-writing-rules-skill publisher --auto-discover
-```
+**Extract audience personas:**
+- `writing-rules persona with documents: <target-audience-content>`
+- `writing-rules persona --audience-type all --auto-discover` (auto-discover)
+
+**Extract publisher profile:**
+- `writing-rules publisher with sources: <company-web-pages-and-docs>`
+- `writing-rules publisher --auto-discover` (auto-discover)
 
 ### With ingest-content-skill
 

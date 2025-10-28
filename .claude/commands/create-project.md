@@ -83,27 +83,26 @@ Ask the user for source material they'll be working FROM:
 
 **If they choose (a) - Add sources now:**
 
-Follow the **iterative source gathering workflow** in:
+Use **project-management gather-sources** subskill:
 
-`.claude/commands/_shared/iterative-source-gathering.md`
+`project-management gather-sources`
 
-**This workflow will:**
-1. Ask user to describe sources needed
-2. **CHECKPOINT 1**: Propose specific actions with preview
-   - Show what will be fetched
-   - Conversational exploration for research queries
-   - User approves/refines/cancels each action
-3. **EXECUTE**: Run approved actions with progress updates
-4. **CHECKPOINT 2**: Review what was fetched
-   - Show summary of fetched documents
-   - Offer: Add more sources / Refine / Continue
-5. **ITERATE**: Loop back until user is satisfied
+**This subskill orchestrates:**
+1. User describes sources needed
+2. Routes to appropriate domain skill:
+   - **research-skill** - Conversational refinement for research queries
+   - **ingest-content-skill** - Map-then-fetch preview for web content
+   - **cms-interaction-skill** - Search-then-fetch preview for CMS content
+   - **Local handling** - For pasted content/files
+3. Each domain skill provides preview before execution
+4. Two-checkpoint validation (approve → execute → review)
+5. Iterates until user is satisfied
 
 **Key features:**
-- Preview before fetching (see what will be discovered)
-- Conversational refinement for research queries
-- Review after fetching (evaluate if more sources needed)
-- Two checkpoints ensure user validation before and after execution
+- Domain skills own operational details
+- Preview/conversational modes for all source types
+- Batch operations (no looping individual calls)
+- Two checkpoints ensure user validation
 
 **When iteration complete:**
 - Update project.md with source list
@@ -249,28 +248,28 @@ If the user has added sources in Step 3 AND they are fetched + indexed, ask if t
 
 **If they choose (a) - Extract rules now:**
 
-Follow the **iterative rule extraction workflow** in:
+Use **project-management extract-rules** subskill:
 
-`.claude/commands/_shared/iterative-rule-extraction.md`
+`project-management extract-rules`
 
-**This workflow will:**
+**This subskill orchestrates:**
 1. **Prerequisites check**: Verify content is indexed (10+ pages minimum)
 2. **Analyze**: Inventory available content by domain, type, date range
 3. **Propose with preview**:
-   - Show 3-5 sample document titles/URLs for each rule type
-   - Show coverage stats (page count, date range, content types)
-   - Explain what patterns could be learned
+   - Routes to **writing-rules-skill** with preview mode
+   - Shows 3-5 sample document titles/URLs for each rule type
+   - Shows coverage stats (page count, date range, content types)
+   - Explains what patterns will be learned
 4. **User decision**: Approve / Refine (use different docs) / Skip
-5. **Execute**: Run approved extractions with progress updates
+5. **Execute**: writing-rules-skill runs extraction with --auto-discover
 6. **Review**: Show extracted rule file + key characteristics
 7. **Iterate**: Offer to extract more rules or continue
 
 **Key features:**
+- writing-rules-skill owns extraction operations
 - Preview sample documents before extraction
 - Start with foundation rules (publisher + primary voice)
 - Propose content-specific rules based on project intent
-- Explicit approval before each extraction
-- Review extracted rules before continuing
 - Iterative: continue until user is satisfied
 
 **When iteration complete:**
