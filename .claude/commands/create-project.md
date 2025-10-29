@@ -133,16 +133,16 @@ Ask the user what content they'll be working ON:
    - **Check fetch + index status:**
    ```bash
    # Check if content is fetched
-   kurt document list --url <target-url>
+   kurt content list --url <target-url>
 
    # If NOT_FETCHED, fetch it:
-   kurt ingest fetch <target-url>
+   kurt content fetch <target-url>
 
    # Check if content is indexed (has metadata)
-   kurt document get <target-url>
+   kurt content get-metadata <target-url>
 
    # If not indexed, index it:
-   kurt index --url <target-url>
+   kurt content index --url <target-url>
    ```
    - Or note URLs/paths to fetch/index later
 
@@ -166,16 +166,16 @@ For each source URL/path in project.md:
 
 ```bash
 # 1. Check fetch status
-kurt document list --url <source-url>
+kurt content list --url <source-url>
 
 # 2. If NOT_FETCHED, fetch it
-kurt ingest fetch <source-url>
+kurt content fetch <source-url>
 
 # 3. Check index status (look for extracted metadata)
-kurt document get <source-url>
+kurt content get-metadata <source-url>
 
 # 4. If not indexed (no topics/metadata), index it
-kurt index --url <source-url>
+kurt content index --url <source-url>
 ```
 
 ### Check Targets
@@ -185,13 +185,13 @@ For each target URL in project.md:
 ```bash
 # Same process as sources
 # 1. Check fetch status
-kurt document list --url <target-url>
+kurt content list --url <target-url>
 
 # 2. Fetch if needed
-kurt ingest fetch <target-url>
+kurt content fetch <target-url>
 
 # 3. Index if needed
-kurt index --url <target-url>
+kurt content index --url <target-url>
 ```
 
 ### Display Status Summary
@@ -207,7 +207,7 @@ Sources:
 
 Targets:
 ✓ 10 fetched
-✗ 10 fetched but not indexed (need to run: kurt index --url-prefix <prefix>)
+✗ 10 fetched but not indexed (need to run: kurt content index --url-prefix <prefix>)
 
 Action needed:
 - Fetch 2 remaining sources
@@ -218,16 +218,16 @@ Action needed:
 
 **Fetch remaining content:**
 ```bash
-kurt ingest fetch --url-prefix <common-prefix>
+kurt content fetch --url-prefix <common-prefix>
 ```
 
 **Index all fetched content:**
 ```bash
 # Index by URL prefix
-kurt index --url-prefix <common-prefix>
+kurt content index --url-prefix <common-prefix>
 
 # Or index specific URLs
-kurt index --url <url1> --url <url2>
+kurt content index --url <url1> --url <url2>
 ```
 
 **Important:**

@@ -105,12 +105,15 @@ Claude will:
 
 **Organizational content (from web):**
 ```bash
-# Ingest to /sources/ (org knowledge base)
-kurt ingest map https://example.com
-# Or with date discovery (extracts publish dates from blogrolls/changelogs)
-kurt ingest map https://example.com --discover-dates
+# Add content from URLs (discover + fetch + import + index)
+kurt content add https://example.com
 
-kurt ingest fetch --url-prefix https://example.com/
+# Or step by step:
+# 1. Discover URLs
+kurt content fetch --url https://example.com --discover
+
+# 2. Fetch content
+kurt content fetch --url-prefix https://example.com/
 
 # Reference in project.md
 ```
@@ -480,7 +483,7 @@ When Claude writes markdown files to `/sources/` or `projects/*/sources/`, a Pos
 3. **Finds ERROR record** - Searches Kurt DB for failed fetch record
 4. **Updates database** - Changes status from ERROR to FETCHED
 5. **Links content** - Sets content_path and calculates content_hash
-6. **Extracts metadata** - Runs `kurt index` to extract topics, content type
+6. **Extracts metadata** - Runs `kurt content index` to extract topics, content type
 7. **Confirms** - Shows brief success message
 
 ### Configuration
@@ -508,7 +511,7 @@ When Claude writes markdown files to `/sources/` or `projects/*/sources/`, a Pos
 
 ### When WebFetch is Used
 
-If `kurt ingest fetch` fails (anti-bot protection), Claude automatically:
+If `kurt content fetch` fails (anti-bot protection), Claude automatically:
 
 1. Falls back to WebFetch to retrieve content
 2. Saves markdown file to `/sources/`
@@ -529,10 +532,10 @@ python .claude/scripts/import_markdown.py \
   --file-path <file-path>
 
 # Extract metadata
-kurt index <doc-id>
+kurt content index <doc-id>
 
 # Verify
-kurt document get <doc-id>
+kurt content get-metadata <doc-id>
 ```
 
 ### Troubleshooting
@@ -546,12 +549,12 @@ cat .claude/logs/auto-import.log
 
 - **No confirmation message** - Check logs, file might not match ERROR record
 - **Import failed** - Database locked or Kurt not installed
-- **Metadata missing** - Run `kurt index <doc-id>` manually
+- **Metadata missing** - Run `kurt content index <doc-id>` manually
 - **No ERROR record** - File is new, not from failed fetch (this is OK)
 
 ### Benefits
 
-- ✅ Transparent fallback from `kurt ingest` to WebFetch
+- ✅ Transparent fallback from `kurt content fetch` to WebFetch
 - ✅ Automatic database integration
 - ✅ No manual import steps needed
 - ✅ Files are queryable and indexed

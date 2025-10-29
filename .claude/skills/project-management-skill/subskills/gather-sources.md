@@ -131,15 +131,15 @@ Using map-then-fetch workflow:
 ```
 
 **Invoke ingest-content-skill** which will:
-1. Map: `kurt ingest map <url> --discover-dates`
+1. Map: `kurt content fetch <url> --discover-dates`
 2. Show discovered URLs (preview)
 3. Get user approval
-4. Fetch: `kurt ingest fetch --url-prefix <url>` (batched)
-5. Index: `kurt index --url-prefix <url>` (batched)
+4. Fetch: `kurt content fetch --url-prefix <url>` (batched)
+5. Index: `kurt content index --url-prefix <url>` (batched)
 
 **⚠️ CRITICAL: Always use batched operations**
-- `kurt ingest fetch --url-prefix` (not individual fetches)
-- `kurt index --url-prefix` (not individual indexes)
+- `kurt content fetch --url-prefix` (not individual fetches)
+- `kurt content index --url-prefix` (not individual indexes)
 
 See: `.claude/skills/ingest-content-skill/skill.md` - "Integration with Iterative Source Gathering"
 

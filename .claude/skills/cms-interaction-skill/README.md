@@ -336,11 +336,11 @@ Tools: ["platform", "api"]
 
 ```bash
 # List CMS content
-kurt document list --url-prefix sanity://
+kurt content list --url-prefix sanity://
 
 # Query by metadata
-kurt document query --content-type tutorial
-kurt document query --tool postgres
+kurt content list --content-type tutorial
+kurt content list --tool postgres
 ```
 
 ### Lineage Tracking
