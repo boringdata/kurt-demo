@@ -109,13 +109,13 @@ Example: `sanity://abc-123`
 **3. Check Existing**
 
 ```bash
-kurt document list --url-contains sanity://abc-123
+kurt content list --url-contains sanity://abc-123
 ```
 
 **4. Create or Use Existing**
 
 ```bash
-kurt ingest add sanity://abc-123
+kurt content add sanity://abc-123
 ```
 
 **5. Import Content**
@@ -129,7 +129,7 @@ python .claude/scripts/import_markdown.py \
 **6. Extract Metadata**
 
 ```bash
-kurt index abc-123
+kurt content index abc-123
 ```
 
 AI-powered extraction of topics, tools, content type.
@@ -175,8 +175,8 @@ Content Type: tutorial
   Failed: 0
 
 Next steps:
-  1. Verify: kurt document list --url-prefix sanity://
-  2. Query: kurt document get <doc-id>
+  1. Verify: kurt content list --url-prefix sanity://
+  2. Query: kurt content get-metadata <doc-id>
   3. Use in projects: content-writing-skill draft my-project asset-name
 ```
 
@@ -196,8 +196,8 @@ AI-powered extraction includes:
 Query by metadata:
 
 ```bash
-kurt document query --content-type tutorial
-kurt document query --tool postgres
+kurt content list --content-type tutorial
+kurt content list --tool postgres
 ```
 
 ---

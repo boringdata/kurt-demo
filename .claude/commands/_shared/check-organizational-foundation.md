@@ -69,10 +69,10 @@ For each domain the user provides, run the full ingest workflow:
 
 ```bash
 # Map the domain to discover URLs
-kurt ingest map https://docs.yourcompany.com --discover-dates
+kurt content fetch https://docs.yourcompany.com --discover-dates
 
 # Show what was discovered
-discovered_count=$(kurt document list --url-prefix https://docs.yourcompany.com --status NOT_FETCHED | wc -l | tr -d ' ')
+discovered_count=$(kurt content list --url-prefix https://docs.yourcompany.com --status NOT_FETCHED | wc -l | tr -d ' ')
 echo "✓ Discovered $discovered_count URLs from docs.yourcompany.com"
 ```
 
@@ -80,10 +80,10 @@ echo "✓ Discovered $discovered_count URLs from docs.yourcompany.com"
 
 ```bash
 # Fetch all discovered URLs
-kurt ingest fetch --url-prefix https://docs.yourcompany.com
+kurt content fetch --url-prefix https://docs.yourcompany.com
 
 # Show progress
-fetched_count=$(kurt document list --url-prefix https://docs.yourcompany.com --status FETCHED | wc -l | tr -d ' ')
+fetched_count=$(kurt content list --url-prefix https://docs.yourcompany.com --status FETCHED | wc -l | tr -d ' ')
 echo "✓ Fetched $fetched_count pages to /sources/"
 ```
 
@@ -91,10 +91,10 @@ echo "✓ Fetched $fetched_count pages to /sources/"
 
 ```bash
 # Index fetched content for analysis
-kurt index --url-prefix https://docs.yourcompany.com
+kurt content index --url-prefix https://docs.yourcompany.com
 
 # Verify completion
-indexed_count=$(kurt document list --url-prefix https://docs.yourcompany.com --status INDEXED | wc -l | tr -d ' ')
+indexed_count=$(kurt content list --url-prefix https://docs.yourcompany.com --status INDEXED | wc -l | tr -d ' ')
 echo "✓ Indexed $indexed_count pages (metadata extracted)"
 ```
 
@@ -173,7 +173,7 @@ Content must be mapped/fetched/indexed before extracting rules.
 
 ```bash
 # Verify content exists for extraction
-content_count=$(kurt document list --status INDEXED | wc -l | tr -d ' ')
+content_count=$(kurt content list --status INDEXED | wc -l | tr -d ' ')
 if [ "$content_count" -lt 10 ]; then
   echo "⚠️  Need at least 10 indexed pages to extract rules"
   echo "Please complete content map first (Check 1)"
@@ -217,7 +217,7 @@ Query indexed content for publisher profile extraction:
 
 ```bash
 # Find key company pages
-kurt document list --status INDEXED --output json > /tmp/indexed-content.json
+kurt content list --status INDEXED --output json > /tmp/indexed-content.json
 
 # Look for homepage, about, product pages
 homepage=$(cat /tmp/indexed-content.json | jq -r '.[] | select(.url | test("^https?://[^/]+/?$")) | .url' | head -1)
@@ -340,7 +340,7 @@ Query indexed content for primary voice extraction:
 
 ```bash
 # Find representative content for voice
-kurt document list --status INDEXED --output json > /tmp/indexed-content.json
+kurt content list --status INDEXED --output json > /tmp/indexed-content.json
 
 # Look for blog, docs, marketing content
 blog_pages=$(cat /tmp/indexed-content.json | jq -r '.[] | select(.url | test("/blog|/news|/articles")) | .url' | head -5)
@@ -452,7 +452,7 @@ Query indexed content for persona extraction:
 
 ```bash
 # Find diverse content targeting different audiences
-kurt document list --status INDEXED --output json > /tmp/indexed-content.json
+kurt content list --status INDEXED --output json > /tmp/indexed-content.json
 
 # Look for technical, business, and customer-facing content
 technical_content=$(cat /tmp/indexed-content.json | jq -r '.[] | select(.url | test("/docs|/api|/reference|/guides|/tutorial")) | .url' | head -5)
@@ -643,7 +643,7 @@ Possible issues:
 - API rate limits
 
 Try:
-1. Verify content is indexed: kurt document list --status INDEXED
+1. Verify content is indexed: kurt content list --status INDEXED
 2. Wait and retry
 3. Continue without rules (can extract later)
 

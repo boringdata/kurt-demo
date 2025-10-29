@@ -52,11 +52,11 @@ Sources are ground truth content you're working FROM.
 1. Ingest to organizational KB first:
    ```bash
    # Map URLs (add --discover-dates if publish dates are important)
-   kurt ingest map https://example.com
-   kurt ingest map https://example.com --discover-dates  # Extracts dates from blogrolls
+   kurt content fetch https://example.com
+   kurt content fetch https://example.com --discover-dates  # Extracts dates from blogrolls
 
    # Fetch content
-   kurt ingest fetch --url-prefix https://example.com/
+   kurt content fetch --url-prefix https://example.com/
    ```
 
 2. Update project.md to reference it:
@@ -172,7 +172,7 @@ Claude should:
 1. Determine current project (from context or ask)
 2. Ingest content:
    ```bash
-   kurt ingest fetch https://example.com/docs
+   kurt content fetch https://example.com/docs
    ```
 3. Find the file path in `/sources/`
 4. Update project.md Sources section
@@ -637,11 +637,11 @@ Use the Skill tool to extract rules:
 
 ```bash
 # Ingest content first
-kurt ingest map https://example.com
+kurt content fetch https://example.com
 # Or with date discovery for blogs/docs (recommended for projects tracking content freshness)
-kurt ingest map https://example.com --discover-dates
+kurt content fetch https://example.com --discover-dates
 
-kurt ingest fetch --url-prefix https://example.com/
+kurt content fetch --url-prefix https://example.com/
 
 # Then add to project (this skill)
 # Updates project.md to reference ingested content
@@ -651,10 +651,10 @@ kurt ingest fetch --url-prefix https://example.com/
 
 ```bash
 # List what's available in org KB
-kurt document list --url-prefix https://example.com
+kurt content list --url-prefix https://example.com
 
 # Search for specific content
-kurt document list --url-contains "tutorial"
+kurt content list --url-contains "tutorial"
 
 # Then add relevant docs to project
 ```

@@ -442,13 +442,13 @@ content-writing-skill draft ai-coding-guide intro-to-ai-coding
 - Research is ephemeral (news, trends, time-sensitive)
 - Saved as markdown in `sources/research/`
 - Can be referenced as sources in content creation
-- Use `kurt research list` to browse (not `kurt document list`)
+- Use `kurt research list` to browse (not `kurt content list`)
 
 **CMS/Web content IS imported:**
 - Documentation, articles, reference material
 - Stable content that updates over time
 - Imported to Kurt DB for indexing and clustering
-- Use `kurt document list` to browse
+- Use `kurt content list` to browse
 
 ### Example: Daily Monitoring Workflow
 

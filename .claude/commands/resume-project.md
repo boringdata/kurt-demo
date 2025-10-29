@@ -228,7 +228,7 @@ For each URL in sources + targets:
 
 ```bash
 # Check fetch status
-kurt document list --url <url>
+kurt content list --url <url>
 
 # Look for:
 # - status: FETCHED (good)
@@ -260,11 +260,11 @@ If any NOT_FETCHED content found:
 
 ```bash
 # Batch fetch by URL prefix if possible
-kurt ingest fetch --url-prefix https://docs.company.com/
+kurt content fetch --url-prefix https://docs.company.com/
 
 # Or fetch individual URLs
-kurt ingest fetch https://docs.company.com/page1
-kurt ingest fetch https://docs.company.com/page2
+kurt content fetch https://docs.company.com/page1
+kurt content fetch https://docs.company.com/page2
 ```
 
 **Show progress:**
@@ -281,7 +281,7 @@ All content now fetched.
 
 ```bash
 # Check if content has metadata
-kurt document get <url>
+kurt content get-metadata <url>
 
 # Look for extracted fields:
 # - title, author, published_date (frontmatter or extracted)
@@ -299,7 +299,7 @@ Sources (8 total):
 ✓ 3 INDEXED (metadata extracted)
 ✗ 5 FETCHED but NOT INDEXED
   - Missing topics/entities
-  - Need to run: kurt index --url-prefix <prefix>
+  - Need to run: kurt content index --url-prefix <prefix>
 
 Targets (23 total):
 ✓ 5 INDEXED
@@ -312,10 +312,10 @@ If any fetched but not indexed content found:
 
 ```bash
 # Batch index by URL prefix (recommended)
-kurt index --url-prefix https://docs.company.com/
+kurt content index --url-prefix https://docs.company.com/
 
 # Or index specific URLs
-kurt index --url <url1> --url <url2>
+kurt content index --url <url1> --url <url2>
 ```
 
 **Show progress:**
@@ -331,7 +331,7 @@ All content now indexed and ready for analysis.
 ### 5.6: Check Clusters (if relevant)
 
 ```bash
-kurt cluster list
+kurt content cluster
 ```
 
 ### Final Content Status Summary
@@ -392,19 +392,19 @@ Based on the project intent and current status, recommend specific next actions:
 **Common next steps by status (priority order):**
 
 1. **No content mapped:**
-   - Run `kurt ingest map <url>` to discover content
+   - Run `kurt content add <url>` to discover and fetch content
 
 2. **Content mapped but not fetched:**
-   - Run `kurt ingest fetch --url-prefix <url>` to download
+   - Run `kurt content fetch --url-prefix <url>` to download
    - **Required before** indexing or extraction
 
 3. **Content fetched but not indexed:**
-   - Run `kurt index --url-prefix <url>` to extract metadata
+   - Run `kurt content index --url-prefix <url>` to extract metadata
    - **Required before** rule extraction or content work
-   - Check: `kurt document get <url>` should show topics/metadata
+   - Check: `kurt content get-metadata <url>` should show topics/metadata
 
 4. **Content fetched + indexed, but no clusters:**
-   - Run `kurt cluster compute` to analyze topics (optional)
+   - Run `kurt content cluster` to analyze topics (optional)
 
 5. **Content ready, but no rules extracted:**
    - Extract foundation rules (publisher + primary voice)

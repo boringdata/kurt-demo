@@ -69,7 +69,7 @@ The writing-rules-skill owns operational details (which documents to analyze, ho
 
 ```bash
 # Check indexed content count
-indexed_count=$(kurt document list --status INDEXED 2>/dev/null | wc -l | tr -d ' ')
+indexed_count=$(kurt content list --status INDEXED 2>/dev/null | wc -l | tr -d ' ')
 
 if [ "$indexed_count" -lt 10 ]; then
   echo "⚠️  Need at least 10 indexed pages to extract rules"
@@ -106,7 +106,7 @@ Before proposing any extraction, analyze what content is available:
 
 ```bash
 # List all indexed documents
-kurt document list --status INDEXED --output json > indexed-content.json
+kurt content list --status INDEXED --output json > indexed-content.json
 
 # Analyze by domain
 echo "Content by domain:"
@@ -469,7 +469,7 @@ Possible issues:
 - API rate limit or timeout
 
 Try:
-1. Re-index content: kurt index --url-prefix <url>
+1. Re-index content: kurt content index --url-prefix <url>
 2. Add more source documents: project-management gather-sources
 3. Try different document set
 4. Skip for now and try later

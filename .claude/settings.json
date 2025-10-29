@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/scripts/kurt-session-start.sh"
+            "command": "uv run kurt status --hook-cc"
           }
         ]
       }

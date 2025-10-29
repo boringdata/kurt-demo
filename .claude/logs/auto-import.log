@@ -76,3 +76,25 @@
 [2025-10-26 14:59:08] Not a markdown file, skipping
 [2025-10-26 15:18:06] Processing file: /Users/davidkrevitt/code/kurt-demo/.claude/skills/cms-interaction-skill/SKILL.md
 [2025-10-26 15:18:06] Not in sources directory, skipping
+[2025-10-29 11:32:53] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/.claude/skills/content-management/add-content-skill/SKILL.md
+[2025-10-29 11:32:53] Not in sources directory, skipping
+[2025-10-29 11:43:42] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/.claude/skills/content-management/add-content-skill/SKILL.md
+[2025-10-29 11:43:42] Not in sources directory, skipping
+[2025-10-29 13:11:19] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/.claude/skills/content-management/retrieve-content-skill/SKILL.md
+[2025-10-29 13:11:19] Not in sources directory, skipping
+[2025-10-29 13:14:03] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/.claude/skills/content-management/retrieve-content-skill/SKILL.md
+[2025-10-29 13:14:03] Not in sources directory, skipping
+[2025-10-29 15:23:55] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/rules/publisher/publisher-profile.md
+[2025-10-29 15:23:55] Not in sources directory, skipping
+[2025-10-29 15:25:47] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/rules/style/technical-newsletter-style.md
+[2025-10-29 15:25:47] Not in sources directory, skipping
+[2025-10-29 15:27:02] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/rules/personas/data-engineer-persona.md
+[2025-10-29 15:27:02] Not in sources directory, skipping
+[2025-10-29 15:27:56] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/projects/bsl-launch/project.md
+[2025-10-29 15:27:56] Not in sources directory, skipping
+[2025-10-29 15:34:30] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/projects/bsl-launch/drafts/bsl-launch-newsletter-outline.md
+[2025-10-29 15:34:30] Not in sources directory, skipping
+[2025-10-29 15:37:52] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/projects/bsl-launch/drafts/bsl-launch-newsletter-draft.md
+[2025-10-29 15:37:52] Not in sources directory, skipping
+[2025-10-29 15:44:03] Processing file: /Users/julien/Documents/wik/wikumeo/projects/kurt-demo/projects/bsl-launch/sources/dagster-freshness-example.md
+[2025-10-29 15:44:03] Not in sources directory, skipping

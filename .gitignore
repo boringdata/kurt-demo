@@ -3,4 +3,7 @@ kurt.config
 sources/*
 projects/*
 artefacts/*
+rules/*
+logs/*
 .DS_Store
+.env
