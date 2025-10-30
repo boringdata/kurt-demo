@@ -1,55 +1,68 @@
-# Kurt Demo Project
+# Kurt Demo Project - Quick Reference
 
-This is a **Kurt** project - a document intelligence system that helps teams manage, analyze, and create content.
-
-## Quick Links
-
-- **Core Concepts**: See `KURT.md` for project structure, sources vs targets, and file organization
-- **Workflows**: See available skills in `.claude/skills/`
-- **Commands**: `/create-project` or `/resume-project` to get started
-
-## Project Organization
-
-- `sources/` - Organizational knowledge base (all web content)
-- `rules/` - Extracted rules for content creation
-  - `rules/style/` - Writing voice/tone patterns
-  - `rules/structure/` - Document format templates
-  - `rules/personas/` - Audience targeting profiles
-  - `rules/publisher/` - Company/brand profile
-- `projects/` - Individual content projects
+**For system architecture and concepts, see `KURT.md`.**
 
 ---
 
-## Content Creation Workflow
+## Quick Links
 
-When working on content creation or updates for a Kurt project, use the **content-writing-skill** to ensure comprehensive lineage tracking.
+- **Commands**: `/create-project` or `/resume-project` to get started
+- **Architecture**: See `KURT.md` for project structure, sources vs targets, and file organization
+- **Skills**: See `.claude/skills/` for detailed skill documentation
 
-### When to Use Content-Writing-Skill
+---
 
-✅ **Use this skill when:**
-- Creating outlines for new content
-- Generating drafts from outlines
-- Editing existing content
-- Updating documentation with new information
-- Need to track which sources informed which sections
-- Want full edit history and reasoning
+## Common Workflows
 
-❌ **Don't use for:**
-- Simple one-line edits (use Edit tool directly)
-- Exploring or reading content (use Read tool)
-- Extracting rules (use extraction skills)
+### Create a New Project
 
-### Standard Content Creation Workflow
-
-**Step 1: Extract Rules (if not done)**
 ```bash
-# Extract publisher profile (foundation)
-writing-rules-skill publisher --auto-discover
+/create-project
+```
 
-# Extract primary voice
+You'll be guided through:
+1. Project intent (positioning, marketing, docs, general)
+2. Project name and goal
+3. Organizational foundation check (content map + core rules)
+4. Adding sources (optional)
+5. Identifying targets (optional)
+6. Extracting rules (optional)
+
+**All steps except name/goal are optional - you can skip and return later.**
+
+---
+
+### Resume Existing Project
+
+```bash
+/resume-project my-project-name
+```
+
+Or without name for interactive selection:
+```bash
+/resume-project
+```
+
+The system will:
+- Load your project context
+- Check what's missing (sources, targets, rules)
+- Recommend next steps based on your project intent
+- Validate rule coverage before content work
+
+---
+
+### Content Creation Workflow
+
+When creating or updating content, use **content-writing-skill** for full lineage tracking.
+
+#### Step 1: Extract Rules (if not done)
+
+```bash
+# Foundation rules (for all projects)
+writing-rules-skill publisher --auto-discover
 writing-rules-skill style --type primary --auto-discover
 
-# Extract content-specific rules based on what you're creating:
+# Content-specific rules (based on what you're creating)
 # For technical docs:
 writing-rules-skill style --type technical-docs --auto-discover
 writing-rules-skill structure --type tutorial --auto-discover
@@ -60,77 +73,70 @@ writing-rules-skill structure --type landing-page --auto-discover
 writing-rules-skill persona --audience-type business --auto-discover
 ```
 
-**Step 2: Create Outline**
+#### Step 2: Create Outline
+
 ```bash
 content-writing-skill outline <project-name> <asset-name>
 ```
 
-**Output:** `/projects/<project-name>/drafts/<asset-name>-outline.md`
+Output: `/projects/<project-name>/drafts/<asset-name>-outline.md`
 
-**Contains:**
+Contains:
 - YAML frontmatter with source documents listed
 - Section-to-source mapping
 - Update patterns (if project-specific)
 - Rule files to apply
 
-**Step 3: Generate Draft**
+#### Step 3: Generate Draft
+
 ```bash
 content-writing-skill draft <project-name> <asset-name>
 ```
 
-**Output:** `/projects/<project-name>/drafts/<asset-name>-draft.md`
+Output: `/projects/<project-name>/drafts/<asset-name>-draft.md`
 
-**Contains:**
+Contains:
 - Enhanced YAML frontmatter with section sources
 - Inline HTML comments at sections citing sources
 - Update pattern applications documented
 - Rule compliance tracked
 
-**Step 3.5: Get Persona-Based Feedback (Recommended)**
+#### Step 3.5: Get Persona-Based Feedback (Recommended)
+
 ```bash
 content-writing-skill feedback <project-name> <asset-name>
 ```
 
-**Output:** `/projects/<project-name>/feedback/<asset-name>-feedback.md`
+Output: `/projects/<project-name>/feedback/<asset-name>-feedback.md`
 
-**Analyzes from each target persona's perspective:**
-- **Comprehension issues** - Unexplained jargon, missing context
-- **Technical depth** - Too advanced or too basic for their level
-- **Missing information** - Gaps they'd need filled
-- **Tone/style mismatches** - Not aligned with their preferences
-- **Length issues** - Too verbose or too terse for their needs
-- **Structure problems** - Flow doesn't match their mental model
+Analyzes from each target persona's perspective:
+- Comprehension issues (unexplained jargon, missing context)
+- Technical depth (too advanced or too basic)
+- Missing information (gaps they'd need filled)
+- Tone/style mismatches
+- Length issues
+- Structure problems
 
-**Provides:**
-- Section-level issues with line numbers
-- Concrete fix suggestions
-- Persona alignment scores
-- Critical vs nice-to-have prioritization
-- Recommended edit instructions
+Provides section-level issues with line numbers, concrete fix suggestions, and persona alignment scores.
 
-**Step 4: Edit as Needed**
+#### Step 4: Edit as Needed
+
 ```bash
 content-writing-skill edit projects/<project-name>/drafts/<asset-name>-draft.md --instructions "specific edit instructions"
 ```
 
-**Updates:**
+Updates:
 - Adds edit session to YAML history
 - Increments version number
 - Adds inline edit comments at changes
 - Tracks which sections were modified
 
-### Lineage Tracking
+---
 
-**Every piece of content created with this workflow tracks:**
+### Query Lineage
 
-1. **Sources** - Which documents informed which sections
-2. **Reasoning** - Why content was written this way
-3. **Rules Applied** - Style, structure, persona, publisher compliance
-4. **Update Patterns** - Project-specific transformation patterns (if applicable)
-5. **Persona Feedback** - Review sessions with alignment scores and issues found
-6. **Edit History** - All changes with session IDs, instructions, timestamps
+Every piece of content tracks its lineage. Query it with:
 
-**Query lineage:**
 ```bash
 # See section sources
 grep "<!-- SECTION:" <draft-file>.md
@@ -148,55 +154,6 @@ head -100 <draft-file>.md | grep "edit_sessions:" -A 20
 head -100 <draft-file>.md | grep "rule_compliance:" -A 10
 ```
 
-### Example: Tutorial Update Project
-
-**Scenario:** Updating 23 tutorials to include new feature instructions
-
-```bash
-# 1. Create outline (maps sources to sections, identifies patterns)
-content-writing-skill outline tutorial-refresh-fusion bigquery-quickstart
-
-# 2. Review outline - verify source mapping and patterns
-
-# 3. Generate draft (applies patterns, cites sources inline)
-content-writing-skill draft tutorial-refresh-fusion bigquery-quickstart
-
-# 4. Get persona-based feedback
-content-writing-skill feedback tutorial-refresh-fusion bigquery-quickstart
-
-# Result: Analytics Engineer 85% aligned, Data Scientist 60% aligned
-# Critical issues: Missing setup validation, no analysis examples, unexplained jargon
-
-# 5. Apply critical fixes from feedback
-content-writing-skill edit projects/tutorial-refresh-fusion/drafts/bigquery-quickstart-draft.md --instructions "Apply critical fixes: add setup validation section, add analysis examples, explain data warehouse terminology in intro"
-
-# 6. Validate pattern application
-grep "UPDATE PATTERN:" projects/tutorial-refresh-fusion/drafts/bigquery-quickstart-draft.md
-
-# 7. Check which tutorials use which patterns (across all tutorials)
-for pattern in type_{1..7}; do
-  echo "=== $pattern ==="
-  grep -r "$pattern" projects/tutorial-refresh-fusion/drafts/
-done
-```
-
-### Integration with Project Management
-
-**When resuming a project:**
-
-```bash
-/resume-project tutorial-refresh-fusion
-```
-
-Claude will:
-1. Load project.md context
-2. Check if rules are extracted
-3. Check if target content exists
-4. **Recommend content-writing-skill** if targets need work
-5. Suggest next steps in workflow
-
-**Project-management-skill** knows about content-writing-skill and will recommend it when appropriate.
-
 ---
 
 ## CMS Integration
@@ -205,7 +162,7 @@ Kurt integrates with CMS platforms (Sanity, Contentful, WordPress) via the `kurt
 
 ### Setup
 
-**Configuration is stored in `.kurt/cms-config.json`** (gitignored).
+Configuration is stored in `.kurt/cms-config.json` (gitignored).
 
 ```json
 {
@@ -221,7 +178,7 @@ Kurt integrates with CMS platforms (Sanity, Contentful, WordPress) via the `kurt
 
 ### Onboarding
 
-First-time setup to discover content types and configure field mappings:
+First-time setup:
 
 ```bash
 kurt cms onboard
@@ -231,54 +188,35 @@ This will:
 1. Test your CMS connection
 2. Discover all content types (with document counts)
 3. Guide you through selecting types to work with
-4. Map custom fields to standard roles (content, title, slug, metadata)
+4. Map custom fields to standard roles
 
-### Common Workflows
+### Common Operations
 
-**1. Browse CMS Content**
+**Browse CMS Content:**
 ```bash
-# List content types
-kurt cms types
-
-# Search all content
-kurt cms search --query "tutorial"
-
-# Search specific type
-kurt cms search --content-type article --limit 20
+kurt cms types                                        # List content types
+kurt cms search --query "tutorial"                   # Search all content
+kurt cms search --content-type article --limit 20    # Search specific type
 ```
 
-**2. Fetch CMS Content to Local**
+**Fetch to Local:**
 ```bash
-# Fetch single document as markdown
 kurt cms fetch --id abc123 --output-dir sources/cms/sanity/
-
-# Output shows: title, type, status, character count
-# Creates markdown file with YAML frontmatter
 ```
 
-**3. Import to Kurt Database**
+**Import to Kurt Database:**
 ```bash
-# Import fetched markdown files
 kurt cms import --source-dir sources/cms/sanity/
-
-# Documents added to Kurt DB with CMS metadata preserved
-# Can then index, cluster, extract rules, etc.
 ```
 
-**4. Publish Drafts to CMS**
+**Publish Drafts to CMS:**
 ```bash
-# Update existing document
-kurt cms publish --file draft.md --id abc123
-
-# Create new document
-kurt cms publish --file new-article.md --content-type article
-
-# Publishes as draft in CMS for review
+kurt cms publish --file draft.md --id abc123          # Update existing
+kurt cms publish --file new-article.md --content-type article  # Create new
 ```
 
-### Integration with Other Workflows
+### Full CMS → Kurt → CMS Workflow
 
-**CMS → Kurt → Content Creation:**
 ```bash
 # 1. Fetch existing articles from CMS
 kurt cms search --content-type article
@@ -297,18 +235,6 @@ content-writing-skill draft my-project new-article
 kurt cms publish --file projects/my-project/drafts/new-article-draft.md --content-type article
 ```
 
-**Benefits:**
-- ✅ Pull existing content from CMS for analysis
-- ✅ Learn writing patterns from published content
-- ✅ Create new content matching CMS style
-- ✅ Round-trip: CMS → Kurt → CMS
-
-### Supported Platforms
-
-- **Sanity** - Full support (search, fetch, import, publish)
-- **Contentful** - Coming soon
-- **WordPress** - Coming soon
-
 ---
 
 ## Research Integration
@@ -317,7 +243,7 @@ Kurt integrates with AI research platforms (Perplexity) for daily news monitorin
 
 ### Setup
 
-**Configuration is stored in `.kurt/research-config.json`** (gitignored).
+Configuration is stored in `.kurt/research-config.json` (gitignored).
 
 ```json
 {
@@ -335,7 +261,7 @@ Get your API key at: https://www.perplexity.ai/settings/api
 
 ### Models and Recency
 
-**Available models:**
+**Models:**
 - `sonar-reasoning` - Best for comprehensive research (default)
 - `sonar` - Faster, good for quick queries
 - `sonar-pro` - Most powerful, higher cost
@@ -348,69 +274,43 @@ Get your API key at: https://www.perplexity.ai/settings/api
 
 ### Basic Usage
 
-**Execute research query:**
 ```bash
-# Basic query
-kurt research search "latest AI coding assistant news"
-
-# With recency filter
-kurt research search "latest AI coding assistant news" --recency day
-
-# Save results to markdown
+# Execute research query
 kurt research search "latest AI coding assistant news" --recency day --save
-```
 
-Research results are saved to `sources/research/YYYY-MM-DD-query.md` with:
-- YAML frontmatter (query, citations, metadata)
-- Comprehensive answer with inline citations
-- Full source list
-
-**Browse research history:**
-```bash
-# List recent research
+# Browse research history
 kurt research list
 
 # View specific result
 kurt research get 2025-10-27-latest-ai-coding-assistant-news
 ```
 
+Results are saved to `sources/research/YYYY-MM-DD-query.md` with YAML frontmatter, comprehensive answer with inline citations, and full source list.
+
 ### Research Workflows (research-skill)
 
-For orchestrated workflows, use the **research-skill**:
-
-**1. Daily News Digest**
+**Daily News Digest:**
 ```bash
 research-skill daily
 ```
-Monitors saved topics, generates time-appropriate queries, presents key insights.
 
-**2. Topic Discovery**
+**Topic Discovery:**
 ```bash
 research-skill discover "AI coding tools"
 ```
-Broad exploration → Extract topics → Deep dive on selected topics.
 
-**3. Direct Research**
+**Direct Research:**
 ```bash
 research-skill query "What are the latest developments in Claude Code?"
 ```
-Research specific question with appropriate recency.
 
-**4. Browse History**
-```bash
-research-skill browse
-```
-Review past research, organized by date.
-
-**5. Kickoff Content Project**
+**Kickoff Content Project from Research:**
 ```bash
 research-skill kickoff <research-file> <project-name>
 ```
-Use research as foundation for new content project.
 
-### Integration with Content Creation
+### Full Research → Content Workflow
 
-**Research → Content Workflow:**
 ```bash
 # 1. Research topic
 kurt research search "Latest trends in AI coding assistants" --recency day --save
@@ -429,66 +329,26 @@ content-writing-skill outline ai-coding-guide intro-to-ai-coding
 content-writing-skill draft ai-coding-guide intro-to-ai-coding
 ```
 
-**Benefits:**
-- ✅ Stay current with industry trends
-- ✅ Discover content topics backed by research
-- ✅ Track all citations and sources
-- ✅ Feed research into content creation workflow
-- ✅ Maintain lineage from research → outline → draft
-
-### Key Differences: Research vs Documents
-
-**Research files are NOT imported to Kurt database:**
-- Research is ephemeral (news, trends, time-sensitive)
-- Saved as markdown in `sources/research/`
-- Can be referenced as sources in content creation
-- Use `kurt research list` to browse (not `kurt content list`)
-
-**CMS/Web content IS imported:**
-- Documentation, articles, reference material
-- Stable content that updates over time
-- Imported to Kurt DB for indexing and clustering
-- Use `kurt content list` to browse
-
 ### Example: Daily Monitoring Workflow
 
 **Option 1: Project-Based Monitoring (Recommended)**
 
-Set up monitoring for a specific project:
-
 ```bash
-# Interactive setup (guides you through configuration)
+# Interactive setup
 research-skill setup-monitoring data-tools-watch
-
-# Claude will ask:
-# - What subreddits to monitor
-# - What keywords to filter
-# - What HN keywords to search
-# - What RSS feeds to track
-# - Minimum score thresholds
-# Then creates monitoring-config.yaml and runs first monitoring sweep
-
-# OR manual setup:
-cp .kurt/monitoring-config-template.yaml projects/data-tools-watch/monitoring-config.yaml
-# Edit monitoring-config.yaml manually
 
 # Daily: Run project monitoring
 kurt research monitor projects/data-tools-watch
 
-# Result:
-# - Monitors all configured sources
-# - Saves signals to projects/data-tools-watch/research/signals/
-# - Shows top 10 signals by relevance
-
-# Deep dive on interesting signal:
+# Deep dive on interesting signal
 kurt research search "topic from signal" --recency day --save
 mv sources/research/[file].md projects/data-tools-watch/research/
 
-# Create content:
+# Create content
 content-writing-skill outline data-tools-watch article-name
 content-writing-skill draft data-tools-watch article-name
 
-# Publish:
+# Publish
 kurt cms publish --file projects/data-tools-watch/drafts/article-draft.md --content-type article
 ```
 
@@ -498,119 +358,123 @@ kurt cms publish --file projects/data-tools-watch/drafts/article-draft.md --cont
 - Configure once, run daily
 - Track trends over time
 
-**Option 2: Standalone Research (Quick Ad-Hoc)**
-
-```bash
-# Morning: Check yesterday's news
-research-skill daily
-
-# If interesting topic found:
-kurt research search "Detailed query about topic" --recency day --save
-
-# Kickoff content project if worth writing about:
-research-skill kickoff 2025-10-27-topic-name new-article-project
-
-# Create content:
-content-writing-skill outline new-article-project article
-content-writing-skill draft new-article-project article
-
-# Publish to CMS:
-kurt cms publish --file projects/new-article-project/drafts/article-draft.md --content-type article
-```
-
-**Complete cycle:** Monitor → Research → Create → Publish
-
-**See Also:**
-- Full monitoring setup: `.kurt/README.md` (Project-Based Monitoring section)
-- Example project: `projects/data-tools-watch/`
-
 ---
 
 ## Best Practices
 
-### For Outline Creation
+### For Content Creation
 
 ✅ **DO:**
-- List ALL source documents used (even "for inspiration")
-- Document WHY each source matters
-- Map sources to specific sections
-- Identify project-specific update patterns
-
-### For Draft Generation
-
-✅ **DO:**
-- Review inline HTML comments for source attribution
-- Check that update patterns were applied correctly
+- Extract rules before creating content (ensures consistency)
+- Use content-writing-skill for full lineage tracking
+- Review persona feedback before finalizing
+- Check inline HTML comments for source attribution
 - Validate rule compliance scores in YAML
-- Ensure section sources are complete
-
-### For Editing
-
-✅ **DO:**
-- Provide specific, actionable edit instructions
-- Review changes before accepting
-- Check that edit comments were added
-- Verify version history is tracked
 
 ❌ **DON'T:**
-- Use vague instructions ("make it better")
-- Accept all changes without review
+- Use vague edit instructions ("make it better")
+- Skip rule extraction (leads to inconsistent content)
 - Edit without understanding original rationale
+- Accept all changes without review
+
+### For Rules Extraction
+
+✅ **DO:**
+- Extract foundation rules first (publisher + primary voice)
+- Extract content-specific rules based on what you're creating
+- Use --auto-discover for automatic document selection
+- Review sample documents before extraction
+
+❌ **DON'T:**
+- Extract rules from too few documents (need 3-5 minimum)
+- Extract from mixed content types (dilutes patterns)
+- Skip the preview step (may extract from wrong documents)
+
+### For Project Organization
+
+✅ **DO:**
+- Keep web content in `/sources/` (organizational knowledge base)
+- Keep project-specific files in `projects/<name>/sources/`
+- Reference rules from `rules/` directories
+- Use batch operations for multiple URLs
+
+❌ **DON'T:**
+- Duplicate content across projects
+- Loop individual fetch/index commands (use --url-prefix)
+- Skip indexing (required for rule extraction)
 
 ---
 
-## Files Created by Content-Writing-Skill
+## Rules System Quick Reference
 
-**Location:** `/projects/<project-name>/drafts/`
-
-**File types:**
-- `<asset-name>-outline.md` - Outline with source mapping
-- `<asset-name>-draft.md` - Draft with inline lineage
-- `<asset-name>-draft.md` (edited) - Same file with version history
-
-**Metadata in files:**
-- **YAML frontmatter** - High-level, queryable metadata
-- **Inline HTML comments** - Granular, contextual attribution
-
----
-
-## See Also
-
-- **Skill documentation:** `.claude/skills/content-writing-skill/README.md`
-- **Metadata schemas:** `.claude/skills/content-writing-skill/templates/`
-- **Comment patterns:** `.claude/skills/content-writing-skill/templates/inline-comment-patterns.md`
-- **KURT.md:** Full system documentation
-- **Project example:** `/projects/tutorial-refresh-fusion/project.md` (see "Using Content Writing Skill" section)
-
----
-
-## Rules System
-
-Kurt has an **extensible rules system**. See `KURT.md` for full details on how rules work.
-
-### Quick Reference for Claude
-
-**Extract rules:**
+**List available rule types:**
 ```bash
-# Built-in types (always available)
-writing-rules-skill publisher --auto-discover
-writing-rules-skill style --type primary --auto-discover
-writing-rules-skill structure --type tutorial --auto-discover
-writing-rules-skill persona --audience-type technical --auto-discover
+writing-rules-skill list
+```
 
-# Custom types (if configured by user)
-writing-rules-skill <custom-type> --type <mode> --auto-discover
+**Extract built-in rules:**
+```bash
+writing-rules-skill publisher --auto-discover
+writing-rules-skill style --type <mode> --auto-discover
+writing-rules-skill structure --type <mode> --auto-discover
+writing-rules-skill persona --audience-type <type> --auto-discover
 ```
 
 **Manage rule types:**
 ```bash
-writing-rules-skill list              # See what's configured
-writing-rules-skill add               # Add custom type (wizard)
-writing-rules-skill validate          # Check system health
+writing-rules-skill add       # Add custom type (wizard)
+writing-rules-skill validate  # Check system health
 ```
 
 **Key points:**
 - Rules system is dynamic - check registry for available types
 - System adapts to custom rule types automatically
-- Use `writing-rules-skill list` to see current configuration
-- Point users to `KURT.md` for comprehensive rules documentation
+- See `KURT.md` for comprehensive rules documentation
+
+---
+
+## When to Use Which Skill
+
+| Task | Skill | Command |
+|------|-------|---------|
+| Create new project | project-management | `/create-project` |
+| Resume existing project | project-management | `/resume-project` |
+| Add sources to project | project-management | `project-management gather-sources` |
+| Extract writing rules | writing-rules-skill | `writing-rules-skill <type> --auto-discover` |
+| Create content outline | content-writing-skill | `content-writing-skill outline` |
+| Generate draft | content-writing-skill | `content-writing-skill draft` |
+| Get persona feedback | content-writing-skill | `content-writing-skill feedback` |
+| Edit draft | content-writing-skill | `content-writing-skill edit` |
+| Fetch web content | ingest-content-skill | `kurt content fetch` |
+| Work with CMS | cms-interaction-skill | `kurt cms <operation>` |
+| Research topics | research-skill | `kurt research search` or `research-skill` |
+
+---
+
+## Files Created by Workflows
+
+**Content creation:**
+- `/projects/<project-name>/drafts/<asset-name>-outline.md`
+- `/projects/<project-name>/drafts/<asset-name>-draft.md`
+- `/projects/<project-name>/feedback/<asset-name>-feedback.md`
+
+**Rules extraction:**
+- `rules/style/<style-name>.md`
+- `rules/structure/<structure-name>.md`
+- `rules/personas/<persona-name>.md`
+- `rules/publisher/publisher-profile.md`
+
+**Research:**
+- `sources/research/YYYY-MM-DD-<query>.md`
+
+---
+
+## See Also
+
+- **Architecture**: `KURT.md` - System concepts, data model, file structure
+- **Skill docs**: `.claude/skills/` - Detailed documentation for each skill
+- **Project example**: `/projects/tutorial-refresh-fusion/project.md` - Example project structure
+
+---
+
+For system architecture, data model, and core concepts, see **`KURT.md`**.
