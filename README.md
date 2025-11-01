@@ -64,6 +64,89 @@ Install this plugin in Claude Code (instructions will vary based on plugin distr
 
 ---
 
+## Analytics Integration (Optional)
+
+Kurt integrates with PostHog web analytics to enable **traffic-based content prioritization**.
+
+### Why Analytics?
+
+With analytics integrated, Kurt can answer questions like:
+- **"Which stale tutorials get the most traffic?"** → Prioritize high-impact updates
+- **"Which product pages have high bounce rates?"** → Identify quality issues
+- **"Which topics are trending?"** → Spot content opportunities
+
+### Setup PostHog Integration
+
+**1. Create configuration template:**
+```bash
+kurt analytics onboard docs.company.com
+
+# First run creates .kurt/analytics-config.json with template:
+# {
+#   "posthog": {
+#     "project_id": "YOUR_POSTHOG_PROJECT_ID",
+#     "api_key": "YOUR_POSTHOG_API_KEY"
+#   }
+# }
+```
+
+**2. Fill in your credentials:**
+```bash
+# Edit .kurt/analytics-config.json
+# Replace YOUR_POSTHOG_PROJECT_ID with your PostHog project ID (e.g., phc_abc123)
+# Replace YOUR_POSTHOG_API_KEY with your PostHog API key
+```
+
+**3. Test connection and register domain:**
+```bash
+# Run onboard again to test connection
+kurt analytics onboard docs.company.com
+
+# Output:
+# ✓ Connected to PostHog
+# ✓ Domain registered: docs.company.com
+```
+
+**4. Sync analytics data:**
+```bash
+# Sync specific domain
+kurt analytics sync docs.company.com
+
+# Sync all configured domains
+kurt analytics sync --all
+```
+
+**5. Auto-sync (recommended):**
+
+Analytics data automatically checks for staleness when you start a Claude Code session. If data is >7 days old, you'll be prompted to sync.
+
+**Note:** `.kurt/analytics-config.json` is gitignored for security. Each team member needs their own copy with credentials.
+
+### Using Analytics in Workflows
+
+Once analytics is configured, workflows automatically use traffic data for prioritization:
+
+**Example: Tutorial Refresh**
+```
+User: Update all BigQuery tutorials
+
+Claude: Found 23 tutorials, prioritized by traffic:
+
+HIGH PRIORITY (>1000 views/month):
+1. "BigQuery Quickstart" (3,421 views/month, +15% trend, 850 days old)
+2. "BigQuery Python SDK" (2,103 views/month, -8% trend, 720 days old)
+
+Should I focus on high-priority tutorials first?
+```
+
+### Supported Analytics Platforms
+
+- **PostHog** (✅ Supported) - Open-source product analytics
+- Google Analytics 4 (planned)
+- Plausible (planned)
+
+---
+
 ## Quick Start
 
 ### Create Your First Project
