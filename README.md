@@ -64,6 +64,270 @@ Install this plugin in Claude Code (instructions will vary based on plugin distr
 
 ---
 
+## Kurt CLI Workflows
+
+The plugin uses a **2-step workflow** for ingesting organizational content:
+
+### Step 1: Map (Discovery + Clustering)
+
+Discover content from websites or CMS platforms and automatically organize them into topic clusters:
+
+#### Map from Website
+
+```bash
+# Map a website and cluster its content (recommended)
+kurt map url https://docs.example.com --cluster-urls
+
+# Options:
+kurt map url https://example.com --cluster-urls --sitemap-path /custom-sitemap.xml
+kurt map url https://example.com --cluster-urls --include "*/docs/*"
+kurt map url https://example.com --cluster-urls --exclude "*/api/*"
+```
+
+**What this does:**
+- Discovers all URLs from sitemap (or crawls if no sitemap)
+- Creates NOT_FETCHED document records in database
+- **Organizes URLs into 5-10 topic clusters** (e.g., "Getting Started", "API Reference")
+- **Classifies rough content types** (tutorial, guide, reference, blog, etc.)
+- All in a single LLM call - no content downloads yet
+
+#### Map from CMS
+
+```bash
+# Map CMS content and cluster (recommended)
+kurt map cms --platform sanity --cluster-urls
+
+# Options:
+kurt map cms --platform sanity --instance prod --cluster-urls
+kurt map cms --platform sanity --content-type article --cluster-urls
+kurt map cms --platform sanity --status published --limit 100
+```
+
+**What this does:**
+- Discovers all documents from CMS via API
+- Creates NOT_FETCHED document records with semantic URLs like `sanity/prod/article/vibe-coding-guide`
+- Stores CMS document ID separately for API fetching
+- **Organizes documents into topic clusters** based on schema, slug, and description
+- **Auto-infers content types** from schema names (e.g., "article" → article content type)
+- No content downloads yet - just metadata discovery
+
+**Why cluster during mapping?**
+- See topics before downloading (fetch selectively)
+- Query what content exists: `kurt content list --in-cluster "Tutorials"`
+- Fetch by cluster: `kurt fetch --in-cluster "Tutorials"`
+- Works across both web and CMS content sources
+
+### Step 2: Fetch (Download + Index)
+
+Download and index content selectively (works for both web and CMS content):
+
+```bash
+# Fetch specific cluster (works for web + CMS mixed)
+kurt fetch --in-cluster "Getting Started"
+
+# Fetch by content type (requires clustering first)
+kurt fetch --with-content-type tutorial
+kurt fetch --with-content-type guide
+
+# Fetch by URL/identifier pattern
+kurt fetch --include "*/docs/*"                          # Web URLs
+kurt fetch --include "sanity/prod/*"                     # CMS content
+kurt fetch --include "*tutorial*"                        # Both
+
+# Fetch with exclusions
+kurt fetch --include "*/docs/*" --exclude "*/api/*"
+
+# Combine filters
+kurt fetch --with-content-type tutorial --include "*/docs/*"
+kurt fetch --with-content-type article --include "sanity/*"
+
+# Options:
+kurt fetch --in-cluster "Tutorials" --concurrency 10     # Parallel downloads
+kurt fetch --include "*/docs/*" --skip-index             # Download only, skip LLM indexing
+kurt fetch --with-status ERROR --refetch                 # Retry failed fetches
+```
+
+**What this does:**
+- **Web content**: Downloads to `sources/{domain}/{path}.md`
+- **CMS content**: Downloads to `sources/cms/{platform}/{instance}/{id}.md`
+- Extracts detailed metadata via LLM (topics, tools, code examples, structure)
+- Updates database status to FETCHED
+
+### Query & Verify
+
+```bash
+# List documents
+kurt content list                                        # All documents
+kurt content list --with-status NOT_FETCHED              # Not yet downloaded
+kurt content list --in-cluster "Tutorials"               # Specific cluster
+kurt content list --include "*/docs/*"                   # By URL pattern
+
+# View clusters
+kurt cluster-urls --format table                         # Show all clusters
+
+# Get document details
+kurt content get <document-id>                           # Full metadata
+
+# Statistics
+kurt content stats                                       # Overview
+```
+
+### Re-clustering
+
+Refine clusters as content grows:
+
+```bash
+# Refine existing clusters (incremental - keeps existing clusters)
+kurt cluster-urls
+
+# Force fresh clustering (ignores existing clusters)
+kurt cluster-urls --force
+
+# Cluster specific subset
+kurt cluster-urls --include "*/blog/*"
+```
+
+### Common Patterns
+
+**Ingest organizational website:**
+```bash
+# 1. Map + cluster (discovers URLs + organizes + classifies content types)
+kurt map url https://docs.yourcompany.com --cluster-urls
+
+# 2. Review clusters and content types
+kurt cluster-urls --format table
+kurt content list --with-content-type tutorial
+
+# 3. Fetch selectively
+kurt fetch --in-cluster "Getting Started"
+kurt fetch --with-content-type tutorial
+kurt fetch --with-content-type guide --include "*/docs/*"
+```
+
+**Ingest from CMS:**
+```bash
+# 1. Map CMS content + cluster
+kurt map cms --platform sanity --cluster-urls
+
+# 2. Review clusters
+kurt cluster-urls --format table
+kurt content list --include "sanity/*"
+
+# 3. Fetch selectively
+kurt fetch --in-cluster "Tutorials"
+kurt fetch --with-content-type article --include "sanity/*"
+```
+
+**Mixed web + CMS ingestion:**
+```bash
+# Map both sources
+kurt map url https://docs.example.com --cluster-urls
+kurt map cms --platform sanity --cluster-urls
+
+# Fetch all content (web + CMS) by cluster
+kurt fetch --in-cluster "Getting Started"
+
+# Or fetch separately
+kurt fetch --include "docs.example.com/*"
+kurt fetch --include "sanity/*"
+```
+
+**Selective ingestion:**
+```bash
+# Map everything, fetch only tutorials
+kurt map url https://docs.example.com --cluster-urls
+kurt fetch --include "*/tutorials/*"
+```
+
+**Retry failed fetches:**
+```bash
+# Check failures
+kurt content list --with-status ERROR
+
+# Retry
+kurt fetch --with-status ERROR --refetch
+```
+
+---
+
+## CMS Integration Setup (Optional)
+
+If you want to ingest content from a CMS (Sanity, Contentful, WordPress), follow these steps:
+
+### 1. Configure CMS Connection
+
+Create `.kurt/cms-config.json` with your CMS credentials:
+
+```json
+{
+  "sanity": {
+    "prod": {
+      "project_id": "your-project-id",
+      "dataset": "production",
+      "token": "sk...your-read-token",
+      "write_token": "sk...your-write-token",
+      "base_url": "https://yoursite.com",
+      "content_type_mappings": {
+        "article": {
+          "enabled": true,
+          "content_field": "content_body_portable",
+          "title_field": "title",
+          "slug_field": "slug.current",
+          "description_field": "excerpt",
+          "inferred_content_type": "article",
+          "metadata_fields": {}
+        },
+        "universeItem": {
+          "enabled": true,
+          "content_field": "description",
+          "title_field": "title",
+          "slug_field": "slug.current",
+          "description_field": "description",
+          "inferred_content_type": "reference",
+          "metadata_fields": {}
+        }
+      }
+    }
+  }
+}
+```
+
+**Key fields explained:**
+- `slug_field`: Field containing URL slug - used in semantic URLs for clustering
+- `description_field`: Field containing summary/excerpt - provides context for topic clustering
+- `inferred_content_type`: Auto-assigned content type from schema name - skips LLM classification
+- `content_type_mappings`: Per-schema field mappings discovered during onboarding
+
+**Note:** The `.kurt/` directory is already gitignored, so credentials are safe.
+
+### 2. Run Onboarding
+
+Discover content types and map custom field names:
+
+```bash
+cms-interaction-skill onboard
+```
+
+### 3. Use the Unified Workflow
+
+Once configured, CMS content works just like web content:
+
+```bash
+# Map CMS content
+kurt map cms --platform sanity --cluster-urls
+
+# Fetch CMS content
+kurt fetch --include "sanity/*"
+
+# Mix with web content in the same workflow
+kurt map url https://docs.example.com --cluster-urls
+kurt fetch --in-cluster "Tutorials"  # Fetches both web + CMS content
+```
+
+See the [CMS Interaction Skill documentation](.claude/skills/cms-interaction-skill/SKILL.md) for details.
+
+---
+
 ## Quick Start
 
 ### Create Your First Project
@@ -198,11 +462,14 @@ research-skill daily [project]
 research-skill discover "<topic>"
 research-skill query "<question>"
 
-# CMS integration
-kurt cms onboard
-kurt cms search --query "..."
-kurt cms fetch --id <id> --output-dir sources/cms/
-kurt cms publish --file <file> --content-type <type>
+# CMS integration (unified workflow)
+kurt map cms --platform sanity --cluster-urls
+kurt fetch --include "sanity/*"
+
+# CMS ad-hoc operations (via skill)
+cms-interaction-skill onboard
+cms-interaction-skill search --query "..."
+cms-interaction-skill publish --file <file> --document-id <id>
 ```
 
 ---
