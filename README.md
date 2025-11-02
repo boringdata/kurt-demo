@@ -15,6 +15,65 @@ The Kurt Plugin helps tech companies create consistent, high-quality content fas
 
 ---
 
+## Quick Start
+
+### 1. First Time Setup
+
+Run `/start` in Claude Code to set up your team profile:
+
+```
+/start
+```
+
+This interactive wizard (10-15 minutes) will:
+- Capture your company, team, and content goals
+- Map your website and content sources
+- Extract your writing style, company profile, and target personas
+- Create `.kurt/profile.md` with your team setup
+
+**You can skip any question** - Kurt adapts to what you know.
+
+### 2. Define Workflows (Optional)
+
+If you have recurring project patterns, codify them as reusable workflows:
+
+```
+workflow-skill add
+```
+
+Examples:
+- "Weekly tutorial publication"
+- "Product launch campaigns"
+- "Quarterly docs refresh"
+
+**Workflows are optional** - projects can be created without them.
+
+### 3. Create Projects
+
+Create content projects using your profile and workflows:
+
+```
+# With workflow (recurring pattern)
+/create-project --workflow weekly-tutorial
+
+# Without workflow (one-off project)
+/create-project
+```
+
+Projects automatically use your team profile (rules, personas, sources).
+
+### 4. Create Content
+
+Use the content-writing-skill to create outlines and drafts:
+
+```
+content-writing-skill outline <project> <asset>
+content-writing-skill draft <project> <asset>
+content-writing-skill edit <file> --instructions "..."
+```
+
+---
+
 ## What is kurt-core?
 
 This plugin wraps **kurt-core**, a CLI tool that provides document intelligence capabilities:

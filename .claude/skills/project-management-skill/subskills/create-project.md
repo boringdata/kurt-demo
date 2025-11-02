@@ -10,19 +10,116 @@
 
 This subskill guides users through creating a new Kurt project:
 
-1. Understand project intent (what are you trying to accomplish?)
-2. Get project name and goal
-3. Check organizational foundation (content map + core rules)
-4. Collect project-specific sources (optional)
-5. Identify target content (optional)
-6. Extract project-specific rules (optional)
-7. Create project structure and project.md
+1. **Check for team profile** - Load context from `/start` if available
+2. **Load workflow (optional)** - Use workflow template if `--workflow` flag provided
+3. Understand project intent (what are you trying to accomplish?)
+4. Get project name and goal
+5. Check organizational foundation (content map + core rules)
+6. Collect project-specific sources (optional)
+7. Identify target content (optional)
+8. Extract project-specific rules (optional)
+9. Create project structure and project.md
 
 **Key principles:**
+- Uses profile context when available (simpler flow)
 - Progressive disclosure (only required info upfront)
 - All steps except name/goal are optional
 - User can skip and return later
 - Organizational foundation before project-specific work
+- Can use workflow templates for recurring patterns
+
+---
+
+## Step 0: Check for Team Profile and Workflow
+
+### Check for Profile
+
+```bash
+# Check if profile exists
+if [ -f ".kurt/profile.md" ]; then
+  PROFILE_EXISTS=true
+  # Load context from profile
+else
+  PROFILE_EXISTS=false
+fi
+```
+
+**If profile exists:**
+```
+Loading your team profile...
+✓ Company: {{COMPANY_NAME}}
+✓ Team: {{TEAM_NAME}}
+✓ Foundation rules: {{RULES_STATUS}}
+```
+
+Load context:
+- `COMPANY_NAME`, `TEAM_NAME`, `INDUSTRY`
+- `COMMUNICATION_GOALS`
+- `CONTENT_TYPES`
+- `KNOWN_PERSONAS`
+- `PUBLISHER_STATUS`, `STYLE_STATUS`, `PERSONA_STATUS`
+
+**If profile doesn't exist:**
+```
+⚠️  No team profile found
+
+It looks like this is your first time using Kurt.
+
+Recommendation: Run /start first to set up your team profile and foundation rules.
+This takes 10-15 minutes and makes project creation much easier.
+
+Options:
+  a) Run /start now (recommended)
+  b) Continue without profile (minimal setup)
+  c) Cancel
+
+Choose: _
+```
+
+**If (a):** Invoke `onboarding-skill` → Exit create-project, user restarts after onboarding
+**If (b):** Continue with minimal setup (no profile context)
+**If (c):** Exit
+
+### Check for Workflow Flag
+
+```bash
+# Parse arguments for --workflow flag
+WORKFLOW_NAME=$(parse_arg "--workflow")
+```
+
+**If `--workflow` provided:**
+
+```bash
+# Load workflow definition
+if [ -f ".kurt/workflows/workflow-registry.yaml" ]; then
+  WORKFLOW_DEF=$(yq ".workflows.${WORKFLOW_NAME}" .kurt/workflows/workflow-registry.yaml)
+
+  if [ -n "$WORKFLOW_DEF" ]; then
+    WORKFLOW_MODE=true
+    echo "Using workflow: $(yq '.name' <<< "$WORKFLOW_DEF")"
+  else
+    echo "⚠️  Workflow '${WORKFLOW_NAME}' not found"
+    echo "Available workflows:"
+    yq '.workflows | keys' .kurt/workflows/workflow-registry.yaml
+    exit 1
+  fi
+fi
+```
+
+**If workflow loaded:**
+```
+Using workflow: {{WORKFLOW_NAME}}
+Description: {{WORKFLOW_DESCRIPTION}}
+Phases: {{PHASE_COUNT}}
+Estimated duration: {{AVG_DURATION}}
+
+This project will follow the predefined workflow structure.
+```
+
+Store:
+- `WORKFLOW_MODE = true`
+- `WORKFLOW_DEF` (full workflow definition)
+- `WORKFLOW_PHASES` (list of phases)
 
 ---
 
@@ -76,6 +173,46 @@ Store `$PROJECT_NAME` and `$PROJECT_GOAL` for use in project.md.
 ## Step 2.5: Check Organizational Foundation
 
 **Before collecting project-specific sources**, verify that organizational context exists.
+
+### If Profile Exists (PROFILE_EXISTS = true)
+
+**Check foundation status from profile:**
+
+```bash
+PUBLISHER_STATUS=$(grep "Publisher Profile:" .kurt/profile.md)
+STYLE_STATUS=$(grep "Style Guides:" .kurt/profile.md)
+PERSONA_STATUS=$(grep "Personas:" .kurt/profile.md)
+CONTENT_STATUS=$(grep "Total Documents:" .kurt/profile.md)
+```
+
+**If foundation complete (all rules extracted + content indexed):**
+```
+✓ Foundation ready
+  Publisher: {{PUBLISHER_PATH}}
+  Style guides: {{STYLE_COUNT}}
+  Personas: {{PERSONA_COUNT}}
+  Indexed content: {{TOTAL_DOCS}} documents
+
+Skipping foundation check - continuing to project setup...
+```
+
+→ Skip to Step 3
+
+**If foundation incomplete:**
+```
+⚠️  Foundation partially complete
+
+  ✓ Publisher: {{PUBLISHER_STATUS}}
+  ✗ Style guides: {{STYLE_STATUS}}
+  ✗ Personas: {{PERSONA_STATUS}}
+
+Would you like to complete foundation setup now? (y/n): _
+```
+
+**If yes:** Invoke `check-foundation` subskill
+**If no:** Note in project that foundation is incomplete, continue to Step 3
+
+### If No Profile (PROFILE_EXISTS = false)
 
 **Invoke check-foundation subskill:**
 
@@ -311,13 +448,74 @@ See: `.claude/skills/project-management-skill/subskills/extract-rules.md`
 
 Once you have the name, goal, and optionally sources/targets/rules:
 
-1. Create the project directory structure:
-   ```bash
-   mkdir -p projects/$PROJECT_NAME/sources
-   mkdir -p projects/$PROJECT_NAME/drafts
-   ```
+### If Workflow Mode (WORKFLOW_MODE = true)
 
-2. Create `projects/$PROJECT_NAME/project.md` with this template:
+Create workflow-based project structure:
+
+```bash
+# Base directories
+mkdir -p projects/$PROJECT_NAME/sources
+mkdir -p projects/$PROJECT_NAME/drafts
+
+# Phase-based directories (from workflow definition)
+for phase in $WORKFLOW_PHASES; do
+  phase_id=$(yq ".phases[] | select(.id == \"$phase\") | .id" <<< "$WORKFLOW_DEF")
+  mkdir -p projects/$PROJECT_NAME/$phase_id
+done
+
+# Example for "weekly-tutorial" workflow:
+# projects/jan-15-kafka-tutorial/
+# ├── topic-selection/
+# ├── outlining/
+# ├── drafting/
+# ├── review/
+# └── publish/
+```
+
+**Generate workflow artifacts:**
+
+1. **task-breakdown.md** - From workflow phases and tasks
+2. **timeline.md** - From phase durations and dependencies
+3. **workflow-tracking.md** - Track phase progress
+
+Store in `projects/$PROJECT_NAME/`
+
+### If No Workflow (Standard Mode)
+
+Create standard project structure:
+
+```bash
+mkdir -p projects/$PROJECT_NAME/sources
+mkdir -p projects/$PROJECT_NAME/drafts
+```
+
+---
+
+### Create project.md
+
+Create `projects/$PROJECT_NAME/project.md` with appropriate template:
+
+**If workflow mode:**
+```markdown
+# $PROJECT_NAME
+
+## Goal
+$PROJECT_GOAL
+
+## Workflow
+**Using:** $WORKFLOW_NAME (v$WORKFLOW_VERSION)
+**Phases:** $PHASE_COUNT
+**Estimated duration:** $AVG_DURATION
+
+See `workflow-tracking.md` for phase progress.
+
+## Intent Category
+$PROJECT_INTENT
+
+[... rest of standard template ...]
+```
+
+**If standard mode (no workflow), use this template:
 
 ```markdown
 # $PROJECT_NAME
