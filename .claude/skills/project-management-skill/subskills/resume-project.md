@@ -541,6 +541,57 @@ Example update:
 
 ---
 
+## Step 9: Complete Project (Optional)
+
+When work is done, offer to mark the project complete and gather retrospective feedback:
+
+### 9.1: Detect Completion Readiness
+
+Check project.md Progress section for completion indicators:
+- All targets marked as complete?
+- Next Steps section says "complete" or similar?
+- User explicitly indicates project is done?
+
+### 9.2: Offer Project Completion
+
+```
+It looks like this project might be complete. Would you like to mark it as complete and provide retrospective feedback? (Y/n):
+```
+
+**If yes:**
+
+```bash
+# Invoke feedback skill for retrospective
+feedback-skill retrospective \
+  --project-path "projects/$PROJECT_NAME" \
+  --project-id "$PROJECT_NAME"
+```
+
+This will:
+1. Ask about the workflow phases:
+   - Which phases went well? (1-5 rating)
+   - Which phases had issues? (1-5 rating)
+   - Where did you spend most time?
+2. Collect improvement suggestions:
+   - What could be streamlined?
+   - What was missing?
+   - What should be added to future workflows?
+3. Record in database for workflow refinement
+4. Update project.md to mark as complete
+
+**If no:**
+- Skip retrospective
+- Project remains active
+- User can complete later: `feedback-skill retrospective --project-path projects/$PROJECT_NAME`
+
+**Notes:**
+- Retrospective is optional but valuable for improving workflows
+- Feedback helps refine workflow templates and subskills
+- Data feeds into workflow skill improvements
+- Can be triggered manually anytime: `feedback-skill retrospective --project-path <path>`
+
+---
+
 ## Important Notes
 
 - Always read project.md first to understand context
@@ -550,6 +601,7 @@ Example update:
 - Extract missing rules proactively when gaps identified
 - Provide specific, actionable next steps based on intent category
 - Offer to update project documentation as work progresses
+- Offer retrospective feedback when project appears complete
 - If project directory doesn't exist, inform user and suggest `/create-project`
 
 ---

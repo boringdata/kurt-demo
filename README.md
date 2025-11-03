@@ -28,10 +28,13 @@ Run `/start` in Claude Code to set up your team profile:
 This interactive wizard (10-15 minutes) will:
 - Capture your company, team, and content goals
 - Map your website and content sources
+- Optionally configure analytics for traffic-based prioritization (PostHog)
 - Extract your writing style, company profile, and target personas
 - Create `.kurt/profile.md` with your team setup
 
 **You can skip any question** - Kurt adapts to what you know.
+
+**Analytics integration:** During onboarding, you'll be offered the option to connect PostHog analytics. This enables traffic-based content prioritization, helping you focus on high-impact updates. Analytics setup is optional and can be added later via `/start --update`.
 
 ### 2. Define Workflows (Optional)
 

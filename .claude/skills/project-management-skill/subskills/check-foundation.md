@@ -400,128 +400,62 @@ Once complete, continue to Step 4.2 (project-specific content check).
 
 ---
 
-## Check 3: Analytics Integration (Optional)
+## Check 3: Analytics Status
 
-### 3.1: Check if Analytics is Configured
+### Simple Status Check
 
-**After content map is established**, optionally offer analytics setup for traffic-based prioritization.
+**After content map is established**, display analytics status from profile.
 
 ```bash
-# Check if analytics configured for any domain
-analytics_configured=$(kurt analytics list --format json 2>/dev/null)
+# Check if profile exists
+if [ -f ".kurt/profile.md" ]; then
+  # Check analytics status from profile
+  ANALYTICS_CONFIGURED=$(grep -q "Status: ✓ Analytics enabled" .kurt/profile.md && echo "true" || echo "false")
 
-if [ -n "$analytics_configured" ] && [ "$analytics_configured" != "[]" ]; then
-  # Analytics exists - show brief status
-  echo "✓ Analytics configured"
-  return
+  if [ "$ANALYTICS_CONFIGURED" = "true" ]; then
+    echo "✓ Analytics configured (from team profile)"
+
+    # Extract domain list
+    ANALYTICS_DOMAINS=$(grep -A 10 "## Analytics Configuration" .kurt/profile.md | grep "^\*\*" | sed 's/\*\*\(.*\)\*\* (.*/\1/' | head -5)
+
+    if [ -n "$ANALYTICS_DOMAINS" ]; then
+      echo "  Domains with traffic data:"
+      echo "$ANALYTICS_DOMAINS" | while read domain; do
+        [ -n "$domain" ] && echo "    • $domain"
+      done
+    fi
+  else
+    echo "○ Analytics not configured"
+    echo "  (Optional: Set up via /start --update)"
+  fi
 else
-  # Analytics not configured - offer setup
-  offer_analytics_setup
+  # No profile - check directly
+  analytics_list=$(kurt analytics list --format json 2>/dev/null)
+
+  if [ -n "$analytics_list" ] && [ "$analytics_list" != "[]" ]; then
+    echo "✓ Analytics configured"
+  else
+    echo "○ Analytics not configured"
+    echo "  (Optional: Set up during team onboarding)"
+  fi
 fi
 ```
 
-### 3.2: Offer Analytics Setup
-
-If no analytics configured:
-
+**Display message:**
 ```
-💡 Tip: Enable analytics for traffic-based prioritization
+───────────────────────────────────────────────────────
+Analytics Status
+───────────────────────────────────────────────────────
 
-Kurt can integrate with PostHog web analytics to help:
-- Prioritize high-traffic pages for updates
-- Identify declining-traffic pages needing refresh
-- Spot zero-traffic pages (orphaned or low-quality)
+{{ANALYTICS_STATUS}}
 
-Setup takes ~2 minutes.
-
-Would you like to set up analytics? (Y/n)
+{{#if NOT_CONFIGURED}}
+Note: Analytics is optional. It enables traffic-based prioritization
+for content updates. Set up via /start --update when needed.
+{{/if}}
 ```
 
-**If user says no:**
-```
-You can enable analytics anytime with:
-  kurt analytics onboard <domain>
-
-Continuing without analytics...
-```
-
-**If user says yes:**
-
-```
-Which domain has web analytics?
-
-Examples:
-- docs.yourcompany.com
-- blog.yourcompany.com
-
-Domain: [wait for user input]
-
-Great! I'll guide you through connecting PostHog analytics...
-```
-
-**Then invoke:**
-```bash
-kurt analytics onboard <user-provided-domain>
-```
-
-**First run creates config template:**
-```
-✓ Created: .kurt/analytics-config.json
-
-Please fill in your analytics credentials:
-  1. Open: .kurt/analytics-config.json
-  2. Replace placeholder values with your posthog credentials
-  3. Run this command again: kurt analytics onboard <domain>
-
-Note: This file is gitignored and won't be committed.
-```
-
-**User fills in credentials, then runs command again:**
-```bash
-kurt analytics onboard <user-provided-domain>
-```
-
-This will:
-1. Load credentials from config file
-2. Test PostHog connection
-3. Register domain in database
-4. Run initial sync (if confirmed)
-
-**After analytics setup:**
-```
-✓ Analytics configured for <domain>
-✓ Initial sync complete
-
-Analytics features now available:
-- kurt content list --with-analytics
-- kurt content stats --show-analytics
-- content-analysis-skill (traffic-based prioritization)
-- analytics-query-skill (ad-hoc traffic queries)
-
-Ready to continue with project work.
-```
-
-### 3.3: When to Offer Analytics
-
-**Always offer when:**
-- First-time setup (no analytics configured anywhere)
-- Content map just established (>10 pages indexed)
-
-**Don't offer when:**
-- Analytics already configured for one or more domains
-- User explicitly declined in previous session
-- No content mapped yet (need content first)
-
-**Timing:**
-Analytics setup happens AFTER:
-1. Content map established
-2. Content fetched and indexed
-
-Analytics setup happens BEFORE:
-1. Core rules extraction
-2. Project-specific work
-
-**Rationale:** Analytics needs indexed content to be useful, but doesn't need rules. Setting it up early enables traffic-aware rule extraction ("extract style from high-traffic tutorials").
+**No user prompts** - analytics setup now happens during onboarding (`/start`), not during project creation.
 
 ---
 
@@ -529,10 +463,11 @@ Analytics setup happens BEFORE:
 
 1. **Orchestration, not execution** - Delegates to ingest-content-skill and extract-rules subskill
 2. **Progressive disclosure** - Quick summary if exists, full workflow if missing
-3. **Foundation first** - Content map → Analytics (optional) → Core rules
-4. **Three-pass pattern** - Check content map → Offer analytics → Check core rules
-5. **Non-blocking** - User can skip and return later (analytics is optional)
-6. **Reusable** - Called from multiple parent workflows
+3. **Foundation first** - Content map → Analytics status (display only) → Core rules
+4. **Three-pass pattern** - Check content map → Display analytics status → Check core rules
+5. **Non-blocking** - User can skip and return later
+6. **Analytics from profile** - Analytics setup happens during onboarding, not project creation
+7. **Reusable** - Called from multiple parent workflows
 
 ---
 

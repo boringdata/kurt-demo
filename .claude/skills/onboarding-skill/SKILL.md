@@ -17,8 +17,9 @@ This skill orchestrates the onboarding process by routing through specialized su
 
 1. **questionnaire** - Capture team context, goals, sources
 2. **map-content** - Map and fetch content from sources
-3. **extract-foundation** - Extract publisher, style, personas
-4. **create-profile** - Generate `.kurt/profile.md`
+3. **setup-analytics** - Configure analytics for domains (optional)
+4. **extract-foundation** - Extract publisher, style, personas
+5. **create-profile** - Generate `.kurt/profile.md`
 
 ---
 
@@ -142,7 +143,7 @@ Invoke: `onboarding-skill/subskills/map-content`
 
 ---
 
-## Step 4: Extract Foundation Rules (if content fetched)
+## Step 4: Setup Analytics (optional, if content fetched)
 
 Check if content was fetched:
 
@@ -152,7 +153,31 @@ CONTENT_FETCHED=$(jq -r '.content_fetched' .kurt/temp/onboarding-data.json)
 if [ "$CONTENT_FETCHED" = "true" ]; then
   echo ""
   echo "───────────────────────────────────────────────────────"
-  echo "Step 2/3: Extract Foundation Rules"
+  echo "Step 2/4: Analytics Setup (Optional)"
+  echo "───────────────────────────────────────────────────────"
+  echo ""
+fi
+```
+
+Invoke: `onboarding-skill/subskills/setup-analytics`
+
+**Input:** Domains detected from content in onboarding-data.json
+**Output:** Updates onboarding-data.json with analytics configuration
+**Note:** Optional step - user can skip without blocking
+
+---
+
+## Step 5: Extract Foundation Rules (if content fetched)
+
+Check if content was fetched:
+
+```bash
+CONTENT_FETCHED=$(jq -r '.content_fetched' .kurt/temp/onboarding-data.json)
+
+if [ "$CONTENT_FETCHED" = "true" ]; then
+  echo ""
+  echo "───────────────────────────────────────────────────────"
+  echo "Step 3/4: Extract Foundation Rules"
   echo "───────────────────────────────────────────────────────"
   echo ""
 fi
@@ -165,13 +190,13 @@ Invoke: `onboarding-skill/subskills/extract-foundation`
 
 ---
 
-## Step 5: Create Profile
+## Step 6: Create Profile
 
-Always run (even if steps 3-4 skipped):
+Always run (even if steps 3-5 skipped):
 
 ```
 ───────────────────────────────────────────────────────
-Step 3/3: Creating Your Profile
+Step 4/4: Creating Your Profile
 ───────────────────────────────────────────────────────
 
 Generating your Kurt profile...
@@ -261,13 +286,15 @@ Then retry: /start
 **Invokes:**
 - `onboarding-skill/subskills/questionnaire` - Capture user input
 - `onboarding-skill/subskills/map-content` - Map and fetch sources
+- `onboarding-skill/subskills/setup-analytics` - Configure analytics (optional)
 - `onboarding-skill/subskills/extract-foundation` - Extract rules
 - `onboarding-skill/subskills/create-profile` - Generate profile
 
 **Creates:**
-- `.kurt/profile.md` - Team profile
+- `.kurt/profile.md` - Team profile (includes analytics config if set up)
 - `.kurt/temp/onboarding-data.json` - Temporary data (deleted after)
 - Foundation rules (via extract-foundation subskill)
+- Analytics configuration (via setup-analytics subskill, optional)
 
 ---
 

@@ -30,14 +30,14 @@ This skill orchestrates Kurt project workflows by managing sources (ground truth
 **check-foundation** - Verify organizational foundation exists
 - Entry point: Called by create-project and resume-project subskills
 - Checks: content map (/sources/) + core rules (publisher, voice, personas)
-- Delegates: ingest-content-skill (content map), extract-rules subskill (core rules)
+- Delegates: extract-rules subskill (core rules), uses kurt CLI for content validation
 - See: `subskills/check-foundation.md`
 
 ### Iterative Workflow Subskills
 
 **gather-sources** - Orchestrate iterative source gathering
 - Entry point: Called by create-project and resume-project subskills
-- Routes to: research-skill, ingest-content-skill, cms-interaction-skill, local handling
+- Routes to: research-skill, kurt CLI (map/fetch), cms-interaction-skill, local handling
 - Pattern: Two-checkpoint validation (propose → execute → review → iterate)
 - See: `subskills/gather-sources.md`
 
@@ -101,7 +101,7 @@ See `KURT.md` for complete project.md specification.
 
 
 **Delegates to:**
-- **ingest-content-skill** - For fetching web content to `/sources/`
+- **kurt CLI** - For fetching web content to `/sources/` (kurt map + kurt fetch)
 - **writing-rules-skill** - For extracting patterns from content (via extract-rules subskill)
 - **content-writing-skill** - For creating/updating target content with lineage
 - **research-skill** - For gathering research sources (via gather-sources subskill)

@@ -99,6 +99,10 @@ jq --version
 5. **Wait for:**
    - Content mapping (discovers URLs)
    - Content fetching (downloads + indexes)
+   - **Analytics setup prompt** (NEW)
+     - You'll be asked: "Would you like to set up analytics? (Y/n)"
+     - **If yes:** Provide PostHog credentials (Project ID, API Key)
+     - **If no:** Skip analytics (can add later via `/start --update`)
    - Rule extraction (publisher, style, personas)
    - Profile creation
 
@@ -110,6 +114,9 @@ jq --version
    # View profile
    cat .kurt/profile.md
 
+   # Check analytics section in profile
+   grep -A 15 "## Analytics Configuration" .kurt/profile.md
+
    # Rules extracted
    ls rules/publisher/
    ls rules/style/
@@ -117,10 +124,16 @@ jq --version
 
    # Content indexed
    kurt content list
+
+   # If analytics was set up, verify
+   kurt analytics list
    ```
 
 **Success criteria:**
 - ✅ `.kurt/profile.md` exists and contains correct info
+- ✅ Profile contains "Analytics Configuration" section
+  - If configured: Shows domains with traffic thresholds
+  - If skipped: Shows "Not configured" with setup instructions
 - ✅ Foundation rules extracted (publisher, style, 2 personas)
 - ✅ Content fetched and indexed
 - ✅ Next steps shown
@@ -192,12 +205,18 @@ jq --version
 5. **Success criteria:**
    - Enter: "Draft created, Technical review passed, Published"
 
-6. **Review and confirm:**
+6. **Analytics requirements (NEW):**
+   - Does workflow require analytics? **y**
+   - Prioritization strategy: **a** (Traffic-based)
+   - Minimum traffic level: **d** (MEDIUM+)
+   - Urgent threshold: **a** (CRITICAL - high traffic + declining)
+
+7. **Review and confirm:**
    ```
    Save this workflow? (y/n): y
    ```
 
-7. **Verify outputs:**
+8. **Verify outputs:**
    ```bash
    # Workflow in registry
    cat .kurt/workflows/workflow-registry.yaml
@@ -213,6 +232,11 @@ jq --version
 - ✅ Workflow saved to registry
 - ✅ `workflow-skill list` shows workflow
 - ✅ `workflow-skill show weekly-tutorial` displays full details
+- ✅ Workflow includes analytics requirements:
+  - `analytics.required: true`
+  - `analytics.prioritization.strategy: "traffic-based"`
+  - `analytics.prioritization.min_traffic_level: "MEDIUM"`
+  - `analytics.prioritization.urgent_threshold: "CRITICAL"`
 - ✅ Validation passes (no circular dependencies, rules checked)
 
 ---
@@ -239,7 +263,24 @@ jq --version
    Description: Weekly tutorial publication workflow
    Phases: 5
    Estimated duration: 3-5 days
+
+   ✓ Analytics configured
+     Domains: docs.company.com
+
+   This workflow requires analytics data for prioritization.
+   Checking data freshness...
+
+   Analytics data may be stale. Sync now? (Y/n):
    ```
+
+   **If analytics was configured in Test 1:**
+   - You'll see analytics status from profile
+   - If workflow requires analytics, you'll be prompted to sync if stale
+   - If you choose "y", analytics will sync before project creation continues
+
+   **If analytics was NOT configured:**
+   - You'll see a warning that workflow requires analytics
+   - Option to set up now (redirects to `/start --update`) or continue without
 
 3. **Project setup (simplified since profile exists):**
    - Intent: Select or describe
@@ -278,6 +319,11 @@ jq --version
 
 **Success criteria:**
 - ✅ Profile loaded automatically (no repeated questions)
+- ✅ Analytics status displayed from profile
+- ✅ If workflow requires analytics:
+  - Analytics freshness checked
+  - Sync prompted if stale
+  - Warning shown if not configured
 - ✅ Workflow-based folder structure created
 - ✅ `workflow-tracking.md` created with phase progress
 - ✅ `task-breakdown.md` generated from workflow phases

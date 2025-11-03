@@ -121,6 +121,83 @@ Store:
 - `WORKFLOW_DEF` (full workflow definition)
 - `WORKFLOW_PHASES` (list of phases)
 
+### Check Analytics Context (if profile exists)
+
+```bash
+if [ "$PROFILE_EXISTS" = "true" ]; then
+  # Check if analytics is configured in profile
+  ANALYTICS_CONFIGURED=$(grep -q "## Analytics Configuration" .kurt/profile.md && grep -q "Status: ✓ Analytics enabled" .kurt/profile.md && echo "true" || echo "false")
+
+  if [ "$ANALYTICS_CONFIGURED" = "true" ]; then
+    echo ""
+    echo "✓ Analytics configured"
+
+    # Extract analytics domains from profile
+    ANALYTICS_DOMAINS=$(grep -A 20 "## Analytics Configuration" .kurt/profile.md | grep "^\*\*" | sed 's/\*\*\(.*\)\*\* (.*/\1/' | tr '\n' ', ' | sed 's/,$//')
+
+    echo "  Domains: $ANALYTICS_DOMAINS"
+
+    # If workflow requires analytics, check data freshness
+    if [ "$WORKFLOW_MODE" = "true" ]; then
+      WORKFLOW_ANALYTICS_REQUIRED=$(echo "$WORKFLOW_DEF" | yq '.analytics.required // false')
+
+      if [ "$WORKFLOW_ANALYTICS_REQUIRED" = "true" ]; then
+        echo ""
+        echo "This workflow requires analytics data for prioritization."
+        echo "Checking data freshness..."
+
+        # Check if analytics data is stale (>7 days)
+        # Parse last synced dates from profile
+        # If stale, offer to sync now
+
+        echo ""
+        echo "Analytics data may be stale. Sync now? (Y/n):"
+        read -p "> " SYNC_CHOICE
+
+        if [ "$SYNC_CHOICE" != "n" ] && [ "$SYNC_CHOICE" != "N" ]; then
+          echo ""
+          echo "Syncing analytics data..."
+          kurt analytics sync --all --if-stale
+
+          if [ $? -eq 0 ]; then
+            echo "✓ Analytics data updated"
+          else
+            echo "⚠️  Some analytics syncs failed"
+            echo "Continuing with existing data..."
+          fi
+        fi
+      fi
+    fi
+  else
+    # Analytics not configured
+    if [ "$WORKFLOW_MODE" = "true" ]; then
+      WORKFLOW_ANALYTICS_REQUIRED=$(echo "$WORKFLOW_DEF" | yq '.analytics.required // false')
+
+      if [ "$WORKFLOW_ANALYTICS_REQUIRED" = "true" ]; then
+        echo ""
+        echo "⚠️  This workflow requires analytics, but it's not configured."
+        echo ""
+        echo "Would you like to set up analytics now? (Y/n):"
+        read -p "> " SETUP_CHOICE
+
+        if [ "$SETUP_CHOICE" != "n" ] && [ "$SETUP_CHOICE" != "N" ]; then
+          echo ""
+          echo "Let's set up analytics..."
+          echo "Run: /start --update"
+          echo "Then return to create your project."
+          exit 0
+        else
+          echo ""
+          echo "⚠️  Continuing without analytics."
+          echo "Note: Workflow prioritization features won't be available."
+          echo ""
+        fi
+      fi
+    fi
+  fi
+fi
+```
+
 ---
 
 ## Step 1: Understand Project Intent
@@ -578,9 +655,48 @@ $PROJECT_INTENT (a/b/c/d/e from Step 1)
 
 ---
 
+## Step 6.5: Review Project Plan (Optional)
+
+After creating the project structure and project.md, offer to review the plan:
+
+```
+Would you like to review the project plan? (Y/n):
+```
+
+**If yes (or default):**
+
+```bash
+# Invoke feedback skill for plan review
+feedback-skill review-plan \
+  --project-path "projects/$PROJECT_NAME" \
+  --project-id "$PROJECT_NAME"
+```
+
+This will:
+1. Show the project.md contents
+2. Ask for ratings on:
+   - Goals clarity (1-5)
+   - Sources completeness (1-5)
+   - Rules coverage (1-5)
+   - Overall project setup (1-5)
+3. Collect open-ended feedback
+4. Record feedback in database for workflow improvements
+
+**If no:**
+- Skip plan review
+- Continue to next steps
+
+**Notes:**
+- Plan review is optional but recommended for complex projects
+- Feedback helps improve project setup workflow over time
+- User can always review later: `feedback-skill review-plan --project-path projects/$PROJECT_NAME`
+- Plan review data feeds into workflow retrospectives
+
+---
+
 ## Step 7: Offer Next Steps
 
-After creating the project, summarize what was set up:
+After creating the project (and optionally reviewing the plan), summarize what was set up:
 
 ```
 ✅ Project created at `projects/$PROJECT_NAME/`

@@ -221,7 +221,86 @@ Enter success criteria (one per line, Enter twice when done):
 
 ---
 
-### Step 6: Test Workflow Logic
+### Step 6: Analytics Requirements (Optional)
+
+```
+───────────────────────────────────────────────────────
+Analytics Requirements
+───────────────────────────────────────────────────────
+
+Does this workflow use analytics data for prioritization?
+
+Examples of analytics-driven workflows:
+  • Tutorial Refresh - prioritize high-traffic pages
+  • Documentation Audit - identify declining-traffic pages
+  • Content Gap Analysis - estimate traffic opportunity
+
+Does this workflow require analytics? (y/N):
+> _
+```
+
+**If yes:**
+
+```
+Great! Let's configure analytics requirements.
+
+1. Prioritization Strategy
+
+How should content be prioritized?
+  a) Traffic-based (prioritize by pageviews)
+  b) Manual (user decides priority)
+  c) Freshness-based (prioritize by age)
+  d) None (no prioritization)
+
+Choose (a/b/c/d): _
+```
+
+**Capture:** `PRIORITIZATION_STRATEGY` (traffic-based, manual, freshness-based, none)
+
+```
+2. Minimum Traffic Level
+
+Should we filter by traffic level?
+  a) No filter (work on all pages)
+  b) ZERO+ (only pages with 0+ views)
+  c) LOW+ (only pages with >25th percentile traffic)
+  d) MEDIUM+ (only pages with 25th-75th percentile)
+  e) HIGH (only pages with >75th percentile traffic)
+
+Choose (a/b/c/d/e): _
+```
+
+**Capture:** `MIN_TRAFFIC_LEVEL` (null, "ZERO", "LOW", "MEDIUM", "HIGH")
+
+```
+3. Urgent Threshold
+
+What makes content "urgent" in this workflow?
+  a) CRITICAL (high traffic + declining)
+  b) HIGH (high traffic, any trend)
+  c) MEDIUM (medium traffic + declining)
+  d) No urgency flags
+
+Choose (a/b/c/d): _
+```
+
+**Capture:** `URGENT_THRESHOLD` ("CRITICAL", "HIGH", "MEDIUM", null)
+
+**If no analytics required:**
+
+```
+Skipped. Workflow will not use analytics data.
+```
+
+**Capture:**
+- `ANALYTICS_REQUIRED` = false
+- `PRIORITIZATION_STRATEGY` = "none"
+- `MIN_TRAFFIC_LEVEL` = null
+- `URGENT_THRESHOLD` = null
+
+---
+
+### Step 7: Test Workflow Logic
 
 ```
 Testing workflow definition...
@@ -304,7 +383,7 @@ Validation:
 
 ---
 
-### Step 7: Review and Confirm
+### Step 8: Review and Confirm
 
 ```
 ───────────────────────────────────────────────────────
@@ -335,13 +414,13 @@ Success criteria:
 Save this workflow? (y/n/edit): _
 ```
 
-**If yes:** Continue to Step 8
+**If yes:** Continue to Step 9
 **If no:** Cancel
 **If edit:** Return to specific phase for editing
 
 ---
 
-### Step 8: Generate Workflow Definition
+### Step 9: Generate Workflow Definition
 
 **Load template:**
 ```bash
@@ -389,7 +468,7 @@ phases:
 
 ---
 
-### Step 9: Add to Registry
+### Step 10: Add to Registry
 
 **Load existing registry:**
 ```bash
@@ -409,6 +488,13 @@ workflows:
     last_used: null
     times_executed: 0
     success_rate: 0.0
+    analytics:
+      required: {{ANALYTICS_REQUIRED}}
+      prioritization:
+        strategy: "{{PRIORITIZATION_STRATEGY}}"
+        min_traffic_level: {{MIN_TRAFFIC_LEVEL}}
+        urgent_threshold: "{{URGENT_THRESHOLD}}"
+      queries: []
     phases: {{PHASE_DEFINITIONS}}
     generates:
       - task-breakdown.md
@@ -436,7 +522,7 @@ yq -i ".metadata.last_modified = \"$(date +%Y-%m-%d)\"" $REGISTRY
 
 ---
 
-### Step 10: Success Message
+### Step 11: Success Message
 
 ```
 ═══════════════════════════════════════════════════════

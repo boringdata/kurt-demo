@@ -143,6 +143,42 @@ else
 fi
 ```
 
+### Analytics
+
+```bash
+ANALYTICS_CONFIGURED=$(jq -r '.analytics_configured // false' "$DATA_FILE")
+ANALYTICS_DOMAINS_JSON=$(jq -r '.analytics_domains // []' "$DATA_FILE")
+ANALYTICS_DOMAINS_COUNT=$(echo "$ANALYTICS_DOMAINS_JSON" | jq 'length')
+
+if [ "$ANALYTICS_CONFIGURED" = "true" ] && [ "$ANALYTICS_DOMAINS_COUNT" -gt 0 ]; then
+  # Analytics is configured, format domain details
+  ANALYTICS_DOMAINS=""
+
+  for i in $(seq 0 $(($ANALYTICS_DOMAINS_COUNT - 1))); do
+    DOMAIN=$(echo "$ANALYTICS_DOMAINS_JSON" | jq -r ".[$i].domain")
+    PLATFORM=$(echo "$ANALYTICS_DOMAINS_JSON" | jq -r ".[$i].platform")
+    LAST_SYNCED=$(echo "$ANALYTICS_DOMAINS_JSON" | jq -r ".[$i].last_synced")
+    PAGEVIEWS=$(echo "$ANALYTICS_DOMAINS_JSON" | jq -r ".[$i].pageviews_60d")
+    DOCS_WITH_DATA=$(echo "$ANALYTICS_DOMAINS_JSON" | jq -r ".[$i].documents_with_data")
+    P25=$(echo "$ANALYTICS_DOMAINS_JSON" | jq -r ".[$i].thresholds.p25")
+    P75=$(echo "$ANALYTICS_DOMAINS_JSON" | jq -r ".[$i].thresholds.p75")
+
+    ANALYTICS_DOMAINS+="**$DOMAIN** ($PLATFORM)\n"
+    ANALYTICS_DOMAINS+="- Last synced: $LAST_SYNCED\n"
+    ANALYTICS_DOMAINS+="- Documents with traffic data: $DOCS_WITH_DATA\n"
+    ANALYTICS_DOMAINS+="- Total pageviews (60d): $PAGEVIEWS\n"
+    ANALYTICS_DOMAINS+="- Traffic thresholds:\n"
+    ANALYTICS_DOMAINS+="  - HIGH: >$P75 views/month (top 25%)\n"
+    ANALYTICS_DOMAINS+="  - MEDIUM: $P25-$P75 views/month (middle 50%)\n"
+    ANALYTICS_DOMAINS+="  - LOW: 1-$P25 views/month (bottom 25%)\n"
+    ANALYTICS_DOMAINS+="  - ZERO: 0 views/month\n\n"
+  done
+else
+  # Analytics not configured
+  ANALYTICS_DOMAINS=""
+fi
+```
+
 ### Workflows
 
 ```bash
@@ -329,6 +365,24 @@ PROFILE_CONTENT="${PROFILE_CONTENT//\{\{COMPANY_CONTENT_STATUS\}\}/$COMPANY_CONT
 PROFILE_CONTENT="${PROFILE_CONTENT//\{\{RESEARCH_CONTENT_STATUS\}\}/$RESEARCH_CONTENT_STATUS}"
 PROFILE_CONTENT="${PROFILE_CONTENT//\{\{CMS_PLATFORM\}\}/$CMS_PLATFORM}"
 PROFILE_CONTENT="${PROFILE_CONTENT//\{\{CMS_STATUS\}\}/$CMS_STATUS}"
+
+# Analytics (handle conditional sections)
+if [ "$ANALYTICS_CONFIGURED" = "true" ]; then
+  # Remove the {{^ANALYTICS_CONFIGURED}} section
+  PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed '/{{^ANALYTICS_CONFIGURED}}/,/{{\/ANALYTICS_CONFIGURED}}/d')
+  # Remove conditional tags
+  PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed 's/{{#ANALYTICS_CONFIGURED}}//')
+  PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed 's/{{\/ANALYTICS_CONFIGURED}}//')
+  # Replace analytics placeholders
+  PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed "s|{{#ANALYTICS_DOMAINS}}|$ANALYTICS_DOMAINS|")
+  PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed 's/{{\/ANALYTICS_DOMAINS}}//')
+else
+  # Remove the {{#ANALYTICS_CONFIGURED}} section
+  PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed '/{{#ANALYTICS_CONFIGURED}}/,/{{\/ANALYTICS_CONFIGURED}}/d')
+  # Remove conditional tags for not-configured section
+  PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed 's/{{^ANALYTICS_CONFIGURED}}//')
+  PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed 's/{{\/ANALYTICS_CONFIGURED}}//')
+fi
 
 # Workflows
 PROFILE_CONTENT="${PROFILE_CONTENT//\{\{WORKFLOWS_LIST\}\}/$(printf "$WORKFLOWS_LIST")}"
