@@ -20,7 +20,6 @@ This skill provides **low-level research operations** using Perplexity AI and mo
 - Need to discover what's trending: "What's popular on r/dataengineering today?"
 - Monitoring competitor content: "Track dbt blog posts"
 - Finding discussions: "See what people are saying about Snowflake on Hacker News"
-- Daily monitoring for a project: "Check project signals"
 - Review past research: "Show me recent research"
 
 ❌ **Don't use research-skill when:**
@@ -29,6 +28,8 @@ This skill provides **low-level research operations** using Perplexity AI and mo
 - Creating content from research → That's content-writing-skill's job (it can call this skill)
 
 **Rule of thumb:** If it's AI research or monitoring external sources, use this skill. If it's searching/fetching internal content, use other skills.
+
+**Note:** For orchestrating multiple research operations together, use workflows or project-management skills.
 
 ---
 
@@ -308,67 +309,6 @@ Found 1 entry matching keywords...
 
 ---
 
-### 7. `monitor <project-path> [--save]`
-
-**Purpose:** Run monitoring for a project based on monitoring-config.yaml
-
-**Implementation:**
-```bash
-kurt research monitor <project-path> ${save:+--save}
-```
-
-**Example usage:**
-```
-User: Run monitoring for my competitor tracking project
-
-Claude (invokes research monitor projects/competitor-watch --save):
-
-Monitoring project: Competitor Watch
-
-→ Monitoring Reddit: r/dataengineering, r/datascience
-→ Monitoring Hacker News
-→ Monitoring 3 RSS feeds
-
-✓ Found 42 total signals
-✓ Saved signals to: projects/competitor-watch/research/signals/2025-11-03-signals.json
-
-Top Signals:
-
-#  Source           Title                                    Score  Relevance
-1  HN               "Snowflake announces native Iceberg"     324    0.98
-2  r/dataengineer   "Dagster 1.6 released with..."          142    0.95
-3  blog.getdbt.com  "dbt Cloud IDE v2"                       N/A    0.92
-...
-
-💡 Review signals file for full details and URLs
-```
-
-**Prerequisites:**
-Project must have `monitoring-config.yaml`:
-```yaml
-project_name: "Competitor Watch"
-sources:
-  reddit:
-    enabled: true
-    subreddits: [dataengineering, datascience]
-    keywords: [dbt, fivetran, dagster]
-    min_score: 10
-  hackernews:
-    enabled: true
-    keywords: [data pipeline, orchestration]
-  feeds:
-    enabled: true
-    urls:
-      - https://blog.getdbt.com/rss.xml
-      - https://fivetran.com/blog/rss.xml
-```
-
-**Options:**
-- `--save` - Save signals to project (default: true)
-- `--output summary|json` - Output format
-
----
-
 ## Conversational Presentation
 
 **Always provide:**
@@ -443,7 +383,7 @@ Check feed URL in browser first
 2. **Research is ephemeral** - Saved as markdown files, NOT in DB
 3. **Used by humans and skills** - Can be called directly or by other skills
 4. **Time-aware** - Use recency filters appropriately
-5. **Monitoring-friendly** - Supports project-based monitoring workflows
+5. **Composable** - Individual operations can be combined in workflows and projects
 
 ---
 
