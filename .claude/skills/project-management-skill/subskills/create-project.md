@@ -376,45 +376,441 @@ See: `.claude/skills/project-management-skill/subskills/gather-sources.md`
 
 ## Step 4: Identify Target Content (Skippable)
 
+This is where intelligence utilities help you identify WHAT to work on based on data.
+
 Ask the user what content they'll be working ON:
 
 ```
 What content will you be updating or creating (working ON)?
 
-a) Identify targets now
-b) Skip for now (add later)
+a) Use data-driven analysis to identify targets (recommended)
+b) I know what needs work (manual selection)
+c) Skip for now (add later)
 ```
 
-**If they choose (a) - Identify targets:**
+### Option (a): Data-Driven Analysis (Recommended)
 
-1. Ask: "What content needs work?"
-   - Existing content to update
-   - New content to create
-   - Both
+**Branch based on PROJECT_INTENT** to offer relevant intelligence operations:
 
-2. **For existing content:**
-   - Search in `/sources/` if already ingested
-   - **Check fetch status:**
-   ```bash
-   # Check if content exists and is fetched
-   kurt content list --include "<target-url-pattern>"
+#### For Intent (c): Update/maintain technical docs
 
-   # If NOT_FETCHED, fetch it (downloads + indexes atomically):
-   kurt fetch --include "<url-pattern>"
-   # OR
-   kurt fetch --urls "<url1>,<url2>"
-   ```
-   - Or note URLs/paths to fetch later
+```
+How would you like to identify content that needs updating?
 
-3. **For new content:**
-   - Ask for planned file names
-   - Note in Targets as planned drafts
+a) Comprehensive traffic audit (find all issues: stale, declining, zero-traffic)
+b) Find content about specific topic (keyword-based with traffic prioritization)
+c) Show declining traffic pages (losing visitors)
+d) Manual selection
 
-4. Store list of target content items for project.md
+Choose: _
+```
 
-**If they choose (b) - Skip:**
-- Note in project.md that targets will be added later
-- Continue to Step 5
+**If (a) - Traffic Audit:**
+```bash
+# Run comprehensive domain audit
+intelligence audit-traffic --domain <domain>
+
+# Example output:
+# 🚨 HIGH-TRAFFIC STALE CONTENT (10 pages)
+# 📉 DECLINING TRAFFIC (14 pages)
+# ⚠️ ZERO TRAFFIC (12 pages)
+```
+
+**After running audit:**
+```
+Review the audit results above.
+
+Which categories should we target? (can select multiple)
+a) High-traffic stale content (10 pages) - High impact
+b) Declining traffic (14 pages) - Prevent further drops
+c) Zero traffic (12 pages) - Archive or improve
+d) All of the above
+
+Choose: _
+```
+
+→ User selects from audit results
+→ Store selections as targets with "How Identified: audit-traffic analysis"
+
+**If (b) - Topic-Specific Search:**
+```bash
+# Find content about topic with traffic prioritization
+intelligence identify-affected --search-term "<keyword>" --content-type <type>
+
+# Example output:
+# 🚨 CRITICAL PRIORITY (high traffic + declining): 1 page
+# 🎯 HIGH PRIORITY (high traffic): 2 pages
+# 📊 MEDIUM PRIORITY: 10 pages
+# 📝 LOW PRIORITY: 5 pages
+```
+
+**After running identify-affected:**
+```
+Found 18 pages matching "<keyword>".
+
+Which priority levels should we target?
+a) CRITICAL only (1 page) - Urgent + high impact
+b) CRITICAL + HIGH (3 pages) - Maximum impact
+c) CRITICAL + HIGH + MEDIUM (13 pages) - Comprehensive
+d) Select manually from list
+
+Choose: _
+```
+
+→ User selects from prioritized results
+→ Store selections as targets with "How Identified: identify-affected '<keyword>'"
+
+**If (c) - Declining Traffic:**
+```bash
+# Show pages losing traffic
+intelligence declining --url-prefix <domain>
+
+# Prioritize by: traffic volume × decline percentage
+```
+
+→ User selects declining pages to address
+→ Store selections as targets with "How Identified: declining traffic analysis"
+
+**If (d) - Manual Selection:**
+→ Skip to Option (b): Manual Selection
+
+---
+
+#### For Intent (b): Write new marketing/sales assets
+
+```
+How would you like to identify content opportunities?
+
+a) Gap analysis (find what competitor has that you don't)
+b) Coverage analysis (compare content types and topics)
+c) Impact estimation (estimate traffic potential of topics)
+d) Manual selection
+
+Choose: _
+```
+
+**If (a) - Gap Analysis:**
+```bash
+# Prerequisites check
+if ! kurt content list --url-starts-with <competitor-domain> >/dev/null 2>&1; then
+  echo "⚠️ Competitor content not indexed yet"
+  echo ""
+  echo "To analyze competitor, first run:"
+  echo "  kurt map url <competitor-url>"
+  echo "  kurt fetch --include '<competitor-domain>/*'"
+  echo "  kurt cluster-urls"
+  echo ""
+  echo "This takes 5-10 minutes. Run now? (Y/n): _"
+
+  # If yes: run indexing workflow
+  # If no: skip to manual selection
+fi
+
+# Run gap analysis
+intelligence compare-gaps --own <your-domain> --competitor <competitor-domain>
+
+# Example output:
+# 🎯 HIGH PRIORITY GAPS:
+# 1. Security & Compliance (8 docs)
+# 2. Integration Guides (12 docs)
+# 📊 MEDIUM PRIORITY GAPS:
+# 3. Advanced Features (5 docs)
+```
+
+**After running compare-gaps:**
+```
+Found 25 missing topic areas.
+
+For each HIGH PRIORITY gap, estimate impact:
+
+intelligence impact-estimate --topic "security" --domain <your-domain>
+intelligence impact-estimate --topic "integrations" --domain <your-domain>
+
+# Shows: HIGH/MEDIUM/LOW impact based on related traffic
+```
+
+**Then ask:**
+```
+Which gap topics should we address?
+a) All HIGH impact gaps
+b) Select specific gaps
+c) Skip gap analysis
+
+Choose: _
+```
+
+→ User selects gaps to fill
+→ Store as new content targets with "How Identified: gap analysis vs <competitor>"
+
+**If (b) - Coverage Analysis:**
+```bash
+# Compare content type coverage
+intelligence compare-coverage --own <your-domain> --competitor <competitor-domain>
+
+# Shows: Tutorial gap (-13), Examples gap (-16), etc.
+```
+
+→ User selects content type areas to expand
+→ Store as targets with "How Identified: coverage analysis"
+
+**If (c) - Impact Estimation:**
+```
+What topics are you considering?
+> security, integrations, troubleshooting
+
+Running impact analysis for each topic...
+
+intelligence impact-estimate --topic "security" --domain <your-domain>
+# Result: HIGH impact (8,500 related views/month)
+
+intelligence impact-estimate --topic "integrations" --domain <your-domain>
+# Result: MEDIUM impact (2,300 related views/month)
+
+intelligence impact-estimate --topic "troubleshooting" --domain <your-domain>
+# Result: LOW impact (450 related views/month)
+
+Recommendation: Prioritize HIGH impact topics first.
+```
+
+→ User selects topics to create content for
+→ Store as targets with "How Identified: impact estimate"
+
+**If (d) - Manual Selection:**
+→ Skip to Option (b): Manual Selection
+
+---
+
+#### For Intent (d): Competitive response
+
+```
+Let's analyze competitor content comprehensively.
+
+Running multi-dimensional competitive analysis:
+
+1. intelligence compare-gaps --own <your-domain> --competitor <competitor-domain>
+   # Missing topics
+
+2. intelligence compare-coverage --own <your-domain> --competitor <competitor-domain>
+   # Content type gaps
+
+3. intelligence compare-quality --own <your-domain> --competitor <competitor-domain>
+   # Depth and quality metrics
+
+[Show results from all 3 analyses]
+
+Based on these findings, what should we prioritize?
+a) Fill missing topic gaps (competitive parity)
+b) Expand underrepresented content types
+c) Improve content quality (depth, examples, visuals)
+d) All of the above
+e) Select manually
+
+Choose: _
+```
+
+→ User selects competitive priorities
+→ Store as targets with "How Identified: competitive analysis vs <competitor>"
+
+---
+
+#### For Intent (a): One-off article/post
+
+```
+Let's find trending topics and gather research.
+
+a) Research topic with AI (Perplexity)
+b) Check trending discussions (Reddit, Hacker News)
+c) Manual selection
+
+Choose: _
+```
+
+**If (a) - AI Research:**
+```
+What topic do you want to research?
+> AI coding tools
+
+How recent should the information be?
+a) Last hour (breaking news)
+b) Last day (recent news)
+c) Last week (trends)
+d) Last month (analysis)
+e) Timeless (general)
+
+Choose: _
+
+intelligence search "AI coding tools trends" --recency <choice> --save
+
+# Saves research to sources/research/<date>-<topic>.md
+```
+
+→ Add research file as source
+→ User describes article target
+→ Store as target with "How Identified: research on '<topic>'"
+
+**If (b) - Trending Discussions:**
+```
+Where should we check for trending topics?
+a) Reddit
+b) Hacker News
+c) Both
+
+Choose: _
+
+# If Reddit:
+What subreddit?
+> programming
+
+intelligence reddit -s programming --timeframe day --min-score 20
+
+# If Hacker News:
+intelligence hackernews --timeframe day --min-score 50
+
+[Show trending posts]
+
+Which trending topics interest you?
+> [User selects]
+```
+
+→ Store selected topics as article targets
+→ Note as "How Identified: trending on <source>"
+
+---
+
+### Option (b): Manual Selection
+
+For users who already know what needs work:
+
+```
+What content needs work?
+a) Existing content to update
+b) New content to create
+c) Both
+
+Choose: _
+```
+
+**For existing content:**
+```bash
+# Search in organizational KB
+kurt content list --url-contains "<keyword>"
+
+# Or check specific URLs
+kurt content list --urls "<url1>,<url2>"
+```
+
+**Check fetch status:**
+```bash
+# If NOT_FETCHED, fetch it (downloads + indexes atomically):
+kurt fetch --include "<url-pattern>"
+# OR
+kurt fetch --urls "<url1>,<url2>"
+```
+
+**For new content:**
+```
+What content do you plan to create?
+Examples: "Security best practices guide", "API tutorial", "Product announcement"
+
+> [User lists planned content]
+```
+
+→ Store manually selected targets
+→ Note as "How Identified: Manual selection"
+
+---
+
+### Option (c): Skip for Now
+
+```
+Skipping target identification for now.
+
+Note: You can identify targets later with:
+- intelligence operations (see .claude/UTILITIES.md)
+- Manual addition to project.md
+```
+
+→ Note in project.md that targets will be added later
+→ Continue to Step 4.5
+
+---
+
+### Document Analysis in project.md
+
+After any intelligence-based analysis, add to project.md:
+
+```markdown
+## Targets (Content to Update/Create)
+
+### How These Were Identified
+
+**Analysis used:** `intelligence audit-traffic --domain docs.company.com`
+
+**Results:**
+- Found 10 high-traffic stale pages (>365 days old, >890 views/month)
+- Found 14 pages with declining traffic (>10% drop)
+- Found 12 zero-traffic pages
+
+**Selected targets:**
+- 5 critical priority pages (high traffic + declining)
+- 3 high-traffic stale pages
+
+**Prioritization rationale:**
+- "Python SDK Guide" (2,103 views/month, ↓ -8%, 720 days old)
+  → Losing 168 views/month - highest impact to fix
+- "BigQuery Quickstart" (3,421 views/month, 850 days old)
+  → High traffic but outdated - update for max impact
+
+[Then list actual targets below]
+
+### Existing Content to Update
+- /sources/docs.company.com/python-sdk-guide
+- /sources/docs.company.com/bigquery-quickstart
+...
+
+### New Content to Create
+[If applicable from gap analysis]
+```
+
+This creates an audit trail and justifies target selection.
+
+---
+
+### Analytics Prerequisites
+
+**Important:** Traffic-based operations require analytics configuration.
+
+If analytics NOT configured and user chooses traffic-based analysis:
+
+```
+⚠️ Analytics required for traffic-based analysis
+
+To enable:
+1. kurt analytics onboard <domain>
+2. kurt analytics sync <domain>
+
+This takes 5-10 minutes on first setup.
+
+Would you like to set up analytics now? (Y/n): _
+
+If yes: Defer to analytics setup, resume project creation after
+If no: Fall back to manual selection
+```
+
+---
+
+## Key Principles for Step 4
+
+1. **Data-driven decisions** - Intelligence utilities > guessing
+2. **Intent-based routing** - Different intents need different analyses
+3. **Traffic + urgency** - Prioritize by impact (traffic × trend)
+4. **Document rationale** - Record HOW targets were identified
+5. **Prerequisites check** - Verify analytics/competitor data before operations
+6. **Fallback to manual** - Always offer manual selection if data unavailable
+
+---
+
+**After Step 4 completes, continue to Step 4.5** to verify fetch status
 
 ---
 

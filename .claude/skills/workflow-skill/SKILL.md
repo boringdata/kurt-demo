@@ -6,7 +6,9 @@ description: Create and manage recurring project workflow patterns
 # Workflow Skill
 
 **Purpose:** Define and manage recurring project workflows
-**Registry:** `.kurt/workflows/workflow-registry.yaml`
+**Registry:**
+- Built-in: `.claude/workflows/default-workflows.yaml` (shipped with plugin)
+- User: `.kurt/workflows/custom.yaml` (gitignored, user-created)
 **Pattern:** Self-generating configs (like writing-rules-skill)
 
 ---
@@ -14,6 +16,10 @@ description: Create and manage recurring project workflow patterns
 ## Overview
 
 This skill helps teams codify their recurring project patterns into reusable workflows. Just as writing-rules-skill lets users define custom rule types, workflow-skill lets users define custom project workflows.
+
+**Two types of workflows:**
+- **Built-in workflows** - 4 default workflows shipped with Kurt plugin
+- **User workflows** - Custom workflows created with `workflow add`
 
 **Operations:**
 - **add** - Interactive wizard to create new workflow
@@ -52,6 +58,106 @@ workflow-skill stats weekly-tutorial
 
 # Optimize based on past runs
 workflow-skill optimize weekly-tutorial
+```
+
+---
+
+## Built-in Workflows
+
+Kurt ships with 4 default workflows you can use immediately. These workflows combine intelligence utilities with content creation.
+
+### 1. tutorial-refresh
+
+**Purpose:** Update outdated tutorials with traffic-based prioritization
+
+**Parameters:**
+- `search_term` (required) - Keyword or topic (e.g., "bigquery", "authentication")
+- `content_type` (optional) - Content type filter (default: "tutorial")
+
+**Phases:**
+1. **identify-content** - Find tutorials with traffic prioritization matrix
+2. **prioritize** - Review CRITICAL/HIGH priority items, select 3-5 targets
+3. **update-content** - Update each selected tutorial
+
+**When to use:** Regular tutorial maintenance, updating specific topic areas
+
+**Usage:**
+```bash
+workflow run tutorial-refresh --search-term "authentication"
+```
+
+---
+
+### 2. documentation-audit
+
+**Purpose:** Comprehensive traffic audit to identify content issues
+
+**Parameters:**
+- `domain` (required) - Domain to audit (e.g., "docs.company.com")
+
+**Phases:**
+1. **traffic-audit** - Run comprehensive traffic analysis
+2. **categorize-issues** - Organize findings (stale, declining, zero-traffic)
+3. **create-project** - Create project for highest-priority issues
+
+**When to use:** Quarterly docs health checks, finding systemic issues
+
+**Usage:**
+```bash
+workflow run documentation-audit --domain docs.company.com
+```
+
+---
+
+### 3. gap-analysis
+
+**Purpose:** Find missing content vs competitors
+
+**Parameters:**
+- `own_domain` (required) - Your domain
+- `competitor_domain` (required) - Competitor domain
+
+**Phases:**
+1. **identify-gaps** - Find topics competitor has that you don't
+2. **estimate-impact** - Estimate traffic potential of missing topics
+3. **prioritize-gaps** - Select highest-value gaps (strategic + traffic)
+4. **create-content-plan** - Create project for new content
+
+**When to use:** Competitive analysis, identifying content opportunities
+
+**Usage:**
+```bash
+workflow run gap-analysis --own-domain docs.yourco.com --competitor-domain docs.competitor.com
+```
+
+**Prerequisites:** Competitor content must be indexed first:
+```bash
+kurt map url <competitor-url>
+kurt fetch --include "<competitor-domain>/*"
+kurt cluster-urls
+```
+
+---
+
+### 4. competitive-analysis
+
+**Purpose:** Compare coverage and quality metrics vs competitor
+
+**Parameters:**
+- `own_domain` (required) - Your domain
+- `competitor_domain` (required) - Competitor domain
+
+**Phases:**
+1. **coverage-analysis** - Compare content type and topic coverage
+2. **quality-analysis** - Compare depth and quality metrics
+3. **synthesize-findings** - Identify improvement opportunities
+4. **create-improvement-plan** - Create project to close gaps
+
+**When to use:** Competitive benchmarking, setting quality targets
+
+**Usage:**
+```bash
+workflow run competitive-analysis --own-domain docs.yourco.com --competitor-domain docs.competitor.com
 ```
 
 ---
@@ -161,7 +267,29 @@ Display all defined workflows with status and usage stats.
 Defined Workflows
 ═══════════════════════════════════════════════════════
 
-ACTIVE WORKFLOWS (2)
+BUILT-IN WORKFLOWS (4)
+
+  🔒 tutorial-refresh - Tutorial Refresh
+    Purpose: Update outdated tutorials with traffic-based prioritization
+    Phases: 3
+    Source: .claude/workflows/default-workflows.yaml
+
+  🔒 documentation-audit - Documentation Audit
+    Purpose: Comprehensive traffic audit to identify content issues
+    Phases: 3
+    Source: .claude/workflows/default-workflows.yaml
+
+  🔒 gap-analysis - Gap Analysis
+    Purpose: Find missing content vs competitors
+    Phases: 4
+    Source: .claude/workflows/default-workflows.yaml
+
+  🔒 competitive-analysis - Competitive Analysis
+    Purpose: Compare coverage and quality metrics vs competitor
+    Phases: 4
+    Source: .claude/workflows/default-workflows.yaml
+
+USER WORKFLOWS (2)
 
   ✓ weekly-tutorial - Weekly Technical Tutorial
     Frequency: weekly
@@ -170,6 +298,7 @@ ACTIVE WORKFLOWS (2)
     Executed: 12 times
     Success rate: 92%
     Last used: 2025-02-01
+    Source: .kurt/workflows/custom.yaml
 
   ✓ product-launch - Product Launch Campaign
     Frequency: on-demand
@@ -178,8 +307,9 @@ ACTIVE WORKFLOWS (2)
     Executed: 3 times
     Success rate: 100%
     Last used: 2025-01-28
+    Source: .kurt/workflows/custom.yaml
 
-Total: 2 workflows, 15 executions
+Total: 6 workflows (4 built-in, 2 user)
 ```
 
 See: `.claude/skills/workflow-skill/subskills/list.md`
@@ -504,11 +634,25 @@ esac
 
 ## Data Storage
 
-### Workflow Registry
+### Built-in Workflow Registry
 
-**Location:** `.kurt/workflows/workflow-registry.yaml`
+**Location:** `.claude/workflows/default-workflows.yaml`
+**Git status:** Checked into repository, ships with Kurt plugin
 
-Stores all workflow definitions with:
+Stores 4 default workflows:
+- tutorial-refresh
+- documentation-audit
+- gap-analysis
+- competitive-analysis
+
+**Important:** Users CANNOT modify built-in workflows. These are read-only.
+
+### User Workflow Registry
+
+**Location:** `.kurt/workflows/custom.yaml`
+**Git status:** Gitignored, user-created
+
+Stores user-defined workflow definitions with:
 - Phases and dependencies
 - Tasks and outputs
 - Required rules
@@ -516,6 +660,17 @@ Stores all workflow definitions with:
 - Success criteria
 - Usage statistics
 - Optimization notes
+
+**Created by:** `workflow add` operation
+
+### Registry Loading
+
+The workflow skill loads workflows from BOTH registries:
+1. Load built-in workflows from `.claude/workflows/default-workflows.yaml`
+2. Load user workflows from `.kurt/workflows/custom.yaml` (if exists)
+3. Merge into single in-memory registry
+
+**Conflict resolution:** User workflows with same name as built-in workflows are invalid (validation error).
 
 ### Workflow Executions (Projects)
 
@@ -526,6 +681,8 @@ Tracks workflow execution for each project:
 - Actual vs estimated durations
 - Review approvals
 - Learnings for optimization
+
+**Created for:** User workflows only. Built-in workflows don't track stats (they're templates).
 
 ### Templates
 
@@ -564,6 +721,12 @@ Template used when creating new workflows via `add` operation.
 ---
 
 ## Example Workflows
+
+**Note:** For complete built-in workflow definitions, see:
+- `.claude/workflows/default-workflows.yaml` - Full YAML definitions
+- "Built-in Workflows" section above - Documentation with usage
+
+**User workflow examples below:**
 
 ### Weekly Tutorial
 
