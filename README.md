@@ -17,6 +17,8 @@ The Kurt Plugin helps tech companies create consistent, high-quality content fas
 
 ## Quick Start
 
+**Zero-configuration startup:** When you first open Claude Code in your project, Kurt automatically initializes the database and applies any necessary migrations. Just start working!
+
 ### 1. First Time Setup
 
 Run `/start` in Claude Code to set up your team profile:
@@ -106,23 +108,11 @@ kurt --version
 
 **Note:** The kurt-core CLI handles all document fetching, storage, and indexing. The plugin orchestrates workflows using Claude Code.
 
-### 2. Initialize Kurt Database
-
-Create a Kurt database in your project directory:
-
-```bash
-# Create database
-kurt init
-
-# Apply migrations if needed
-kurt migrate apply
-```
-
-This creates a `.kurt/` directory with the SQLite database.
-
-### 3. Install the Kurt Plugin
+### 2. Install the Kurt Plugin
 
 Install this plugin in Claude Code (instructions will vary based on plugin distribution method).
+
+**Note:** Kurt automatically initializes the database and applies migrations when you open Claude Code. No manual setup required!
 
 ---
 
