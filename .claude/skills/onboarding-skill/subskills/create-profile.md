@@ -179,6 +179,23 @@ else
 fi
 ```
 
+### Competitors
+
+```bash
+COMPETITORS_JSON=$(jq -r '.competitors // []' "$DATA_FILE")
+COMPETITORS_COUNT=$(echo "$COMPETITORS_JSON" | jq 'length')
+
+if [ "$COMPETITORS_COUNT" -gt 0 ]; then
+  COMPETITORS_LIST=""
+  for i in $(seq 0 $(($COMPETITORS_COUNT - 1))); do
+    COMPETITOR=$(echo "$COMPETITORS_JSON" | jq -r ".[$i]")
+    COMPETITORS_LIST+="- $COMPETITOR\n"
+  done
+else
+  COMPETITORS_LIST="None specified yet\n\nAdd competitors during competitive analysis projects or update profile.md directly."
+fi
+```
+
 ### Workflows
 
 ```bash
@@ -383,6 +400,9 @@ else
   PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed 's/{{^ANALYTICS_CONFIGURED}}//')
   PROFILE_CONTENT=$(echo "$PROFILE_CONTENT" | sed 's/{{\/ANALYTICS_CONFIGURED}}//')
 fi
+
+# Competitors
+PROFILE_CONTENT="${PROFILE_CONTENT//\{\{COMPETITORS_LIST\}\}/$(printf "$COMPETITORS_LIST")}"
 
 # Workflows
 PROFILE_CONTENT="${PROFILE_CONTENT//\{\{WORKFLOWS_LIST\}\}/$(printf "$WORKFLOWS_LIST")}"

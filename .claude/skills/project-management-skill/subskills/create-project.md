@@ -225,6 +225,11 @@ See: `.claude/skills/project-management-skill/subskills/gather-sources.md`
 
 This is where intelligence utilities help you identify WHAT to work on based on data.
 
+```bash
+# Initialize competitor section (will be overwritten if competitor identified)
+COMPETITOR_SECTION="Not applicable"
+```
+
 Ask the user what content they'll be working ON:
 
 ```
@@ -336,15 +341,46 @@ d) Manual selection
 Choose: _
 ```
 
+**If (a) or (b) - Identify Competitor:**
+```bash
+# Check for known competitors in profile
+KNOWN_COMPETITORS=$(grep -A 20 "^## Competitors" .kurt/profile.md 2>/dev/null | grep "^- " | sed 's/^- //')
+
+if [ -n "$KNOWN_COMPETITORS" ]; then
+  echo "Known competitors from profile:"
+  echo "$KNOWN_COMPETITORS" | nl
+  echo ""
+  echo "Select competitor number or enter custom domain:"
+  read competitor_choice
+
+  if [[ "$competitor_choice" =~ ^[0-9]+$ ]]; then
+    COMPETITOR=$(echo "$KNOWN_COMPETITORS" | sed -n "${competitor_choice}p")
+  else
+    COMPETITOR="$competitor_choice"
+  fi
+else
+  echo "Enter competitor domain to analyze:"
+  read COMPETITOR
+fi
+
+# Store in project context for later use
+PROJECT_COMPETITOR="$COMPETITOR"
+
+# Format competitor section for project.md
+COMPETITOR_SECTION="**Analyzing:** $PROJECT_COMPETITOR
+**Analysis type:** [Will be determined by selected approach]
+**Last analyzed:** \$(date +%Y-%m-%d)"
+```
+
 **If (a) - Gap Analysis:**
 ```bash
 # Prerequisites check
-if ! kurt content list --url-starts-with <competitor-domain> >/dev/null 2>&1; then
+if ! kurt content list --include "*$COMPETITOR*" --limit 1 >/dev/null 2>&1; then
   echo "⚠️ Competitor content not indexed yet"
   echo ""
   echo "To analyze competitor, first run:"
-  echo "  kurt map url <competitor-url>"
-  echo "  kurt fetch --include '<competitor-domain>/*'"
+  echo "  kurt map url https://$COMPETITOR"
+  echo "  kurt fetch --include '*$COMPETITOR*'"
   echo "  kurt cluster-urls"
   echo ""
   echo "This takes 5-10 minutes. Run now? (Y/n): _"
@@ -353,8 +389,15 @@ if ! kurt content list --url-starts-with <competitor-domain> >/dev/null 2>&1; th
   # If no: skip to manual selection
 fi
 
+# Determine your own domain (from profile or prompt)
+YOUR_DOMAIN=$(grep "^**Primary Website:**" .kurt/profile.md 2>/dev/null | cut -d' ' -f3)
+if [ -z "$YOUR_DOMAIN" ]; then
+  echo "Enter your domain:"
+  read YOUR_DOMAIN
+fi
+
 # Run gap analysis
-intelligence compare-gaps --own <your-domain> --competitor <competitor-domain>
+intelligence compare-gaps --own $YOUR_DOMAIN --competitor $COMPETITOR
 
 # Example output:
 # 🎯 HIGH PRIORITY GAPS:
@@ -370,8 +413,8 @@ Found 25 missing topic areas.
 
 For each HIGH PRIORITY gap, estimate impact:
 
-intelligence impact-estimate --topic "security" --domain <your-domain>
-intelligence impact-estimate --topic "integrations" --domain <your-domain>
+intelligence impact-estimate --topic "security" --domain $YOUR_DOMAIN
+intelligence impact-estimate --topic "integrations" --domain $YOUR_DOMAIN
 
 # Shows: HIGH/MEDIUM/LOW impact based on related traffic
 ```
@@ -387,12 +430,12 @@ Choose: _
 ```
 
 → User selects gaps to fill
-→ Store as new content targets with "How Identified: gap analysis vs <competitor>"
+→ Store as new content targets with "How Identified: gap analysis vs $COMPETITOR"
 
 **If (b) - Coverage Analysis:**
 ```bash
 # Compare content type coverage
-intelligence compare-coverage --own <your-domain> --competitor <competitor-domain>
+intelligence compare-coverage --own $YOUR_DOMAIN --competitor $COMPETITOR
 
 # Shows: Tutorial gap (-13), Examples gap (-16), etc.
 ```
@@ -429,18 +472,56 @@ Recommendation: Prioritize HIGH impact topics first.
 
 #### For Intent (d): Competitive response
 
+**Identify Competitor:**
+```bash
+# Check for known competitors in profile
+KNOWN_COMPETITORS=$(grep -A 20 "^## Competitors" .kurt/profile.md 2>/dev/null | grep "^- " | sed 's/^- //')
+
+if [ -n "$KNOWN_COMPETITORS" ]; then
+  echo "Known competitors from profile:"
+  echo "$KNOWN_COMPETITORS" | nl
+  echo ""
+  echo "Select competitor number or enter custom domain:"
+  read competitor_choice
+
+  if [[ "$competitor_choice" =~ ^[0-9]+$ ]]; then
+    COMPETITOR=$(echo "$KNOWN_COMPETITORS" | sed -n "${competitor_choice}p")
+  else
+    COMPETITOR="$competitor_choice"
+  fi
+else
+  echo "Enter competitor domain to analyze:"
+  read COMPETITOR
+fi
+
+# Store in project context for later use
+PROJECT_COMPETITOR="$COMPETITOR"
+
+# Determine your own domain
+YOUR_DOMAIN=$(grep "^**Primary Website:**" .kurt/profile.md 2>/dev/null | cut -d' ' -f3)
+if [ -z "$YOUR_DOMAIN" ]; then
+  echo "Enter your domain:"
+  read YOUR_DOMAIN
+fi
+
+# Format competitor section for project.md
+COMPETITOR_SECTION="**Analyzing:** $PROJECT_COMPETITOR
+**Analysis type:** Comprehensive competitive analysis
+**Last analyzed:** \$(date +%Y-%m-%d)"
+```
+
 ```
 Let's analyze competitor content comprehensively.
 
 Running multi-dimensional competitive analysis:
 
-1. intelligence compare-gaps --own <your-domain> --competitor <competitor-domain>
+1. intelligence compare-gaps --own $YOUR_DOMAIN --competitor $PROJECT_COMPETITOR
    # Missing topics
 
-2. intelligence compare-coverage --own <your-domain> --competitor <competitor-domain>
+2. intelligence compare-coverage --own $YOUR_DOMAIN --competitor $PROJECT_COMPETITOR
    # Content type gaps
 
-3. intelligence compare-quality --own <your-domain> --competitor <competitor-domain>
+3. intelligence compare-quality --own $YOUR_DOMAIN --competitor $PROJECT_COMPETITOR
    # Depth and quality metrics
 
 [Show results from all 3 analyses]
@@ -790,6 +871,10 @@ $PROJECT_GOAL
 ## Intent Category
 $PROJECT_INTENT (a/b/c/d/e from Step 1)
 
+## Competitor Context
+
+$COMPETITOR_SECTION
+
 ## Sources (Ground Truth)
 
 ### From Organizational Knowledge Base
@@ -837,6 +922,7 @@ $PROJECT_INTENT (a/b/c/d/e from Step 1)
 - `$PROJECT_NAME` - from Step 2
 - `$PROJECT_GOAL` - from Step 2
 - `$PROJECT_INTENT` - from Step 1
+- `$COMPETITOR_SECTION` - competitor details if applicable (from Step 3 - gap/competitive analysis)
 - `$TODAY_DATE` - current date (YYYY-MM-DD format)
 - Sources/Targets/Rules sections - populated from Steps 3-5
 

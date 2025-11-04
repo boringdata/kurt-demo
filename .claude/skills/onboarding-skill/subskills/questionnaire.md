@@ -271,7 +271,55 @@ Other sources (competitor sites, industry publications)?
 
 ---
 
-## Step 6: Recurring Workflows
+## Step 6: Competitors (Optional)
+
+```
+───────────────────────────────────────────────────────
+COMPETITORS (Optional)
+───────────────────────────────────────────────────────
+
+Do you benchmark content against competitors? (y/n/skip):
+>
+```
+
+**If y:**
+```
+Which competitor websites do you track?
+(Enter domains like docs.competitor.com, comma-separated)
+>
+```
+
+**Capture:** `competitors` (array of domains)
+
+**Parse input:**
+```bash
+IFS=',' read -ra COMPETITOR_DOMAINS <<< "$INPUT"
+COMPETITORS=()
+
+for domain in "${COMPETITOR_DOMAINS[@]}"; do
+  # Trim whitespace
+  domain=$(echo "$domain" | xargs)
+  COMPETITORS+=("$domain")
+done
+```
+
+**If n or skip:**
+```
+[Skipped - you can add competitors later in your profile]
+```
+
+**Set:** `competitors = []`
+
+**Store in JSON:**
+```json
+{
+  "competitors": ["docs.competitor.com", "docs.alternative.com"]
+}
+```
+
+---
+
+## Step 7: Recurring Workflows
 
 ```
 ───────────────────────────────────────────────────────
@@ -310,7 +358,7 @@ Great! We can help you codify this workflow after initial setup.
 
 ---
 
-## Step 7: Save Data to JSON
+## Step 8: Save Data to JSON
 
 ```bash
 # Create temp directory if doesn't exist
@@ -332,6 +380,7 @@ cat > .kurt/temp/onboarding-data.json <<EOF
   "cms_platform": "$cms_platform",
   "cms_configured": $cms_configured,
   "research_sources": [$(printf '"%s",' "${RESEARCH_SOURCES[@]}" | sed 's/,$//')]
+  "competitors": [$(printf '"%s",' "${COMPETITORS[@]}" | sed 's/,$//')]
   "workflow_description": "$workflow_description",
   "has_workflow_to_create": $has_workflow_to_create,
   "content_fetched": false,
@@ -343,7 +392,7 @@ EOF
 
 ---
 
-## Step 8: Display Summary
+## Step 9: Display Summary
 
 ```
 ═══════════════════════════════════════════════════════

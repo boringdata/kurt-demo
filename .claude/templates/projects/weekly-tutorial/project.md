@@ -4,7 +4,7 @@
 
 Create a new tutorial covering [TOPIC] for [TARGET AUDIENCE].
 
-This template is for recurring tutorial projects. Customize the topic, audience, and technical depth for each iteration.
+**Recurring template** - Customize topic, audience, and technical depth for each iteration.
 
 ## Intent Category
 
@@ -16,7 +16,7 @@ This template is for recurring tutorial projects. Customize the topic, audience,
 
 ### From Organizational Knowledge Base
 
-*Add references to existing documentation that provides context:*
+*Reference existing content:*
 - Relevant API documentation
 - Related tutorials or guides
 - Product documentation for features being covered
@@ -26,7 +26,6 @@ This template is for recurring tutorial projects. Customize the topic, audience,
 *Add to `projects/[project-name]/sources/` for this tutorial:*
 - Research notes on the topic
 - Customer questions or support tickets
-- Competitor examples (if doing competitive research)
 - Technical specifications or RFCs
 
 ## Targets (Content to Update/Create)
@@ -38,19 +37,14 @@ This template is for recurring tutorial projects. Customize the topic, audience,
   - **Format:** Step-by-step guide with code examples
   - **Estimated length:** 1500-2500 words
   - **Code examples:** 3-5 working examples
-  - **Screenshots:** 4-6 key UI steps (if applicable)
 
 ## Rules Configuration
 
 ### Style
-
-*Tutorial voice and tone:*
-- Primary voice: Technical documentation style
 - Use rules/style/[your-technical-voice].md if extracted
 
 ### Structure
-
-*Tutorial structure template:*
+*Tutorial structure:*
 - Introduction (problem statement)
 - Prerequisites
 - Step-by-step instructions
@@ -58,21 +52,14 @@ This template is for recurring tutorial projects. Customize the topic, audience,
 - Common issues & troubleshooting
 - Next steps / Further reading
 
-Use rules/structure/tutorial.md if you've extracted a tutorial template from existing content.
+Use rules/structure/tutorial.md if extracted.
 
 ### Personas
-
-*Target audience:*
-- Backend developers
-- Platform engineers
-- Or your specific technical persona
-
-Use rules/personas/[your-persona].md if extracted.
+- Backend developers / Platform engineers
+- Use rules/personas/[your-persona].md if extracted
 
 ### Publisher Profile
-
-*Organizational context for brand consistency:*
-Use rules/publisher/publisher-profile.md for company voice, terminology, product names.
+- Use rules/publisher/publisher-profile.md
 
 ## Progress
 
@@ -86,7 +73,7 @@ Use rules/publisher/publisher-profile.md for company voice, terminology, product
 
 ## Next Steps
 
-**Typical workflow for weekly tutorials:**
+**Workflow:**
 
 1. **Topic Selection** (30-60 min)
    - Review topic requests or customer questions
@@ -104,7 +91,7 @@ Use rules/publisher/publisher-profile.md for company voice, terminology, product
    - Add context and explanations
 
 4. **Review** (1-2 days)
-   - Have engineering team review technical accuracy
+   - Engineering team reviews technical accuracy
    - Test all code examples
    - Capture screenshots
 

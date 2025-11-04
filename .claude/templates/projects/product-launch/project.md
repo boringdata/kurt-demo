@@ -4,7 +4,7 @@
 
 Launch [PRODUCT/FEATURE NAME] with comprehensive content across multiple formats: announcement blog post, documentation, tutorial, and marketing assets.
 
-This template is for coordinated product launches that require multiple content deliverables.
+**Multi-format campaign** requiring multiple content deliverables.
 
 ## Intent Category
 
@@ -16,23 +16,21 @@ This template is for coordinated product launches that require multiple content 
 
 ### From Organizational Knowledge Base
 
-*Reference existing organizational content:*
+*Reference existing content:*
 - Product documentation (existing features)
 - API documentation
 - Related tutorials
 - Brand guidelines
-- Previous launch announcements (for format/tone reference)
+- Previous launch announcements (for format/tone)
 
 ### Project-Specific Sources
 
-*Add to `projects/[project-name]/sources/` for this launch:*
+*Add to `projects/[project-name]/sources/`:*
 - Product requirements document (PRD)
 - Engineering specifications
 - Design mockups/prototypes
 - Beta user feedback
-- Competitive analysis
 - Marketing positioning document
-- Key messaging from product marketing
 
 ## Targets (Content to Update/Create)
 
@@ -43,22 +41,18 @@ This template is for coordinated product launches that require multiple content 
 1. **Announcement Blog Post**
    - Format: Feature announcement with value proposition
    - Length: 800-1200 words
-   - Includes: Hero image, feature highlights, CTA
 
 2. **Product Documentation**
-   - Format: Reference documentation
    - Sections: Overview, Getting Started, API Reference, Examples
    - Length: 2000-3000 words
 
 3. **Tutorial**
    - Format: Step-by-step implementation guide
    - Length: 1500-2000 words
-   - Includes: Code examples, screenshots
 
 4. **Quick Start Guide**
    - Format: Concise getting-started
    - Length: 500-800 words
-   - Focus: Fastest path to "Hello World"
 
 ### Existing Content to Update
 
@@ -73,14 +67,9 @@ This template is for coordinated product launches that require multiple content 
 ### Style
 
 *Multiple voices needed:*
-- **Blog post:** Marketing voice (enthusiastic, value-focused)
-- **Documentation:** Technical voice (precise, instructional)
-- **Tutorial:** Educational voice (patient, thorough)
-
-Use:
-- rules/style/marketing-voice.md for blog post
-- rules/style/technical-docs.md for documentation
-- rules/style/tutorial-voice.md for tutorials
+- **Blog post:** rules/style/marketing-voice.md
+- **Documentation:** rules/style/technical-docs.md
+- **Tutorial:** rules/style/tutorial-voice.md
 
 ### Structure
 
@@ -90,25 +79,15 @@ Use:
 - rules/structure/tutorial.md
 - rules/structure/quick-start.md
 
-If not extracted, use standard patterns for each content type.
-
 ### Personas
 
 *Multiple audiences:*
-- Decision-makers (for blog post - focus on business value)
-- Developers (for docs/tutorial - focus on implementation)
-- Product users (for quick start - focus on immediate value)
-
-Use rules/personas/ for your specific audience profiles.
+- Decision-makers (blog post - business value)
+- Developers (docs/tutorial - implementation)
+- Product users (quick start - immediate value)
 
 ### Publisher Profile
-
-*Organizational context:*
-Use rules/publisher/publisher-profile.md for:
-- Product name capitalization
-- Company terminology
-- Brand voice
-- Approved messaging
+- Use rules/publisher/publisher-profile.md
 
 ## Progress
 
@@ -122,13 +101,12 @@ Use rules/publisher/publisher-profile.md for:
 - [ ] Screenshots captured
 - [ ] Marketing review completed
 - [ ] Technical review completed
-- [ ] Legal review completed (if needed)
 - [ ] All content published
-- [ ] Launch promoted (social, email, etc.)
+- [ ] Launch promoted
 
 ## Next Steps
 
-**Typical workflow for product launches:**
+**Workflow:**
 
 1. **Research & Planning** (1-2 days)
    - Review PRD and specs
@@ -140,7 +118,6 @@ Use rules/publisher/publisher-profile.md for:
    - Create outlines for all deliverables
    - Map feature benefits to content pieces
    - Plan code examples and demos
-   - Identify screenshots needed
 
 3. **Content Creation** (1-2 weeks, can parallelize)
    - Draft blog post
@@ -148,24 +125,19 @@ Use rules/publisher/publisher-profile.md for:
    - Create tutorial
    - Write quick start guide
    - Test all code examples
-   - Capture screenshots
 
 4. **Review & Approval** (3-5 days)
    - Marketing review (messaging, positioning)
    - Technical review (accuracy, code examples)
-   - Legal review (if making claims)
    - Product review (feature completeness)
 
 5. **Publication** (1 day)
    - Publish in coordinated sequence
    - Update related existing content
-   - Set up redirects if needed
-   - Configure analytics tracking
 
 6. **Promotion**
    - Share on social media
    - Send to email list
-   - Internal announcement
    - Track engagement metrics
 
 ---

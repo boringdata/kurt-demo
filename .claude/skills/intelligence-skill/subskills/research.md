@@ -4,6 +4,8 @@
 **Parent Skill:** intelligence
 **Operations:** search, list, get, reddit, hackernews, feeds
 
+**Note:** This subskill provides **presentation guidelines** for research operations. The "Implementation" sections show which kurt CLI commands to call and how to format the output.
+
 ---
 
 ## Overview

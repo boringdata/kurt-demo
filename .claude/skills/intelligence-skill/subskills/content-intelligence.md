@@ -1,6 +1,6 @@
 # Content Intelligence Subskill
 
-**Purpose:** Complex content analysis combining content metadata + analytics
+**Purpose:** Content analysis combining metadata + analytics for project planning
 **Parent Skill:** intelligence
 **Operations:** identify-affected, audit-traffic, impact-estimate, compare-gaps, compare-coverage, compare-quality
 
@@ -8,14 +8,23 @@
 
 ## Overview
 
-Provides sophisticated content analysis for project planning. These operations combine content metadata, traffic data, and competitive intelligence to help identify what content needs work.
+Provides content analysis for project planning by combining content metadata with traffic data. These operations help identify which content needs work and estimate opportunities.
 
-**Primary use:** Project planning Step 4 (identify targets)
+**Primary use:** Project planning (Step 4 - identify targets)
 
 **When to use:**
-- Finding content that needs updating (identify-affected, audit-traffic)
+- Finding content to update (identify-affected, audit-traffic)
 - Estimating value of new content (impact-estimate)
 - Competitive analysis (compare-gaps, compare-coverage, compare-quality)
+
+**Competitor domain handling:**
+- When used during project creation (Step 4), competitor domain is passed as parameter
+- When used within an existing project, read competitor from project.md "Competitor Context" section:
+  ```bash
+  # Extract competitor domain from current project
+  COMPETITOR=$(grep "^**Analyzing:**" project.md | cut -d' ' -f2)
+  ```
+- For gap/competitive analysis projects, the specific competitor being analyzed is stored in project.md and should be used for all operations
 
 ---
 
@@ -25,24 +34,22 @@ Provides sophisticated content analysis for project planning. These operations c
 
 **Purpose:** Find content by keyword with traffic-based prioritization
 
-**Use case:** "Update all BigQuery tutorials" or "Find stale content about X"
+**What it does:**
+- Searches for content matching the term
+- Gets traffic data for matching pages
+- Categorizes by traffic level (HIGH/MEDIUM/LOW/ZERO)
+- Prioritizes by urgency (traffic × trend)
 
 **Implementation:**
 ```bash
-# 1. Find matching content
-kurt content list \
-  --url-contains "<search-term>" \
-  ${content_type:+--content-type $content_type} \
-  --with-analytics \
-  --order-by pageviews_30d desc
+# Get content matching term with analytics
+kurt content list --include "*<term>*" --with-analytics --order-by pageviews_30d
 
-# 2. Get traffic thresholds
-stats=$(kurt content stats --show-analytics --format json)
-p25=$(echo "$stats" | jq '.p25_pageviews_30d')
-p75=$(echo "$stats" | jq '.p75_pageviews_30d')
+# With content type filter
+kurt content list --include "*<term>*" --with-content-type <type> --with-analytics --order-by pageviews_30d
 
-# 3. Categorize by traffic + urgency (traffic x trend)
-# 4. Present prioritized results
+# Get traffic thresholds for categorization
+kurt content stats --with-analytics --format json
 ```
 
 **Example:**
@@ -51,47 +58,19 @@ intelligence identify-affected --search-term "bigquery" --content-type tutorial
 
 Found 23 tutorials matching "bigquery":
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚨 CRITICAL (high traffic + declining):
+1. "Python SDK Guide" - 2,103 views/month, ↓ -8%, 720 days old
 
-🚨 CRITICAL PRIORITY (high traffic + declining):
-1. "Python SDK Guide" (2,103 views/month, ↓ -8%, 720 days old)
-   → Losing 168 views/month - needs urgent refresh
+🎯 HIGH (high traffic):
+2. "BigQuery Quickstart" - 3,421 views/month, ↑ +15%, 850 days old
+3. "SQL Best Practices" - 1,850 views/month, → stable
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 MEDIUM (medium traffic): 10 tutorials
+📝 LOW (low traffic): 5 tutorials
+⚠️ ZERO TRAFFIC: 2 tutorials
 
-🎯 HIGH PRIORITY (high traffic, >890 views/month):
-2. "BigQuery Quickstart" (3,421 views/month, ↑ +15%, 850 days old)
-   → Increasing traffic - update to capitalize on momentum
-3. "SQL Best Practices" (1,850 views/month, → stable, 450 days old)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 MEDIUM PRIORITY (medium traffic, 45-890 views/month):
-[10 tutorials] - 2 declining, 8 stable/increasing
-
-📝 LOW PRIORITY (low traffic, ≤45 views/month):
-[5 tutorials]
-
-⚠️ ZERO TRAFFIC (consider archiving):
-- "Advanced BigQuery ML" (0 views, 950 days old)
-- "Legacy SQL Guide" (0 views, 1200 days old)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Recommendation:
-1. Start with CRITICAL (Python SDK) - urgent + high impact
-2. Then HIGH priority (2 tutorials) - maintain momentum
-3. Then MEDIUM declining - prevent further drops
+Recommendation: Start with CRITICAL, then HIGH priority items
 ```
-
-**Prioritization Matrix:**
-
-| Traffic | Declining | Stable | Increasing |
-|---------|-----------|--------|------------|
-| **HIGH** (>p75) | 🚨 CRITICAL | 🎯 HIGH | 🎯 HIGH |
-| **MEDIUM** (p25-p75) | 📊 MEDIUM | 📝 LOW | 📝 LOW |
-| **LOW** (>0, ≤p25) | 📝 LOW | 📝 LOW | 📝 LOW |
-| **ZERO** (0) | ⚠️ ARCHIVE? | ⚠️ ARCHIVE? | ⚠️ ARCHIVE? |
 
 ---
 
@@ -99,33 +78,25 @@ Recommendation:
 
 **Purpose:** Comprehensive traffic audit identifying issues
 
-**Use case:** "Audit docs.company.com to find what needs attention"
+**What it does:**
+- Analyzes all content for domain
+- Identifies high-traffic stale pages (>365 days old)
+- Finds declining traffic pages
+- Locates zero-traffic orphaned content
 
 **Implementation:**
 ```bash
-# 1. Get analytics summary
-intelligence summary <domain>
+# Get traffic overview
+kurt content stats --include "*<domain>*" --with-analytics
 
-# 2. Find high-traffic stale pages (>p75 traffic + >365 days old)
-kurt content list \
-  --url-starts-with <domain> \
-  --with-analytics \
-  --order-by pageviews_30d desc
+# Find declining high-traffic pages
+kurt content list --include "*<domain>*" --with-analytics --trend decreasing --min-pageviews 1000
 
-# 3. Find declining traffic pages
-kurt content list \
-  --url-starts-with <domain> \
-  --with-analytics \
-  --pageviews-trend decreasing \
-  --order-by trend_percentage
+# Find zero-traffic pages
+kurt content list --include "*<domain>*" --with-analytics --max-pageviews 0
 
-# 4. Find zero-traffic pages
-kurt content list \
-  --url-starts-with <domain> \
-  --with-analytics
-  # Filter pageviews_30d == 0
-
-# 5. Present audit report
+# Get top pages to check staleness
+kurt content list --include "*<domain>*" --with-analytics --order-by pageviews_30d --limit 20
 ```
 
 **Example:**
@@ -133,59 +104,22 @@ kurt content list \
 intelligence audit-traffic --domain docs.company.com
 
 Traffic Audit: docs.company.com
-
-Overview:
 - 234 total pages
 - 222 with traffic (95%)
 - 12 ZERO traffic (5%)
-- Average: 456.7 views/month
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🚨 HIGH-TRAFFIC STALE CONTENT (needs refresh):
-Pages with >890 views/month that are >365 days old:
-
+🚨 HIGH-TRAFFIC STALE (10 pages need refresh):
 1. "BigQuery Quickstart" (3,421 views, 850 days old)
-   → High traffic but outdated - update for max impact
 
-2. "Python SDK Guide" (2,103 views, 720 days old, ↓ -8%)
-   → High traffic AND losing visitors - URGENT
-
-[8 more pages]
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📉 DECLINING TRAFFIC (needs investigation):
-Pages losing >10% traffic:
-
+📉 DECLINING TRAFFIC (14 pages need investigation):
 1. "Python SDK Guide" (↓ -8%, -168 views/month)
-2. "Data Loading Guide" (↓ -12%, -168 views/month)
 
-Possible causes:
-- Content outdated
-- Better alternatives published elsewhere
-- Search ranking dropped
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-⚠️ ZERO TRAFFIC (orphaned or deprecated):
-12 pages with 0 views in last 30 days
-
-- "Advanced BigQuery ML" (950 days old)
-- "Legacy SQL Guide" (1200 days old)
-[10 more]
-
-Actions:
-1. Check if linked from anywhere
-2. Review if still relevant
-3. Archive or improve discoverability
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ ZERO TRAFFIC (12 pages orphaned or deprecated)
 
 Recommendations:
-1. Update 10 high-traffic stale pages - max impact
-2. Investigate 14 declining pages - prevent further drops
-3. Audit 12 zero-traffic pages - clean up or improve
+1. Update 10 high-traffic stale pages (max impact)
+2. Investigate 14 declining pages (prevent further drops)
+3. Audit 12 zero-traffic pages (clean up or improve)
 ```
 
 ---
@@ -194,24 +128,18 @@ Recommendations:
 
 **Purpose:** Estimate traffic potential of creating new content
 
-**Use case:** "Should we create security documentation? What's the impact?"
+**What it does:**
+- Finds existing content related to topic
+- Calculates total and average traffic
+- Estimates potential for new content on topic
 
 **Implementation:**
 ```bash
-# 1. Find related existing content
-kurt content list \
-  --url-contains "<related-keyword>" \
-  --url-starts-with <domain> \
-  --with-analytics
+# Find related content with traffic
+kurt content list --include "*<topic>*" --include "*<domain>*" --with-analytics --order-by pageviews_30d
 
-# 2. Calculate related content traffic
-total_views = sum(page.pageviews_30d)
-avg_views = total_views / count
-
-# 3. Estimate impact:
-#    HIGH: >5000 views/month total
-#    MEDIUM: 1000-5000 views/month
-#    LOW: <1000 views/month
+# Get stats for this subset
+kurt content stats --include "*<topic>*" --include "*<domain>*" --with-analytics --format json
 ```
 
 **Example:**
@@ -220,37 +148,18 @@ intelligence impact-estimate --topic "security" --domain docs.company.com
 
 Impact Estimate: Missing "Security" documentation
 
-Related Content Analysis:
-- Found 8 pages related to security/authentication
-- Total traffic: 8,500 views/month
-- Average per page: 1,062 views/month
-
-Top related pages:
-1. "Authentication Overview" (2,340 views/month)
-2. "API Keys Guide" (1,890 views/month)
-3. "OAuth Setup" (1,450 views/month)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Related Content: 8 pages related to security/authentication
+Total traffic: 8,500 views/month
+Average: 1,062 views/month per page
 
 Impact Assessment: 🎯 HIGH IMPACT
-
-Reasoning:
 - Related content gets 8,500+ views/month
-- Security is critical topic (users actively searching)
+- Security is critical topic
 - Competitors have 5-8 security docs each
 
-Estimated traffic for new security docs:
-- Conservative: 500-1000 views/month per page
-- Optimistic: 1000-2000 views/month per page
+Estimated traffic for new security docs: 500-2000 views/month per page
 
-Missing content types:
-- Security best practices guide
-- Encryption tutorial
-- Audit logging reference
-- Compliance documentation
-
-Recommendation:
-Create security documentation suite - high user demand + high impact.
+Recommendation: Create security documentation suite
 ```
 
 ---
@@ -259,16 +168,21 @@ Create security documentation suite - high user demand + high impact.
 
 **Purpose:** Find missing content vs competitor
 
-**Use case:** "What content does competitor.com have that we don't?"
+**What it does:**
+- Compares your content to competitor's
+- Identifies topics they cover that you don't
+- Prioritizes gaps by strategic value
 
 **Implementation:**
 ```bash
-# 1. Get both content sets
-own=$(kurt content list --url-starts-with <own-domain>)
-competitor=$(kurt content list --url-starts-with <competitor-domain>)
+# List your content by cluster
+kurt content list-clusters
+kurt content list --include "*<own-domain>*"
 
-# 2. Identify competitor topics/clusters not in your content
-# 3. Prioritize by relevance + estimated traffic potential
+# List competitor content by cluster
+kurt content list --include "*<competitor-domain>*"
+
+# Compare topics covered (manual analysis of clusters)
 ```
 
 **Example:**
@@ -277,30 +191,17 @@ intelligence compare-gaps --own docs.yourco.com --competitor docs.competitor.com
 
 Content Gap Analysis: yourco vs competitor
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 MISSING TOPICS (they have, you don't):
 
 🎯 HIGH PRIORITY:
 1. Security & Compliance (8 docs)
-   - Security best practices
-   - Encryption guides
-   - Audit logging
-   - Compliance certifications
-
 2. Integration Guides (12 docs)
-   - Salesforce integration
-   - AWS integration
-   - Azure integration
 
 📊 MEDIUM PRIORITY:
 3. Advanced Features (5 docs)
 4. Troubleshooting (7 docs)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Recommendation:
-Focus on Security & Compliance first - likely high traffic + critical for buyers.
+Recommendation: Focus on Security & Compliance first
 ```
 
 ---
@@ -309,53 +210,46 @@ Focus on Security & Compliance first - likely high traffic + critical for buyers
 
 **Purpose:** Compare content type and topic coverage
 
-**Use case:** "How does our documentation compare to theirs?"
+**What it does:**
+- Counts content by type for both domains
+- Compares topic cluster coverage
+- Shows coverage gaps
 
 **Implementation:**
 ```bash
-# 1. Get content by type for both domains
-own_by_type=$(kurt content list --url-starts-with <own> --format json | group by type)
-competitor_by_type=$(kurt content list --url-starts-with <competitor> --format json | group by type)
+# Get counts by content type for your domain
+kurt content list --include "*<own-domain>*" --with-content-type tutorial
+kurt content list --include "*<own-domain>*" --with-content-type guide
+# ... repeat for other types
 
-# 2. Compare counts and topics
-# 3. Show coverage matrix
+# Same for competitor
+kurt content list --include "*<competitor-domain>*" --with-content-type tutorial
+kurt content list --include "*<competitor-domain>*" --with-content-type guide
+
+# Compare cluster coverage
+kurt content list-clusters
 ```
 
 **Example:**
 ```
 intelligence compare-coverage --own docs.yourco.com --competitor docs.competitor.com
 
-Content Coverage Comparison: yourco vs competitor
+Content Coverage Comparison:
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-CONTENT TYPE COMPARISON:
-
+CONTENT TYPE:
 Type            | Yours | Theirs | Gap
-----------------|-------|--------|--------
 Tutorials       |   15  |   28   | -13 ⚠️
-API Reference   |   42  |   38   | +4 ✅
 Guides          |   18  |   32   | -14 ⚠️
 Examples        |    8  |   24   | -16 ⚠️
-Troubleshooting |    5  |   18   | -13 ⚠️
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TOPIC COVERAGE:
-
-Topic Cluster  | Yours | Theirs | Coverage
----------------|-------|--------|----------
-Getting Started|   12  |   10   | 120% ✅
-Authentication |    8  |   15   | 53% ⚠️
-Data Management|   10  |   18   | 56% ⚠️
+Topic          | Yours | Theirs | Coverage
 Integrations   |    6  |   24   | 25% 🚨
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Authentication |    8  |   15   | 53% ⚠️
 
 Recommendations:
-1. Add 13+ tutorials - biggest gap
-2. Expand integrations coverage (6 vs 24)
-3. Strengthen troubleshooting (5 vs 18)
+1. Add 13+ tutorials (biggest gap)
+2. Expand integrations coverage
 ```
 
 ---
@@ -364,69 +258,42 @@ Recommendations:
 
 **Purpose:** Compare content depth and quality metrics
 
-**Use case:** "Are our docs as comprehensive as theirs?"
+**What it does:**
+- Compares average word count by content type
+- Compares code examples per doc
+- Compares update frequency
 
 **Implementation:**
 ```bash
-# 1. Get content with metadata
-own=$(kurt content list --url-starts-with <own> --format json)
-competitor=$(kurt content list --url-starts-with <competitor> --format json)
+# Get content details with metadata
+kurt content list --include "*<own-domain>*" --format json
+kurt content list --include "*<competitor-domain>*" --format json
 
-# 2. Calculate metrics:
-#    - Average word count
-#    - Code examples per doc
-#    - Images/diagrams per doc
-#    - Update frequency
-
-# 3. Compare by content type
+# Analyze metadata fields:
+# - word_count (from metadata)
+# - has_code_examples (from structural elements)
+# - last_updated (from published_date/updated_at)
 ```
 
 **Example:**
 ```
 intelligence compare-quality --own docs.yourco.com --competitor docs.competitor.com
 
-Content Quality Comparison: yourco vs competitor
+Content Quality Comparison:
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-DEPTH METRICS (by content type):
-
+DEPTH METRICS:
 Tutorials:
   Avg word count:     1,200 vs 2,400  ⚠️ (50% of theirs)
   Code examples/doc:    1.2 vs 3.8    ⚠️
-  Images/doc:           0.8 vs 2.1    ⚠️
-
-API Reference:
-  Avg word count:       800 vs 650    ✅
-  Code examples/doc:    2.5 vs 2.1    ✅
-  Images/doc:           0.3 vs 0.4    →
-
-Guides:
-  Avg word count:     1,800 vs 2,200  → (82% of theirs)
-  Code examples/doc:    2.1 vs 3.2    ⚠️
-  Images/doc:           1.5 vs 2.8    ⚠️
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 UPDATE FREQUENCY:
-
-Your content:
-  Last 30 days:   3 updates
-  Last 90 days:  12 updates
-  Average age:   420 days
-
-Their content:
-  Last 30 days:  15 updates  ⚠️ (5x more active)
-  Last 90 days:  48 updates
-  Average age:   180 days
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Your content: 3 updates/month, avg age 420 days
+Their content: 15 updates/month, avg age 180 days ⚠️
 
 Recommendations:
-1. Expand tutorials - 50% shorter than theirs
-2. Add more code examples across all types
-3. Increase visual content (diagrams, screenshots)
-4. Update content more frequently (quarterly → monthly)
+1. Expand tutorials (50% shorter than theirs)
+2. Add more code examples
+3. Update more frequently
 ```
 
 ---
@@ -440,11 +307,6 @@ Recommendations:
 To enable:
 1. kurt analytics onboard <domain>
 2. kurt analytics sync <domain>
-
-Operations requiring analytics:
-- identify-affected (needs traffic data)
-- audit-traffic (needs traffic data)
-- impact-estimate (estimates based on related traffic)
 ```
 
 ### No results found
@@ -453,27 +315,24 @@ No content found matching criteria
 
 Try:
 - Broader search term
-- Different content type
-- Check if content is fetched: kurt content list
+- Check content is fetched: kurt content list
 ```
 
-### Competitor content not fetched
+### Competitor content not indexed
 ```
 ⚠️ Competitor content not indexed yet
 
 To analyze competitor:
 1. kurt map url <competitor-url>
 2. kurt fetch --include "<competitor-domain>/*"
-3. kurt cluster-urls (to organize into topics)
-4. Re-run comparison
+3. Re-run comparison
 ```
 
 ---
 
 ## Key Principles
 
-1. **Traffic-based prioritization** - Always factor in traffic + urgency
-2. **Actionable recommendations** - Suggest specific next steps
+1. **Traffic-based prioritization** - Factor in traffic + urgency for maximum impact
+2. **Actionable recommendations** - Always suggest specific next steps
 3. **Context for planning** - Used during project planning (Step 4)
-4. **Combines data sources** - Content metadata + analytics + competitive intel
-5. **Visual hierarchy** - Clear categories (CRITICAL/HIGH/MEDIUM/LOW/ZERO)
+4. **Visual hierarchy** - Clear categories (CRITICAL/HIGH/MEDIUM/LOW/ZERO)
