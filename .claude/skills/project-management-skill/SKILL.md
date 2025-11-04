@@ -27,6 +27,12 @@ This skill orchestrates Kurt project workflows by managing sources (ground truth
 - Workflow: load context → check onboarding → check content → recommend → validate rules
 - See: `subskills/resume-project.md`
 
+**clone-project** - Clone a template project and customize it
+- Entry point: `/clone-project` slash command or `project-management clone-project [template-name]`
+- Workflow: select template → preview → customize → create
+- Templates: weekly-tutorial, product-launch, tutorial-refresh, documentation-audit, gap-analysis, competitive-analysis
+- See: `subskills/clone-project.md`
+
 **check-onboarding** - Verify organizational onboarding complete
 - Entry point: Called by create-project and resume-project subskills
 - Checks: profile exists, loads organizational context from .kurt/profile.md

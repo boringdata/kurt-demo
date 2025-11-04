@@ -10,15 +10,14 @@
 
 This subskill guides users through creating a new Kurt project:
 
-1. **Check for team profile** - Load context from `/start` if available
-2. **Load workflow (optional)** - Use workflow template if `--workflow` flag provided
-3. Understand project intent (what are you trying to accomplish?)
-4. Get project name and goal
-5. Check organizational onboarding (content map + core rules)
-6. Collect project-specific sources (optional)
-7. Identify target content (optional)
-8. Extract project-specific rules (optional)
-9. Create project structure and project.md
+1. **Check for team profile** - Load context from onboarding if available
+2. Understand project intent (what are you trying to accomplish?)
+3. Get project name and goal
+4. Check organizational onboarding (content map + core rules)
+5. Collect project-specific sources (optional)
+6. Identify target content (optional)
+7. Extract project-specific rules (optional)
+8. Create project structure and project.md
 
 **Key principles:**
 - Uses profile context when available (simpler flow)
@@ -26,11 +25,11 @@ This subskill guides users through creating a new Kurt project:
 - All steps except name/goal are optional
 - User can skip and return later
 - Organizational onboarding before project-specific work
-- Can use workflow templates for recurring patterns
+- Can use project templates for recurring patterns (/clone-project)
 
 ---
 
-## Step 0: Check for Team Profile and Workflow
+## Step 0: Check for Team Profile
 
 ### Check for Profile (Required)
 
@@ -67,47 +66,6 @@ INDUSTRY=$(grep "Industry:" .kurt/profile.md | sed 's/.*Industry: //')
 - Foundation rules for project rule recommendations
 - Analytics status for traffic-based prioritization
 
-### Check for Workflow Flag
-
-```bash
-# Parse arguments for --workflow flag
-WORKFLOW_NAME=$(parse_arg "--workflow")
-```
-
-**If `--workflow` provided:**
-
-```bash
-# Load workflow definition
-if [ -f ".kurt/workflows/workflow-registry.yaml" ]; then
-  WORKFLOW_DEF=$(yq ".workflows.${WORKFLOW_NAME}" .kurt/workflows/workflow-registry.yaml)
-
-  if [ -n "$WORKFLOW_DEF" ]; then
-    WORKFLOW_MODE=true
-    echo "Using workflow: $(yq '.name' <<< "$WORKFLOW_DEF")"
-  else
-    echo "⚠️  Workflow '${WORKFLOW_NAME}' not found"
-    echo "Available workflows:"
-    yq '.workflows | keys' .kurt/workflows/workflow-registry.yaml
-    exit 1
-  fi
-fi
-```
-
-**If workflow loaded:**
-```
-Using workflow: {{WORKFLOW_NAME}}
-Description: {{WORKFLOW_DESCRIPTION}}
-Phases: {{PHASE_COUNT}}
-Estimated duration: {{AVG_DURATION}}
-
-This project will follow the predefined workflow structure.
-```
-
-Store:
-- `WORKFLOW_MODE = true`
-- `WORKFLOW_DEF` (full workflow definition)
-- `WORKFLOW_PHASES` (list of phases)
-
 ### Check Analytics Context (if profile exists)
 
 ```bash
@@ -123,64 +81,11 @@ if [ "$PROFILE_EXISTS" = "true" ]; then
     ANALYTICS_DOMAINS=$(grep -A 20 "## Analytics Configuration" .kurt/profile.md | grep "^\*\*" | sed 's/\*\*\(.*\)\*\* (.*/\1/' | tr '\n' ', ' | sed 's/,$//')
 
     echo "  Domains: $ANALYTICS_DOMAINS"
-
-    # If workflow requires analytics, check data freshness
-    if [ "$WORKFLOW_MODE" = "true" ]; then
-      WORKFLOW_ANALYTICS_REQUIRED=$(echo "$WORKFLOW_DEF" | yq '.analytics.required // false')
-
-      if [ "$WORKFLOW_ANALYTICS_REQUIRED" = "true" ]; then
-        echo ""
-        echo "This workflow requires analytics data for prioritization."
-        echo "Checking data freshness..."
-
-        # Check if analytics data is stale (>7 days)
-        # Parse last synced dates from profile
-        # If stale, offer to sync now
-
-        echo ""
-        echo "Analytics data may be stale. Sync now? (Y/n):"
-        read -p "> " SYNC_CHOICE
-
-        if [ "$SYNC_CHOICE" != "n" ] && [ "$SYNC_CHOICE" != "N" ]; then
-          echo ""
-          echo "Syncing analytics data..."
-          kurt analytics sync --all --if-stale
-
-          if [ $? -eq 0 ]; then
-            echo "✓ Analytics data updated"
-          else
-            echo "⚠️  Some analytics syncs failed"
-            echo "Continuing with existing data..."
-          fi
-        fi
-      fi
-    fi
   else
     # Analytics not configured
-    if [ "$WORKFLOW_MODE" = "true" ]; then
-      WORKFLOW_ANALYTICS_REQUIRED=$(echo "$WORKFLOW_DEF" | yq '.analytics.required // false')
-
-      if [ "$WORKFLOW_ANALYTICS_REQUIRED" = "true" ]; then
-        echo ""
-        echo "⚠️  This workflow requires analytics, but it's not configured."
-        echo ""
-        echo "Would you like to set up analytics now? (Y/n):"
-        read -p "> " SETUP_CHOICE
-
-        if [ "$SETUP_CHOICE" != "n" ] && [ "$SETUP_CHOICE" != "N" ]; then
-          echo ""
-          echo "Let's set up analytics..."
-          echo "Run: /start --update"
-          echo "Then return to create your project."
-          exit 0
-        else
-          echo ""
-          echo "⚠️  Continuing without analytics."
-          echo "Note: Workflow prioritization features won't be available."
-          echo ""
-        fi
-      fi
-    fi
+    echo ""
+    echo "○ Analytics not configured"
+    echo "  (Optional - can be set up later with /update-profile)"
   fi
 fi
 ```
@@ -863,41 +768,7 @@ See: `.claude/skills/project-management-skill/subskills/extract-rules.md`
 
 Once you have the name, goal, and optionally sources/targets/rules:
 
-### If Workflow Mode (WORKFLOW_MODE = true)
-
-Create workflow-based project structure:
-
-```bash
-# Base directories
-mkdir -p projects/$PROJECT_NAME/sources
-mkdir -p projects/$PROJECT_NAME/drafts
-
-# Phase-based directories (from workflow definition)
-for phase in $WORKFLOW_PHASES; do
-  phase_id=$(yq ".phases[] | select(.id == \"$phase\") | .id" <<< "$WORKFLOW_DEF")
-  mkdir -p projects/$PROJECT_NAME/$phase_id
-done
-
-# Example for "weekly-tutorial" workflow:
-# projects/jan-15-kafka-tutorial/
-# ├── topic-selection/
-# ├── outlining/
-# ├── drafting/
-# ├── review/
-# └── publish/
-```
-
-**Generate workflow artifacts:**
-
-1. **task-breakdown.md** - From workflow phases and tasks
-2. **timeline.md** - From phase durations and dependencies
-3. **workflow-tracking.md** - Track phase progress
-
-Store in `projects/$PROJECT_NAME/`
-
-### If No Workflow (Standard Mode)
-
-Create standard project structure:
+### Create Project Structure
 
 ```bash
 mkdir -p projects/$PROJECT_NAME/sources
@@ -908,29 +779,7 @@ mkdir -p projects/$PROJECT_NAME/drafts
 
 ### Create project.md
 
-Create `projects/$PROJECT_NAME/project.md` with appropriate template:
-
-**If workflow mode:**
-```markdown
-# $PROJECT_NAME
-
-## Goal
-$PROJECT_GOAL
-
-## Workflow
-**Using:** $WORKFLOW_NAME (v$WORKFLOW_VERSION)
-**Phases:** $PHASE_COUNT
-**Estimated duration:** $AVG_DURATION
-
-See `workflow-tracking.md` for phase progress.
-
-## Intent Category
-$PROJECT_INTENT
-
-[... rest of standard template ...]
-```
-
-**If standard mode (no workflow), use this template:
+Create `projects/$PROJECT_NAME/project.md` with this template:
 
 ```markdown
 # $PROJECT_NAME
@@ -1018,7 +867,7 @@ This will:
    - Rules coverage (1-5)
    - Overall project setup (1-5)
 3. Collect open-ended feedback
-4. Record feedback in database for workflow improvements
+4. Record feedback in database for future improvements
 
 **If no:**
 - Skip plan review
@@ -1026,9 +875,8 @@ This will:
 
 **Notes:**
 - Plan review is optional but recommended for complex projects
-- Feedback helps improve project setup workflow over time
+- Feedback helps improve project setup process over time
 - User can always review later: `feedback-skill review-plan --project-path projects/$PROJECT_NAME`
-- Plan review data feeds into workflow retrospectives
 
 ---
 
