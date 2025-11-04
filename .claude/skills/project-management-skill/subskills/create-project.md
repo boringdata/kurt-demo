@@ -654,7 +654,7 @@ Examples: "Security best practices guide", "API tutorial", "Product announcement
 Skipping target identification for now.
 
 Note: You can identify targets later with:
-- intelligence operations (see .claude/UTILITIES.md)
+- intelligence operations (see intelligence-skill for details)
 - Manual addition to project.md
 ```
 

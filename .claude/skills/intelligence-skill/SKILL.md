@@ -68,6 +68,93 @@ Complex analysis combining content + analytics for project planning.
 
 ---
 
+## Operation Details
+
+### Analytics Operations
+
+**top <N>** - Top pages by traffic
+- **Use:** Quick check for most popular content
+- **Example:** `intelligence top 10`
+
+**bottom <N>** - Lowest traffic pages
+- **Use:** Find zero-traffic/orphaned pages
+- **Example:** `intelligence bottom 10`
+
+**trending** - Pages with increasing traffic
+- **Use:** Find momentum topics to expand on
+- **Example:** `intelligence trending`
+
+**declining** - Pages losing traffic
+- **Use:** Urgent attention needed (high traffic + declining = critical)
+- **Example:** `intelligence declining`
+
+**summary <domain>** - Analytics overview
+- **Use:** Understand traffic distribution and health
+- **Example:** `intelligence summary docs.company.com`
+
+**check <url-pattern>** - Traffic for specific URL(s)
+- **Use:** Spot-check traffic during planning
+- **Example:** `intelligence check "bigquery"`
+
+### Research Operations
+
+**search "<query>"** - AI-powered research (Perplexity)
+- **Use:** Gather reference sources for projects
+- **Flags:** `--recency hour|day|week|month`, `--save`
+- **Example:** `intelligence search "AI tools trends" --recency week --save`
+
+**list** - Browse past research
+**get <filename>** - Retrieve specific research
+
+**reddit -s <subreddit>** - Monitor Reddit discussions
+- **Use:** Find what audience is discussing
+- **Example:** `intelligence reddit -s dataengineering --min-score 10`
+
+**hackernews** - Monitor HN discussions
+**feeds <url>** - Monitor RSS/Atom feeds
+
+### Content Intelligence Operations
+
+**identify-affected --search-term <term>** - Find content with traffic prioritization
+- **Use:** Update content about specific topic
+- **Priority matrix:** CRITICAL (high traffic + declining) → ZERO (no traffic)
+- **Example:** `intelligence identify-affected --search-term "bigquery" --content-type tutorial`
+
+**audit-traffic --domain <domain>** - Comprehensive traffic audit
+- **Use:** Domain-wide health check
+- **Finds:** High-traffic stale, declining traffic, zero-traffic pages
+- **Example:** `intelligence audit-traffic --domain docs.company.com`
+
+**impact-estimate --topic <topic>** - Estimate new content opportunity
+- **Use:** Prioritize new content creation
+- **Returns:** HIGH/MEDIUM/LOW impact estimate
+- **Example:** `intelligence impact-estimate --topic "security" --domain docs.company.com`
+
+**compare-gaps --own <domain> --competitor <domain>** - Find missing content
+- **Use:** Identify content you don't have vs competitor
+- **Prerequisite:** Competitor content must be indexed
+- **Example:** `intelligence compare-gaps --own docs.yourco.com --competitor docs.competitor.com`
+
+**compare-coverage --own <domain> --competitor <domain>** - Compare content types
+- **Use:** Understand content mix gaps (tutorials, guides, examples)
+- **Example:** `intelligence compare-coverage --own docs.yourco.com --competitor docs.competitor.com`
+
+**compare-quality --own <domain> --competitor <domain>** - Compare content depth
+- **Use:** Set quality bar for content
+- **Compares:** word count, code examples, images, update frequency
+- **Example:** `intelligence compare-quality --own docs.yourco.com --competitor docs.competitor.com`
+
+---
+
+## Common Workflows
+
+**For updating docs:** `audit-traffic` → select high-priority items
+**For new content:** `compare-gaps` + `impact-estimate` → prioritize topics
+**For competitive analysis:** `compare-gaps` + `compare-coverage` + `compare-quality`
+**For research:** `search` + `reddit`/`hackernews` → gather sources
+
+---
+
 ## Routing Logic
 
 ```bash
@@ -99,7 +186,7 @@ case "$OPERATION" in
     echo "  Content Intelligence: identify-affected, audit-traffic, impact-estimate,"
     echo "                        compare-gaps, compare-coverage, compare-quality"
     echo ""
-    echo "See .claude/UTILITIES.md for detailed documentation"
+    echo "See 'Operation Details' section in intelligence-skill/SKILL.md for usage examples"
     exit 1
     ;;
 esac
@@ -139,6 +226,7 @@ esac
 
 ## See Also
 
-- **`.claude/UTILITIES.md`** - Detailed operation reference for project planning
 - **project-management-skill** - Uses intelligence in Step 4 (identify targets)
-- **workflow-skill** - Default workflows compose intelligence operations
+- **content-intelligence subskill** - Detailed implementation of complex operations
+- **analytics subskill** - Traffic analysis implementation
+- **research subskill** - External research implementation
