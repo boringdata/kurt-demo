@@ -1,85 +1,37 @@
 ---
 name: feedback
-description: Collect user feedback and execute improvements to rules, workflows, and configurations
+description: Collect content feedback and identify patterns for rule updates
 ---
 
 # Feedback Skill
 
 ## Overview
 
-Enables continuous improvement through explicit user feedback on concrete outputs. The system:
-- Collects ratings on content artifacts, project plans, and workflows
-- Identifies specific issues that can be addressed
-- Suggests and executes targeted improvements
-- Tracks improvement effectiveness over time
+Simple feedback system for content quality. Collect ratings, identify patterns, and get recommendations for rule updates.
 
-**Philosophy:** Output-driven feedback with clear improvement paths
-
----
-
-## Three Feedback Loops
-
-### Loop 1: Content Quality → Rules/Prompts
-- **Trigger:** After creating outlines or drafts (every 5th + explicit)
-- **Rating:** User rates content quality (1-5)
-- **Issues:** Tone, structure, information gaps
-- **Improvements:** Update style rules, structure patterns, extract examples
-- **Validation:** Next content creation with updated rules
-
-### Loop 2: Project Plan Quality → Workflow Definition
-- **Trigger:** After project creation with workflow
-- **Rating:** User rates plan completeness (1-5)
-- **Issues:** Missing tasks, wrong timeline, unclear dependencies
-- **Improvements:** Add workflow tasks, adjust durations, update dependencies
-- **Validation:** Next project using updated workflow
-
-### Loop 3: Workflow Retrospective → Workflow Refinement
-- **Trigger:** After project completion
-- **Rating:** Overall + phase-by-phase ratings (1-5)
-- **Issues:** Phase usefulness, duration accuracy, task relevance
-- **Improvements:** Remove/reorder phases, adjust estimates, refine tasks
-- **Validation:** Multiple projects showing trend improvement
+**Philosophy:** Lightweight pattern identification → Manual rule improvements
 
 ---
 
 ## Operations
 
-**rate** - Collect feedback on content quality (Loop 1)
-- Entry: `feedback-skill rate --asset-path <path> --asset-type <type>`
+**rate** - Collect feedback on content quality
+- Entry: `feedback-skill rate <path>`
+- Collects: Rating (1-5), issue category, optional comment
+- Output: Stores in `.kurt/kurt.sqlite`
 - Subskill: `subskills/rate.md`
-- Automatic: Called every 5th execution from content-writing-skill
-- Manual: Can be invoked explicitly by user
-- Output: Rating + issue identification → feedback_events table
 
-**review-plan** - Collect feedback on project plan (Loop 2)
-- Entry: `feedback-skill review-plan --project-path <path> --project-id <id>`
-- Subskill: `subskills/review-plan.md`
-- Automatic: Called after project creation in project-management-skill
-- Output: Rating + issue identification → feedback_events table
-
-**retrospective** - Collect feedback on workflow (Loop 3)
-- Entry: `feedback-skill retrospective --project-id <id> --workflow-id <id>`
-- Subskill: `subskills/retrospective.md`
-- Automatic: Called after project marked complete
-- Output: Overall + phase ratings → workflow_retrospectives + workflow_phase_ratings tables
-
-**improve** - Execute improvements based on feedback
-- Entry: `feedback-skill improve --feedback-id <id> --issue-category <category>`
-- Subskill: `subskills/improve.md`
-- Automatic: Called by rate/review-plan/retrospective when issues identified
-- Output: Executed improvement → improvements table
-
-**dashboard** - Show feedback summary and improvement effectiveness
-- Entry: `feedback-skill dashboard [--type <type>]`
+**dashboard** - View feedback trends and summary
+- Entry: `feedback-skill dashboard [--days <n>]`
+- Shows: Overall stats, issue breakdown, rating trends, recent feedback
+- Output: Console summary
 - Subskill: `subskills/dashboard.md`
-- Shows: Recent feedback, improvement history, effectiveness metrics
-- Filters: --type content_quality | project_plan | workflow_retrospective
 
-**suggest** - Analyze feedback patterns and suggest improvements
-- Entry: `feedback-skill suggest`
-- Subskill: `subskills/suggest.md`
-- Shows: Common issues, improvement opportunities based on feedback trends
-- Output: Actionable suggestions based on accumulated feedback
+**patterns** - Identify recurring issues and recommend updates
+- Entry: `feedback-skill patterns [--days <n>] [--min-frequency <n>]`
+- Shows: Issues that occur ≥3 times with recommendations
+- Output: Recommended `writing-rules-skill` commands
+- Subskill: `subskills/patterns.md`
 
 ---
 
@@ -93,45 +45,24 @@ shift
 
 case "$OPERATION" in
     "rate")
-        # Loop 1: Content Quality
         .claude/skills/feedback-skill/subskills/rate.md "$@"
         ;;
 
-    "review-plan")
-        # Loop 2: Project Plan
-        .claude/skills/feedback-skill/subskills/review-plan.md "$@"
-        ;;
-
-    "retrospective")
-        # Loop 3: Workflow
-        .claude/skills/feedback-skill/subskills/retrospective.md "$@"
-        ;;
-
-    "improve")
-        # Improvement execution
-        .claude/skills/feedback-skill/subskills/improve.md "$@"
-        ;;
-
     "dashboard")
-        # View feedback summary
         .claude/skills/feedback-skill/subskills/dashboard.md "$@"
         ;;
 
-    "suggest")
-        # View suggestions from feedback patterns
-        .claude/skills/feedback-skill/subskills/suggest.md "$@"
+    "patterns")
+        .claude/skills/feedback-skill/subskills/patterns.md "$@"
         ;;
 
     *)
         echo "Unknown operation: $OPERATION"
         echo ""
         echo "Available operations:"
-        echo "  rate           - Rate content quality"
-        echo "  review-plan    - Review project plan"
-        echo "  retrospective  - Review completed workflow"
-        echo "  improve        - Execute improvements"
-        echo "  dashboard      - View feedback summary"
-        echo "  suggest        - View improvement suggestions"
+        echo "  rate       - Rate content quality"
+        echo "  dashboard  - View feedback trends"
+        echo "  patterns   - Identify recurring issues"
         exit 1
         ;;
 esac
@@ -143,70 +74,72 @@ esac
 
 ### SQLite (`.kurt/kurt.sqlite`)
 
-**feedback_events**
-- All feedback submissions (ratings, comments, issues)
-- Links to projects, workflows, skills, operations
-- Tracks prompted vs explicit feedback
+**feedback_events** (simplified schema)
+```sql
+CREATE TABLE feedback_events (
+    id TEXT PRIMARY KEY,           -- UUID
+    created_at TEXT NOT NULL,      -- ISO 8601 timestamp
+    rating INTEGER NOT NULL,       -- 1-5
+    comment TEXT,                  -- Optional text feedback
+    issue_category TEXT,           -- tone|structure|info|comprehension|length|examples|other
+    asset_path TEXT,               -- Path to rated content
+    project_id TEXT                -- Optional project context
+);
+```
 
-**improvements**
-- Suggested and executed improvements
-- Before/after snapshots
-- Success/failure tracking
-- Validation results
-
-**workflow_retrospectives**
-- Overall workflow ratings
-- Project completion feedback
-
-**workflow_phase_ratings**
-- Phase-by-phase ratings
-- Duration accuracy, task completeness
-- Suggested changes
-
-**feedback_loops**
-- Complete loop tracking (feedback → improvement → validation)
-- Rating changes
-- Issue resolution
-- Effectiveness metrics
-
-### YAML Configuration (`.kurt/feedback/`)
-
-**feedback-config.yaml**
-- Issue category mappings
-- Improvement commands
-- Check logic
-- Suggestion messages
+**Removed tables** (from previous complex version):
+- `improvements` - No automated execution tracking
+- `workflow_retrospectives` - Workflows removed
+- `workflow_phase_ratings` - Workflows removed
+- `feedback_loops` - Too complex for simple system
 
 ---
 
-## Configuration
+## Simple Feedback Flow
 
-### Issue Mappings
-
-Maps issue categories to improvement actions:
-
-```yaml
-issue_mappings:
-  wrong_tone_style:
-    check: style_rule_age
-    suggest: "Update style rule with patterns from recent content"
-    command: "writing-rules-skill style --type {type} --update"
-
-  missing_structure:
-    check: structure_rule_exists
-    suggest: "Extract or update structure pattern"
-    command: "writing-rules-skill structure --type {type} --auto-discover"
-
-  missing_tasks:
-    check: workflow_phase_tasks
-    suggest: "Add missing tasks to workflow phase"
-    command: "workflow-skill update --workflow-id {workflow_id} --add-tasks {phase_id}"
-
-  wrong_timeline:
-    check: workflow_duration_accuracy
-    suggest: "Adjust workflow phase duration estimates"
-    command: "workflow-skill update --workflow-id {workflow_id} --adjust-duration {phase_id}"
 ```
+1. User creates content
+
+2. User rates content (optional):
+   feedback-skill rate <path>
+   → Rating: 1-5
+   → Issue category (if ≤3)
+   → Optional comment
+
+3. View trends over time:
+   feedback-skill dashboard
+   → Overall stats
+   → Issue breakdown
+   → Rating trends
+
+4. When patterns emerge (≥3 occurrences):
+   feedback-skill patterns
+   → Shows recurring issues
+   → Recommends rule update commands
+
+5. User manually updates rules:
+   writing-rules-skill style --type X --update
+   writing-rules-skill structure --type X --update
+   writing-rules-skill persona --audience-type X --update
+```
+
+**No automation. User decides when to act.**
+
+---
+
+## Issue Categories
+
+Simple, content-focused categories:
+
+| Category | Description | Related Rule |
+|----------|-------------|--------------|
+| `tone` | Wrong tone or style | style |
+| `structure` | Poor organization | structure |
+| `info` | Missing information | persona, sources |
+| `comprehension` | Hard to understand | style, structure |
+| `length` | Too long or short | persona |
+| `examples` | Code example issues | structure |
+| `other` | Manual review | - |
 
 ---
 
@@ -214,228 +147,135 @@ issue_mappings:
 
 ### From content-writing-skill
 
-After draft or outline generation:
+**Optional integration** (not required):
 
 ```bash
-# Check if we should prompt for feedback (every 5th execution)
-EXECUTION_COUNT=$(get_execution_count "$OPERATION")
-
-if [ $((EXECUTION_COUNT % 5)) -eq 0 ]; then
-    echo ""
-    echo "Would you like to rate this $OPERATION? (Y/n): "
-    read -r RESPONSE
-
-    if [ "$RESPONSE" != "n" ]; then
-        feedback-skill rate \
-            --asset-path "$ASSET_PATH" \
-            --asset-type "$OPERATION" \
-            --execution-count "$EXECUTION_COUNT" \
-            --prompted true
-    fi
-fi
-```
-
-### From project-management-skill
-
-After project creation:
-
-```bash
-# After project.md created
-echo "Would you like to review the project plan? (Y/n): "
+# After draft creation
+echo ""
+echo "Rate this draft? (y/N): "
 read -r RESPONSE
 
-if [ "$RESPONSE" != "n" ]; then
-    feedback-skill review-plan \
-        --project-path "projects/$PROJECT_ID" \
-        --project-id "$PROJECT_ID" \
-        $([ -n "$WORKFLOW_ID" ] && echo "--workflow-id $WORKFLOW_ID")
+if [ "$RESPONSE" = "y" ] || [ "$RESPONSE" = "Y" ]; then
+    feedback-skill rate "$DRAFT_PATH"
 fi
 ```
 
-After project completion:
+### To writing-rules-skill
 
-```bash
-# When marking project complete
-if [ -n "$WORKFLOW_ID" ]; then
-    echo "Would you like to provide workflow feedback? (Y/n): "
-    read -r RESPONSE
+**patterns.md recommends commands:**
 
-    if [ "$RESPONSE" != "n" ]; then
-        feedback-skill retrospective \
-            --project-id "$PROJECT_ID" \
-            --workflow-id "$WORKFLOW_ID" \
-            --completion-date "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-    fi
-fi
 ```
+Tone Issues (5× in last 30 days)
+→ writing-rules-skill style --type technical-docs --update
+
+Structure Issues (3× in last 30 days)
+→ writing-rules-skill structure --type tutorial --update
+```
+
+User copies and runs command to update rules.
 
 ---
 
-## Improvement Flow
+## Configuration
 
-1. **User provides feedback** (via rate/review-plan/retrospective)
-2. **Issue identified** (if rating <= 3)
-3. **Check if improvement needed** (rule age, recent improvements, etc.)
-4. **Load improvement mapping** (from feedback-config.yaml)
-5. **Generate improvement command** (substitute variables)
-6. **Show preview** (what will change)
-7. **Get user approval** (explicit confirmation)
-8. **Execute improvement** (run command)
-9. **Store before/after** (for validation)
-10. **Track validation** (on next usage)
-11. **Complete feedback loop** (measure effectiveness)
+Minimal configuration in `.kurt/feedback/feedback-config.yaml`:
 
----
-
-## Success Metrics
-
-### Per-Loop Metrics
-
-**Content Quality:**
-- Average rating by content type
-- Most common issues
-- Rule update frequency
-- Rating improvement after updates
-
-**Project Plans:**
-- Average rating by workflow
-- Most common issues
-- Workflow update frequency
-- Plan quality trends
-
-**Workflow Retrospectives:**
-- Average overall rating by workflow
-- Average phase ratings
-- Duration estimate accuracy
-- Task completeness rate
-
-### Overall Metrics
-
-- Feedback submission rate (prompted vs explicit)
-- Improvement acceptance rate
-- Improvement success rate
-- Issue resolution rate
-- Rating trends over time
-- Feedback loop completion rate
-
----
-
-## Example Usage
-
-### Rate a draft explicitly:
-```bash
-feedback-skill rate \
-    --asset-path "projects/my-tutorial/draft.md" \
-    --asset-type "draft"
+```yaml
+feedback:
+  enabled: true
+  min_pattern_frequency: 3  # Minimum occurrences to show pattern
+  default_time_window_days: 30
 ```
 
-### Review a project plan:
-```bash
-feedback-skill review-plan \
-    --project-path "projects/my-tutorial" \
-    --project-id "my-tutorial" \
-    --workflow-id "weekly-tutorial"
-```
-
-### Retrospective after completion:
-```bash
-feedback-skill retrospective \
-    --project-id "my-tutorial" \
-    --workflow-id "weekly-tutorial"
-```
-
-### View feedback dashboard:
-```bash
-feedback-skill dashboard
-feedback-skill dashboard --type content_quality
-feedback-skill dashboard --type workflow_retrospective
-```
-
-### View improvement suggestions:
-```bash
-feedback-skill suggest
-```
+**Removed from config:**
+- Issue mappings with automated commands (too complex)
+- Improvement execution settings (no automation)
+- Workflow-related configuration (workflows removed)
 
 ---
 
 ## Design Principles
 
-1. **Output-driven:** Only collect feedback on concrete, rateable artifacts
-2. **Actionable:** Every issue maps to specific improvement command
-3. **Occasional:** Prompt every 5th execution + explicit requests (not intrusive)
-4. **Immediate:** Execute improvements on user approval (not just suggestions)
-5. **Validating:** Track effectiveness through next usage and rating changes
-6. **Transparent:** Show what will change before applying improvements
-7. **Incremental:** Small, targeted improvements rather than large refactors
+1. **Simple and lightweight:** Just collect → analyze → recommend
+2. **Pattern-based:** Only show issues that occur multiple times
+3. **Manual execution:** User runs update commands (no automation)
+4. **Non-blocking:** Feedback collection never interrupts workflow
+5. **Content-focused:** Only content quality (no projects/workflows)
+6. **Privacy-conscious:** Minimal data storage
+
+---
+
+## Example Usage
+
+### Rate a draft:
+```bash
+feedback-skill rate projects/my-tutorial/draft.md
+```
+
+### View feedback trends:
+```bash
+feedback-skill dashboard
+feedback-skill dashboard --days 7
+```
+
+### Check for patterns:
+```bash
+feedback-skill patterns
+feedback-skill patterns --min-frequency 5
+```
+
+### After pattern identified, update rules:
+```bash
+# Copy recommended command from patterns output
+writing-rules-skill style --type technical-docs --update
+```
 
 ---
 
 ## Getting Started
 
-1. **Create feedback configuration:**
+1. **Create content** (drafts, outlines)
+
+2. **Rate content occasionally:**
    ```bash
-   # Copy template
-   cp .kurt/feedback/feedback-config-template.yaml .kurt/feedback/feedback-config.yaml
+   feedback-skill rate path/to/draft.md
    ```
 
-2. **Use the system naturally:**
-   - Create content (drafts, outlines)
-   - Create projects
-   - Complete projects
-
-3. **Provide feedback when prompted:**
-   - Every 5th execution
-   - After project creation
-   - After project completion
-
-4. **Review and accept improvements:**
-   - System will suggest specific improvements
-   - Preview what will change
-   - Accept or reject
-
-5. **Track effectiveness:**
+3. **After several ratings, check dashboard:**
    ```bash
    feedback-skill dashboard
    ```
 
----
+4. **When patterns emerge, check recommendations:**
+   ```bash
+   feedback-skill patterns
+   ```
 
-## Advanced Usage
-
-### Force feedback on any content:
-```bash
-feedback-skill rate --asset-path <path> --asset-type <type>
-```
-
-### Re-review a project plan:
-```bash
-feedback-skill review-plan --project-id <id>
-```
-
-### View retrospective without creating new one:
-```bash
-feedback-skill retrospective --view --project-id <id>
-```
-
-### Manually trigger improvement:
-```bash
-# After providing feedback, improvement will be suggested
-# Or directly execute if you know the issue:
-feedback-skill improve --feedback-id <id> --issue-category <category>
-```
-
-### Query feedback data:
-```bash
-# View all feedback
-sqlite3 .kurt/kurt.sqlite "SELECT * FROM feedback_events ORDER BY created_at DESC LIMIT 10"
-
-# View improvements
-sqlite3 .kurt/kurt.sqlite "SELECT * FROM improvements WHERE status = 'executed' ORDER BY created_at DESC"
-
-# View completed feedback loops
-sqlite3 .kurt/kurt.sqlite "SELECT * FROM feedback_loops WHERE validation_completed_at IS NOT NULL"
-```
+5. **Update rules based on patterns:**
+   ```bash
+   writing-rules-skill style --type X --update
+   ```
 
 ---
 
-*This skill enables data-driven continuous improvement through explicit user feedback on concrete outputs.*
+## What Changed from Previous Version
+
+**Removed:**
+- Project plan feedback (Loop 2)
+- Workflow retrospectives (Loop 3)
+- Automated improvement execution
+- Validation and effectiveness tracking
+- Complex feedback loop completion metrics
+- Multiple feedback types (now just content quality)
+
+**Kept (simplified):**
+- Content rating with issue identification
+- Pattern analysis across feedback
+- Trend visualization in dashboard
+- Manual rule update recommendations
+
+**Result:** ~2,000 fewer lines of code, simpler user experience
+
+---
+
+*This skill provides lightweight feedback collection and pattern analysis to guide manual rule improvements.*
