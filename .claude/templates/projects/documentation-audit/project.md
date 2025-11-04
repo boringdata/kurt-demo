@@ -86,12 +86,15 @@ Conduct comprehensive traffic audit of [DOMAIN] documentation to identify conten
 **Workflow:**
 
 1. **Run Traffic Audit** (1-2 hours)
-   - Run analytics queries for domain
-   - Export findings to categories:
-     - High-traffic stale
-     - Declining traffic
-     - Zero traffic
-     - Missing content gaps
+
+   Ask Claude to run a traffic audit:
+   > Run intelligence audit-traffic for <your-domain>
+
+   This generates findings in categories:
+   - High-traffic stale (>365 days old, high traffic)
+   - Declining traffic (↓ trend)
+   - Zero traffic (orphaned pages)
+   - Missing content gaps
 
 2. **Categorize Issues** (2-3 hours)
    - Review each finding

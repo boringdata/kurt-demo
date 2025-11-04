@@ -86,9 +86,12 @@ Focus on CRITICAL and HIGH priority items first.
 **Workflow:**
 
 1. **Identify Content** (30-60 min)
-   - Run traffic analysis on tutorial section
-   - Generate prioritization matrix
-   - Select 3-5 top-priority tutorials
+
+   Ask Claude to identify tutorials that need updating:
+   > Run intelligence identify-affected for topic "<topic>" with content-type tutorial
+
+   This generates a prioritization matrix (CRITICAL/HIGH/MEDIUM/LOW).
+   Review results and select 3-5 top-priority tutorials.
 
 2. **Prioritize** (15-30 min per tutorial)
    - Review each CRITICAL item

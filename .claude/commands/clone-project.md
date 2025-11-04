@@ -1,18 +1,18 @@
 ---
-description: Clone a project template and customize it for your needs (project)
+description: Clone a project template or existing project and customize it (project)
 ---
 
-# Clone Project from Template
+# Clone Project
 
-This command clones a template project and guides you through customizing it.
+This command clones a built-in template OR an existing project and guides you through customizing it.
 
 Use the Skill tool to invoke:
 
 ```
-project-management clone-project [template-name]
+project-management clone-project [template-name-or-project-slug]
 ```
 
-**Available templates:**
+**Clone from built-in templates:**
 - **weekly-tutorial** - Recurring tutorial publication
 - **product-launch** - Multi-format product launch campaign
 - **tutorial-refresh** - Analytics-driven tutorial updates
@@ -20,10 +20,29 @@ project-management clone-project [template-name]
 - **gap-analysis** - Identify missing content vs competitor
 - **competitive-analysis** - Quality benchmark against competitor
 
+**Clone from your existing projects:**
+- Use any project slug from `projects/` directory
+- Preserves workflow structure, rules, and methodology
+- Resets sources, targets, and progress for new iteration
+- Perfect for recurring workflows (e.g., quarterly audits)
+
+**Examples:**
+```
+# Clone from template
+project-management clone-project documentation-audit
+
+# Clone from existing project
+project-management clone-project q1-2025-docs-audit
+
+# Interactive selection
+project-management clone-project
+```
+
 The skill will guide you through:
-1. Showing template preview
-2. Getting new project name and goal
-3. Customizing template sections (sources, targets, etc.)
-4. Creating customized project structure
+1. Choosing source (template or existing project)
+2. Previewing the structure
+3. Naming the new project and customizing goal
+4. Customizing sections (sources, targets, etc.)
+5. Creating the new project structure
 
 All orchestration logic lives in the skill. See `.claude/skills/project-management-skill/subskills/clone-project.md` for details.

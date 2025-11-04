@@ -18,20 +18,46 @@ This subskill helps users quickly create projects from templates instead of star
 
 ---
 
-## Entry Point: Check for Template Argument
+## Step 0: Determine Clone Source
 
 ```bash
-TEMPLATE_NAME="$1"
+# Check what was provided as argument
+SOURCE_NAME="$1"
 TEMPLATES_DIR=".claude/templates/projects"
+PROJECTS_DIR="projects"
+
+# If no argument, ask user to choose source type
+if [ -z "$SOURCE_NAME" ]; then
+  echo "═══════════════════════════════════════════════════════"
+  echo "Clone Project"
+  echo "═══════════════════════════════════════════════════════"
+  echo ""
+  echo "Clone from:"
+  echo "  a) Built-in template (generic project patterns)"
+  echo "  b) Existing project (reuse your own project structure)"
+  echo ""
+  read -p "Choose (a/b): " SOURCE_TYPE
+else
+  # Auto-detect if argument is template or project
+  if [ -d "$TEMPLATES_DIR/$SOURCE_NAME" ]; then
+    SOURCE_TYPE="a"
+    TEMPLATE_NAME="$SOURCE_NAME"
+  elif [ -d "$PROJECTS_DIR/$SOURCE_NAME" ]; then
+    SOURCE_TYPE="b"
+    PROJECT_SLUG="$SOURCE_NAME"
+  else
+    echo "❌ Not found: $SOURCE_NAME"
+    echo ""
+    echo "Not found in:"
+    echo "  - Templates: $TEMPLATES_DIR/$SOURCE_NAME"
+    echo "  - Projects: $PROJECTS_DIR/$SOURCE_NAME"
+    exit 1
+  fi
+fi
 ```
 
-### If Template Name Provided
-
-Skip to Step 2 (Preview Template)
-
-### If No Template Name
-
-Continue to Step 1 (List Templates)
+**If (a):** Continue to Step 1 (List Templates)
+**If (b):** Jump to Step 1b (List Projects)
 
 ---
 
@@ -84,47 +110,115 @@ Store as `TEMPLATE_NAME`.
 
 ---
 
-## Step 2: Preview Template
+## Step 1b: List Available Projects
+
+Only shown if user chose "b) Existing project" in Step 0.
+
+```
+═══════════════════════════════════════════════════════
+Your Projects
+═══════════════════════════════════════════════════════
 
 ```bash
-# Validate template exists
-TEMPLATE_PATH="$TEMPLATES_DIR/$TEMPLATE_NAME"
-
-if [ ! -f "$TEMPLATE_PATH/project.md" ]; then
-  echo "❌ Template not found: $TEMPLATE_NAME"
+# List all projects with their goals
+if [ ! -d "projects" ] || [ -z "$(ls -A projects 2>/dev/null)" ]; then
+  echo "No projects found."
   echo ""
-  echo "Available templates:"
-  ls -1 "$TEMPLATES_DIR"
+  echo "Create your first project with: /create-project"
   exit 1
 fi
 
-# Load template
-TEMPLATE_CONTENT=$(cat "$TEMPLATE_PATH/project.md")
+for project_dir in projects/*/; do
+  if [ -f "$project_dir/project.md" ]; then
+    PROJECT_NAME=$(basename "$project_dir")
+    PROJECT_GOAL=$(grep -A 1 "^## Goal" "$project_dir/project.md" | tail -1 | sed 's/^[[:space:]]*//')
+
+    echo "  📁 $PROJECT_NAME"
+    echo "     $PROJECT_GOAL"
+    echo ""
+  fi
+done
 ```
-
-**Show template preview:**
-
-```
-═══════════════════════════════════════════════════════
-Template: {{TEMPLATE_NAME}}
-═══════════════════════════════════════════════════════
-
-{{First 30 lines of template, or up to "## Sources"}}
-
-... [template continues] ...
 
 ───────────────────────────────────────────────────────
 
-This template provides:
+Which project would you like to clone?
+Enter project slug (or 'cancel'): _
+```
+
+**Wait for user input.**
+
+Store as `PROJECT_SLUG`.
+
+**If 'cancel':** Exit
+
+**Validate project exists:**
+```bash
+if [ ! -d "projects/$PROJECT_SLUG" ] || [ ! -f "projects/$PROJECT_SLUG/project.md" ]; then
+  echo "❌ Project not found: $PROJECT_SLUG"
+  exit 1
+fi
+```
+
+Continue to Step 2.
+
+---
+
+## Step 2: Preview Template or Project (MODIFIED)
+
+```bash
+# Set source path based on type
+if [ "$SOURCE_TYPE" = "a" ]; then
+  SOURCE_PATH="$TEMPLATES_DIR/$TEMPLATE_NAME"
+  SOURCE_DISPLAY="Template: $TEMPLATE_NAME"
+  SOURCE_KIND="template"
+else
+  SOURCE_PATH="$PROJECTS_DIR/$PROJECT_SLUG"
+  SOURCE_DISPLAY="Project: $PROJECT_SLUG"
+  SOURCE_KIND="project"
+fi
+
+# Validate source exists
+if [ ! -f "$SOURCE_PATH/project.md" ]; then
+  echo "❌ Source not found: $SOURCE_PATH"
+  exit 1
+fi
+
+# Load source content
+SOURCE_CONTENT=$(cat "$SOURCE_PATH/project.md")
+```
+
+**Show preview:**
+
+```
+═══════════════════════════════════════════════════════
+{{SOURCE_DISPLAY}}
+═══════════════════════════════════════════════════════
+
+{{First 30 lines, or up to "## Sources"}}
+
+... [continues] ...
+
+───────────────────────────────────────────────────────
+
+This {{SOURCE_KIND}} provides:
+{{#IF_TEMPLATE}}
 - Project structure for {{TEMPLATE_TYPE}}
 - Example sections (Goal, Sources, Targets, Rules)
 - Typical workflow and next steps
 - Progress checklist
+{{/IF_TEMPLATE}}
+{{#IF_PROJECT}}
+- Proven workflow structure
+- Intent category and methodology
+- Rules configuration (already extracted)
+- Workflow steps from successful project
+{{/IF_PROJECT}}
 
-Would you like to use this template? (y/n): _
+Would you like to clone this? (y/n): _
 ```
 
-**If no:** Return to Step 1 (show templates again)
+**If no:** Return to Step 1/1b (show list again)
 **If yes:** Continue to Step 3
 
 ---
@@ -280,17 +374,17 @@ mkdir -p projects/$PROJECT_NAME/drafts
 
 ---
 
-## Step 6: Generate Project.md
+## Step 6: Generate Project.md (MODIFIED)
 
-**Copy template and apply customizations:**
+**Copy source and apply customizations:**
 
 ```bash
-# Start with template
-TEMPLATE_CONTENT=$(cat "$TEMPLATE_PATH/project.md")
+# Start with source content
+SOURCE_CONTENT=$(cat "$SOURCE_PATH/project.md")
 
 # Replace placeholders
 # Replace first line (project name)
-PROJECT_MD=$(echo "$TEMPLATE_CONTENT" | sed "1s/.*/# $PROJECT_NAME/")
+PROJECT_MD=$(echo "$SOURCE_CONTENT" | sed "1s/.*/# $PROJECT_NAME/")
 
 # Replace goal if customized
 if [ -n "$PROJECT_GOAL" ]; then
@@ -300,6 +394,65 @@ if [ -n "$PROJECT_GOAL" ]; then
 \\
 $PROJECT_GOAL
   }")
+fi
+```
+
+**If cloning from project, clean instance-specific data:**
+
+```bash
+if [ "$SOURCE_TYPE" = "b" ]; then
+  # Preserve structure but reset instance data
+
+  # Clear Sources section (user will add new sources)
+  PROJECT_MD=$(echo "$PROJECT_MD" | awk '
+    /^## Sources/ { in_sources=1; print; next }
+    /^##/ && in_sources { in_sources=0 }
+    !in_sources || /^## Sources/
+  ')
+
+  # Add placeholder sources section
+  PROJECT_MD=$(echo "$PROJECT_MD" | sed '/^## Sources/a\
+\
+### From Organizational Knowledge Base\
+[To be added]\
+\
+### Project-Specific Sources\
+[To be added]\
+')
+
+  # Clear Targets section (user will identify new targets)
+  PROJECT_MD=$(echo "$PROJECT_MD" | awk '
+    /^## Targets/ { in_targets=1; print; next }
+    /^##/ && in_targets { in_targets=0 }
+    !in_targets || /^## Targets/
+  ')
+
+  # Add placeholder targets section
+  PROJECT_MD=$(echo "$PROJECT_MD" | sed '/^## Targets/a\
+\
+### Existing Content to Update\
+[To be identified]\
+\
+### New Content to Create\
+[To be created]\
+')
+
+  # Reset Progress section
+  TODAY_DATE=$(date +%Y-%m-%d)
+  PROJECT_MD=$(echo "$PROJECT_MD" | awk '
+    /^## Progress/ { in_progress=1; print; next }
+    /^##/ && in_progress { in_progress=0 }
+    !in_progress || /^## Progress/
+  ')
+
+  PROJECT_MD=$(echo "$PROJECT_MD" | sed "/^## Progress/a\
+\
+- [x] Project created from $PROJECT_SLUG ($TODAY_DATE)\
+- [ ] Sources gathered\
+- [ ] Targets identified\
+")
+
+  # Preserve: Intent Category, Competitor Context (if exists), Rules Configuration, Next Steps
 fi
 ```
 
@@ -326,38 +479,61 @@ echo "$PROJECT_MD" > "projects/$PROJECT_NAME/project.md"
 
 ---
 
-## Step 7: Success Message
+## Step 7: Success Message (MODIFIED)
 
 ```
 ═══════════════════════════════════════════════════════
-✅ Project Created from Template
+✅ Project Created
 ═══════════════════════════════════════════════════════
 
 Project: {{PROJECT_NAME}}
-Template: {{TEMPLATE_NAME}}
+Cloned from: {{SOURCE_DISPLAY}}
 Location: projects/{{PROJECT_NAME}}/
 
 ───────────────────────────────────────────────────────
 What's in your project:
 ───────────────────────────────────────────────────────
 
-📄 project.md - Project manifest (from template)
+📄 project.md - Project manifest
 📁 sources/ - Project-specific sources
 📁 drafts/ - Work in progress
 
+{{#IF_FROM_PROJECT}}
+───────────────────────────────────────────────────────
+Preserved from Original:
+───────────────────────────────────────────────────────
+
+✓ Intent category and workflow structure
+✓ Rules configuration (style, structure, personas)
+✓ Competitor context (if applicable)
+✓ Next steps guidance and workflow
+
+Reset for This Instance:
+• Sources → Add your specific sources
+• Targets → Identify content for this iteration
+• Progress → Fresh start
+
+{{/IF_FROM_PROJECT}}
 ───────────────────────────────────────────────────────
 Next Steps:
 ───────────────────────────────────────────────────────
 
 1. Review project.md and customize further if needed
 
+{{#IF_FROM_PROJECT}}
+2. Add sources for this project iteration
+
+3. Identify targets specific to this instance
+{{ELSE}}
 2. Follow the workflow in "Next Steps" section
+{{/IF_FROM_PROJECT}}
 
 3. Update Progress checklist as you work
 
 4. Resume anytime with:
    /resume-project {{PROJECT_NAME}}
 
+{{#IF_TEMPLATE}}
 ───────────────────────────────────────────────────────
 Template guidance:
 ───────────────────────────────────────────────────────
@@ -368,6 +544,7 @@ Your project.md includes:
 • Example structure for sources/targets/rules
 
 Customize as needed for your specific project!
+{{/IF_TEMPLATE}}
 ```
 
 ---
