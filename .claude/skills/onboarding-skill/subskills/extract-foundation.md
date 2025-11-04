@@ -88,34 +88,48 @@ fi
 
 ---
 
-## Step 2: Extract Publisher Profile
+## Step 2-4: Extract Foundation Rules
+
+**Delegate to extract-rules subskill:**
 
 ```
 ───────────────────────────────────────────────────────
-Extracting Foundation Rules (1/3)
+Extracting Foundation Rules
 ───────────────────────────────────────────────────────
 
-Extracting company profile...
-This analyzes your homepage, about page, and product pages.
+Analyzing your content to extract:
+• Publisher profile (company context)
+• Primary voice (writing style)
+• Personas (audience profiles)
 ```
 
+**Invoke:** `project-management extract-rules --foundation-only`
+
+This delegates to the extract-rules subskill which will:
+1. Check prerequisites (content indexed)
+2. Show preview of documents to analyze
+3. Extract publisher profile
+4. Extract primary voice
+5. Extract personas
+6. Show summary of extracted rules
+
+**The extract-rules subskill owns the extraction logic and provides:**
+- Document preview before extraction
+- Progress reporting
+- Error handling
+- Retry logic
+
+**After extraction completes:**
+
 ```bash
-# Use writing-rules-skill to extract publisher profile
-# Using Skill tool since we're in a skill context
-```
+# Get paths of extracted rules
+PUBLISHER_PATH=$(ls rules/publisher/publisher-profile.md 2>/dev/null)
+STYLE_FILES=$(ls rules/style/*.md 2>/dev/null)
+PERSONA_FILES=$(ls rules/personas/*.md 2>/dev/null)
+PERSONA_COUNT=$(echo "$PERSONA_FILES" | wc -l | tr -d ' ')
 
-Invoke: `writing-rules-skill publisher --auto-discover`
-
-**Handle result:**
-
-```bash
-if [ $? -eq 0 ]; then
-  echo "✓ Publisher profile created"
-  echo "  Location: rules/publisher/publisher-profile.md"
-  echo ""
-
-  # Update JSON
-  PUBLISHER_PATH="rules/publisher/publisher-profile.md"
+# Update JSON with rule paths
+if [ -n "$PUBLISHER_PATH" ]; then
   jq --arg path "$PUBLISHER_PATH" \
      '.rules_extracted.publisher = {
        "extracted": true,
@@ -123,151 +137,34 @@ if [ $? -eq 0 ]; then
      }' .kurt/temp/onboarding-data.json > .kurt/temp/onboarding-data.tmp.json
   mv .kurt/temp/onboarding-data.tmp.json .kurt/temp/onboarding-data.json
 else
-  echo "⚠️  Failed to extract publisher profile"
-  echo ""
-  echo "Options:"
-  echo "  a) Retry"
-  echo "  b) Skip (can extract later)"
-  echo "  c) Cancel"
-  echo ""
-  read -p "Choose: " choice
-
-  case "$choice" in
-    a)
-      # Retry
-      # (invoke again)
-      ;;
-    b)
-      # Skip
-      jq '.rules_extracted.publisher = {
-        "extracted": false,
-        "error": "User skipped"
-      }' .kurt/temp/onboarding-data.json > .kurt/temp/onboarding-data.tmp.json
-      mv .kurt/temp/onboarding-data.tmp.json .kurt/temp/onboarding-data.json
-      ;;
-    c)
-      exit 1
-      ;;
-  esac
-fi
-```
-
----
-
-## Step 3: Extract Style Guide
-
-```
-───────────────────────────────────────────────────────
-Extracting Foundation Rules (2/3)
-───────────────────────────────────────────────────────
-
-Extracting writing style...
-This analyzes voice, tone, and language patterns.
-```
-
-```bash
-# Determine style type based on content types
-CONTENT_TYPES=$(jq -r '.content_types[]?' .kurt/temp/onboarding-data.json)
-
-# Default to corporate
-STYLE_TYPE="corporate"
-
-# If user creates technical content, use technical
-if echo "$CONTENT_TYPES" | grep -qi "technical\|tutorial\|documentation\|API"; then
-  STYLE_TYPE="technical-docs"
-fi
-
-# If user creates blog posts, use blog
-if echo "$CONTENT_TYPES" | grep -qi "blog"; then
-  STYLE_TYPE="blog"
-fi
-```
-
-Invoke: `writing-rules-skill style --type $STYLE_TYPE --auto-discover`
-
-**Handle result:**
-
-```bash
-if [ $? -eq 0 ]; then
-  # Find created style file
-  STYLE_FILE=$(ls -t rules/style/*.md | head -1)
-  STYLE_NAME=$(basename "$STYLE_FILE" .md)
-
-  echo "✓ Style guide created: $STYLE_NAME"
-  echo "  Location: $STYLE_FILE"
-  echo ""
-
-  # Update JSON
-  jq --arg path "$STYLE_FILE" \
-     --arg name "$STYLE_NAME" \
-     --arg type "$STYLE_TYPE" \
-     '.rules_extracted.style = {
-       "extracted": true,
-       "path": $path,
-       "name": $name,
-       "type": $type
-     }' .kurt/temp/onboarding-data.json > .kurt/temp/onboarding-data.tmp.json
-  mv .kurt/temp/onboarding-data.tmp.json .kurt/temp/onboarding-data.json
-else
-  echo "⚠️  Failed to extract style guide"
-  echo ""
-  # Similar error handling as publisher
-  jq '.rules_extracted.style = {
+  jq '.rules_extracted.publisher = {
     "extracted": false,
-    "error": "Extraction failed"
+    "error": "Extraction failed or skipped"
   }' .kurt/temp/onboarding-data.json > .kurt/temp/onboarding-data.tmp.json
   mv .kurt/temp/onboarding-data.tmp.json .kurt/temp/onboarding-data.json
 fi
-```
 
----
+if [ -n "$STYLE_FILES" ]; then
+  STYLE_FILE=$(echo "$STYLE_FILES" | head -1)
+  STYLE_NAME=$(basename "$STYLE_FILE" .md)
 
-## Step 4: Extract Personas
-
-```
-───────────────────────────────────────────────────────
-Extracting Foundation Rules (3/3)
-───────────────────────────────────────────────────────
-
-Extracting target personas...
-This infers audience profiles from content.
-```
-
-```bash
-# Determine audience type
-PERSONA_TYPE="all"  # Default
-
-# Check if user described personas
-PERSONA_DESC=$(jq -r '.persona_description // empty' .kurt/temp/onboarding-data.json)
-
-# Try to infer type from description
-if echo "$PERSONA_DESC" | grep -qi "developer\|engineer\|technical"; then
-  PERSONA_TYPE="technical"
-elif echo "$PERSONA_DESC" | grep -qi "business\|executive\|manager\|decision"; then
-  PERSONA_TYPE="business"
-elif echo "$PERSONA_DESC" | grep -qi "customer\|user\|end-user"; then
-  PERSONA_TYPE="customer"
+  jq --arg path "$STYLE_FILE" \
+     --arg name "$STYLE_NAME" \
+     '.rules_extracted.style = {
+       "extracted": true,
+       "path": $path,
+       "name": $name
+     }' .kurt/temp/onboarding-data.json > .kurt/temp/onboarding-data.tmp.json
+  mv .kurt/temp/onboarding-data.tmp.json .kurt/temp/onboarding-data.json
+else
+  jq '.rules_extracted.style = {
+    "extracted": false,
+    "error": "Extraction failed or skipped"
+  }' .kurt/temp/onboarding-data.json > .kurt/temp/onboarding-data.tmp.json
+  mv .kurt/temp/onboarding-data.tmp.json .kurt/temp/onboarding-data.json
 fi
-```
 
-Invoke: `writing-rules-skill persona --audience-type $PERSONA_TYPE --auto-discover`
-
-**Handle result:**
-
-```bash
-if [ $? -eq 0 ]; then
-  # Find created persona files
-  PERSONA_FILES=$(ls -t rules/personas/*.md)
-  PERSONA_COUNT=$(echo "$PERSONA_FILES" | wc -l)
-
-  echo "✓ $PERSONA_COUNT personas extracted:"
-  echo "$PERSONA_FILES" | while read -r file; do
-    name=$(basename "$file" .md)
-    echo "  - $name"
-  done
-  echo ""
-
-  # Update JSON
+if [ "$PERSONA_COUNT" -gt 0 ]; then
   PERSONAS_JSON=$(echo "$PERSONA_FILES" | jq -R -s 'split("\n") | map(select(length > 0))')
 
   jq --argjson personas "$PERSONAS_JSON" \
@@ -279,12 +176,9 @@ if [ $? -eq 0 ]; then
      }' .kurt/temp/onboarding-data.json > .kurt/temp/onboarding-data.tmp.json
   mv .kurt/temp/onboarding-data.tmp.json .kurt/temp/onboarding-data.json
 else
-  echo "⚠️  Failed to extract personas"
-  echo ""
-  # Similar error handling
   jq '.rules_extracted.personas = {
     "extracted": false,
-    "error": "Extraction failed"
+    "error": "Extraction failed or skipped"
   }' .kurt/temp/onboarding-data.json > .kurt/temp/onboarding-data.tmp.json
   mv .kurt/temp/onboarding-data.tmp.json .kurt/temp/onboarding-data.json
 fi

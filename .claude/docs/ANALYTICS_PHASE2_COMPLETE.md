@@ -142,7 +142,7 @@ Recommendation: Start with CRITICAL + HIGH priority first
 
 ### Phase 2D: Project Management Integration ✅
 
-**Location:** `.claude/skills/project-management-skill/subskills/check-foundation.md`
+**Location:** `.claude/skills/project-management-skill/subskills/check-onboarding.md`
 
 **Added:** Check 3: Analytics Integration (Optional)
 
@@ -243,7 +243,7 @@ Would you like to set up analytics? (Y/n)
 
 ### 3. Analytics Setup Timing
 
-**When:** During check-foundation, after content map, before rules
+**When:** During check-onboarding, after content map, before rules
 
 **Why:**
 - **After content map:** Analytics needs content to match against
@@ -310,7 +310,7 @@ src/kurt/
 │   │   └── SKILL.md                   (CREATED - complex workflows)
 │   └── project-management-skill/
 │       └── subskills/
-│           └── check-foundation.md    (MODIFIED - added Check 3: Analytics)
+│           └── check-onboarding.md    (MODIFIED - added Check 3: Analytics)
 ├── docs/
 │   ├── ANALYTICS_PHASE2_STATUS.md     (CREATED - implementation tracking)
 │   └── ANALYTICS_PHASE2_COMPLETE.md   (CREATED - this file)
@@ -460,7 +460,7 @@ User: Audit docs.company.com
 - ✅ Workflow 4 scenario: audit-traffic identifies issues by category
 
 ### Phase 2D: Project Management Integration ✅
-- ✅ check-foundation offers analytics setup after content map
+- ✅ check-onboarding offers analytics setup after content map
 - ✅ Analytics setup is optional (non-blocking)
 - ✅ Fast path for users who already configured analytics
 - ✅ Clear benefits explanation
@@ -567,7 +567,7 @@ User: [data-driven decision, focused effort]
 1. **Fixed threshold approach** - Initially considered, rejected in favor of percentiles
 2. **Where to integrate** - Clarified analytics is for workflows, not generic checkpoints
 3. **Skill hierarchy** - Decided on two-tier (query + analysis) vs single skill
-4. **Setup timing** - Found right place in check-foundation workflow
+4. **Setup timing** - Found right place in check-onboarding workflow
 5. **Zero traffic category** - Decided to treat as separate category, not part of LOW
 
 ### Key Insights
@@ -605,4 +605,4 @@ Analytics is now seamlessly integrated into Kurt workflows while remaining optio
 - **User guide:** `CLAUDE.md` (Analytics Integration section)
 - **Query skill:** `.claude/skills/analytics-query-skill/SKILL.md`
 - **Analysis skill:** `.claude/skills/content-analysis-skill/SKILL.md`
-- **Project integration:** `.claude/skills/project-management-skill/subskills/check-foundation.md`
+- **Project integration:** `.claude/skills/project-management-skill/subskills/check-onboarding.md`

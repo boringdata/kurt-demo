@@ -206,7 +206,7 @@ kurt content stats \
 
 ### Changes Needed
 
-#### 1. Update `check-foundation.md` subskill
+#### 1. Update `check-onboarding.md` subskill
 
 **Add analytics setup as optional step during content mapping:**
 
@@ -268,7 +268,7 @@ Kurt integrates with PostHog web analytics to enable **traffic-based content pri
 
 ### When Analytics Appears in Workflows
 
-**During project setup (check-foundation):**
+**During project setup (check-onboarding):**
 - Optional step after content mapping
 - Prompts to connect PostHog for your domain
 
@@ -336,7 +336,7 @@ Start with Python SDK Guide? (losing traffic, needs refresh urgently)
   - Traffic-based prioritization logic
 
 ### 3. Analytics in Project Setup
-- Optional step during `check-foundation`
+- Optional step during `check-onboarding`
 - Only appears AFTER content map is established
 - Non-blocking (can skip and enable later)
 - Prompts once per domain
@@ -363,7 +363,7 @@ Start with Python SDK Guide? (losing traffic, needs refresh urgently)
 4. Test with Workflow 1 (Tutorial Refresh) scenario
 
 ### Finally (Phase 2D)
-1. Update `check-foundation.md` with analytics setup step
+1. Update `check-onboarding.md` with analytics setup step
 2. Update `CLAUDE.md` with full analytics documentation
 3. Test full workflow: create project → setup analytics → use in content work
 
@@ -406,7 +406,7 @@ src/kurt/
 - ⏳ Declining-traffic pages flagged as urgent
 
 **Phase 2D** (Pending)
-- ⏳ check-foundation offers analytics setup after content map
+- ⏳ check-onboarding offers analytics setup after content map
 - ⏳ CLAUDE.md documents analytics integration
 - ⏳ Full workflow tested: create project → setup analytics → use in content work
 
@@ -432,5 +432,5 @@ kurt content list --pageviews-trend decreasing --with-analytics
 # (via Claude): "Find all BigQuery tutorials and prioritize by traffic"
 
 # 5. Test project workflow
-# (via Claude): "/create-project" → check-foundation → analytics setup prompt
+# (via Claude): "/create-project" → check-onboarding → analytics setup prompt
 ```

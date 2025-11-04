@@ -19,19 +19,19 @@ This skill orchestrates Kurt project workflows by managing sources (ground truth
 
 **create-project** - Create a new Kurt project
 - Entry point: `/create-project` slash command or `project-management create-project`
-- Workflow: intent → name → foundation → sources → targets → rules → structure
+- Workflow: intent → name → onboarding → sources → targets → rules → structure
 - See: `subskills/create-project.md`
 
 **resume-project** - Resume work on existing project
 - Entry point: `/resume-project` slash command or `project-management resume-project [name]`
-- Workflow: load context → check foundation → check content → recommend → validate rules
+- Workflow: load context → check onboarding → check content → recommend → validate rules
 - See: `subskills/resume-project.md`
 
-**check-foundation** - Verify organizational foundation exists
+**check-onboarding** - Verify organizational onboarding complete
 - Entry point: Called by create-project and resume-project subskills
-- Checks: content map (/sources/) + core rules (publisher, voice, personas)
-- Delegates: extract-rules subskill (core rules), uses kurt CLI for content validation
-- See: `subskills/check-foundation.md`
+- Checks: profile exists, loads organizational context from .kurt/profile.md
+- Can invoke: onboarding operations if incomplete (setup-content, setup-rules, setup-analytics)
+- See: `subskills/check-onboarding.md`
 
 ### Iterative Workflow Subskills
 
@@ -42,7 +42,7 @@ This skill orchestrates Kurt project workflows by managing sources (ground truth
 - See: `subskills/gather-sources.md`
 
 **extract-rules** - Orchestrate iterative rule extraction
-- Entry point: Called by create-project, resume-project, and check-foundation subskills
+- Entry point: Called by create-project, resume-project, and check-onboarding subskills
 - Routes to: writing-rules-skill with preview mode
 - Pattern: Analyze → preview → approve → extract → review → iterate
 - See: `subskills/extract-rules.md`
@@ -118,7 +118,7 @@ See `KURT.md` for complete project.md specification.
 1. **Orchestration, not execution** - Subskills delegate operational details to domain skills
 2. **Batch operations** - Always use `--url-prefix` for multiple URLs (never loop individual commands)
 3. **Progressive disclosure** - Only required info (name/goal) upfront, rest is optional
-4. **Foundation first** - Check organizational context before project-specific work
+4. **Onboarding first** - Check organizational context before project-specific work
 5. **Rule validation** - Check coverage before content work begins
 6. **project.md as manifest** - Single source of truth for project state (for now)
 

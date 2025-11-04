@@ -128,7 +128,7 @@ When invoked from extract-rules subskill:
 
 **Called by:**
 - **extract-rules subskill** - Routes extraction requests here with preview mode
-- **check-foundation subskill** - For extracting core rules (publisher, primary voice, personas)
+- **check-onboarding subskill** - For extracting core rules (publisher, primary voice, personas)
 - Direct invocation for rule extraction
 
 **Delegates to:**

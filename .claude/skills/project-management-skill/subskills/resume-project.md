@@ -11,17 +11,49 @@
 This subskill helps users resume work on existing projects by:
 
 1. Loading project context from project.md
-2. Checking organizational foundation (content map + core rules)
+2. Checking organizational onboarding (content map + core rules)
 3. Checking project-specific content status (sources, targets, rules)
 4. Analyzing gaps and recommending next steps
 5. Offering continuation options
 
 **Key principles:**
 - Load context first
-- Check foundation before project-specific work
+- Check onboarding before project-specific work
 - Detect gaps and offer to fill them
 - Provide specific, actionable recommendations
 - Non-blocking (user can skip and work anyway)
+
+---
+
+## Step 0: Check for Team Profile
+
+Before resuming any project, verify that organizational onboarding is complete.
+
+### Check for Profile (Required)
+
+```bash
+# Check if profile exists - REQUIRED for project work
+if [ ! -f ".kurt/profile.md" ]; then
+  echo "⚠️  No team profile found"
+  echo ""
+  echo "You must complete onboarding before working on projects."
+  echo ""
+  echo "Run: /create-profile"
+  echo ""
+  echo "Takes 10-15 minutes."
+  exit 1
+fi
+
+echo "✓ Profile found"
+echo ""
+```
+
+**If profile doesn't exist:**
+- User MUST run `/create-profile` first
+- This sets up organizational context needed for all projects
+
+**If profile exists:**
+- Continue to Entry Point
 
 ---
 
@@ -109,38 +141,44 @@ Once you have the project name:
 
 ---
 
-## Step 4: Check Organizational Foundation & Project Content
+## Step 4: Check Organizational Onboarding & Project Content
 
-**Before diving into project-specific work**, verify organizational foundation and project content status.
+**Before diving into project-specific work**, verify organizational onboarding and project content status.
 
-### 4.1: Check Organizational Foundation
+### 4.1: Check Organizational Onboarding
 
-**Invoke check-foundation subskill:**
+**Invoke check-onboarding subskill:**
 
 ```
-project-management check-foundation
+project-management check-onboarding
 ```
+
+This will:
+1. **Load organizational context** from `.kurt/profile.md`
+2. **Display onboarding summary** - Show what's configured
+3. **Offer to complete missing pieces** - Can invoke onboarding operations if needed
 
 This checks:
 1. **Content Map** - Organizational content in `/sources/`
 2. **Core Rules** - Publisher profile + Primary voice + Personas
+3. **Analytics** - Optional traffic data for prioritization
 
-**If foundation exists:**
+**If onboarding complete:**
 - Show quick summary
 - Continue to Step 4.2
 
-**If foundation missing:**
-- Offer to set up before project work:
+**If onboarding incomplete:**
+- Offer to complete via onboarding operations:
   ```
-  Your organizational foundation isn't complete. Would you like to set it up now?
+  Your organizational onboarding has some missing pieces. Would you like to complete them now?
   This helps ensure consistency across all projects.
 
   Options:
-  a) Set up now (5-10 minutes)
+  a) Complete now (5-10 minutes per piece)
   b) Skip for now (I'll focus on project-specific content)
   ```
 
-- If user declines: "You can set this up later. For now, I'll focus on project-specific content."
+- If user declines: "You can update your profile later with /update-profile. For now, I'll focus on project-specific content."
 
 **Why this matters:**
 - Core rules ensure consistency across all content
@@ -608,9 +646,9 @@ This will:
 
 ## Integration with Other Subskills
 
-### Invokes check-foundation (Step 4.1)
+### Invokes check-onboarding (Step 4.1)
 ```
-project-management check-foundation
+project-management check-onboarding
 ```
 Ensures organizational context before project work.
 
@@ -685,7 +723,7 @@ Choose (a/b/c/d):
 ## Key Design Principles
 
 1. **Load context first** - Understand project state before recommending
-2. **Foundation check** - Org context before project-specific work
+2. **Onboarding check** - Org context before project-specific work
 3. **Gap detection** - Proactively identify missing pieces
 4. **Orchestration** - Delegates to specialized subskills
 5. **Rule validation** - Check coverage before content work

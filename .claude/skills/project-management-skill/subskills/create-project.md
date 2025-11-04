@@ -14,7 +14,7 @@ This subskill guides users through creating a new Kurt project:
 2. **Load workflow (optional)** - Use workflow template if `--workflow` flag provided
 3. Understand project intent (what are you trying to accomplish?)
 4. Get project name and goal
-5. Check organizational foundation (content map + core rules)
+5. Check organizational onboarding (content map + core rules)
 6. Collect project-specific sources (optional)
 7. Identify target content (optional)
 8. Extract project-specific rules (optional)
@@ -25,60 +25,47 @@ This subskill guides users through creating a new Kurt project:
 - Progressive disclosure (only required info upfront)
 - All steps except name/goal are optional
 - User can skip and return later
-- Organizational foundation before project-specific work
+- Organizational onboarding before project-specific work
 - Can use workflow templates for recurring patterns
 
 ---
 
 ## Step 0: Check for Team Profile and Workflow
 
-### Check for Profile
+### Check for Profile (Required)
 
 ```bash
-# Check if profile exists
-if [ -f ".kurt/profile.md" ]; then
-  PROFILE_EXISTS=true
-  # Load context from profile
-else
-  PROFILE_EXISTS=false
+# Check if profile exists - REQUIRED for project creation
+if [ ! -f ".kurt/profile.md" ]; then
+  echo "⚠️  No team profile found"
+  echo ""
+  echo "You must complete onboarding before creating projects."
+  echo ""
+  echo "Run: /create-profile"
+  echo ""
+  echo "This sets up your organizational context:"
+  echo "  • Content map (your websites/docs)"
+  echo "  • Foundation rules (brand voice, personas)"
+  echo "  • Analytics (optional, for traffic-based prioritization)"
+  echo ""
+  echo "Takes 10-15 minutes."
+  exit 1
 fi
+
+echo "✓ Profile found"
+echo ""
+
+# Load context from profile
+COMPANY_NAME=$(grep "^# " .kurt/profile.md | head -1 | sed 's/# //')
+TEAM_NAME=$(grep "Team:" .kurt/profile.md | sed 's/.*Team: //')
+INDUSTRY=$(grep "Industry:" .kurt/profile.md | sed 's/.*Industry: //')
 ```
 
-**If profile exists:**
-```
-Loading your team profile...
-✓ Company: {{COMPANY_NAME}}
-✓ Team: {{TEAM_NAME}}
-✓ Foundation rules: {{RULES_STATUS}}
-```
-
-Load context:
-- `COMPANY_NAME`, `TEAM_NAME`, `INDUSTRY`
-- `COMMUNICATION_GOALS`
-- `CONTENT_TYPES`
-- `KNOWN_PERSONAS`
-- `PUBLISHER_STATUS`, `STYLE_STATUS`, `PERSONA_STATUS`
-
-**If profile doesn't exist:**
-```
-⚠️  No team profile found
-
-It looks like this is your first time using Kurt.
-
-Recommendation: Run /start first to set up your team profile and foundation rules.
-This takes 10-15 minutes and makes project creation much easier.
-
-Options:
-  a) Run /start now (recommended)
-  b) Continue without profile (minimal setup)
-  c) Cancel
-
-Choose: _
-```
-
-**If (a):** Invoke `onboarding-skill` → Exit create-project, user restarts after onboarding
-**If (b):** Continue with minimal setup (no profile context)
-**If (c):** Exit
+**Context loaded:**
+- Company/team information for project.md header
+- Content map for avoiding duplication
+- Foundation rules for project rule recommendations
+- Analytics status for traffic-based prioritization
 
 ### Check for Workflow Flag
 
@@ -247,80 +234,35 @@ Store `$PROJECT_NAME` and `$PROJECT_GOAL` for use in project.md.
 
 ---
 
-## Step 2.5: Check Organizational Foundation
+## Step 2.5: Check Onboarding Complete
 
-**Before collecting project-specific sources**, verify that organizational context exists.
+**Before collecting project-specific sources**, verify onboarding is complete.
 
-### If Profile Exists (PROFILE_EXISTS = true)
-
-**Check foundation status from profile:**
-
-```bash
-PUBLISHER_STATUS=$(grep "Publisher Profile:" .kurt/profile.md)
-STYLE_STATUS=$(grep "Style Guides:" .kurt/profile.md)
-PERSONA_STATUS=$(grep "Personas:" .kurt/profile.md)
-CONTENT_STATUS=$(grep "Total Documents:" .kurt/profile.md)
-```
-
-**If foundation complete (all rules extracted + content indexed):**
-```
-✓ Foundation ready
-  Publisher: {{PUBLISHER_PATH}}
-  Style guides: {{STYLE_COUNT}}
-  Personas: {{PERSONA_COUNT}}
-  Indexed content: {{TOTAL_DOCS}} documents
-
-Skipping foundation check - continuing to project setup...
-```
-
-→ Skip to Step 3
-
-**If foundation incomplete:**
-```
-⚠️  Foundation partially complete
-
-  ✓ Publisher: {{PUBLISHER_STATUS}}
-  ✗ Style guides: {{STYLE_STATUS}}
-  ✗ Personas: {{PERSONA_STATUS}}
-
-Would you like to complete foundation setup now? (y/n): _
-```
-
-**If yes:** Invoke `check-foundation` subskill
-**If no:** Note in project that foundation is incomplete, continue to Step 3
-
-### If No Profile (PROFILE_EXISTS = false)
-
-**Invoke check-foundation subskill:**
+**Invoke check-onboarding subskill:**
 
 ```
-project-management check-foundation
+project-management check-onboarding
 ```
 
 This will:
-1. **Check for Content Map** - Organizational content in `/sources/`
-   - If missing: Guide user to provide root domains/sitemaps
-   - For each domain: Map → Fetch → Index workflow
+1. **Verify profile exists** (already checked in Step 0, but validates again)
+2. **Load organizational context** from `.kurt/profile.md`:
+   - Company/team information
+   - Content map (organizational domains)
+   - Foundation rules status
+   - Analytics configuration
+3. **Display onboarding summary** - Show what's configured
+4. **Offer to complete missing pieces** - Can invoke onboarding operations if needed:
+   - No content mapped? → `onboarding setup-content`
+   - No foundation rules? → `onboarding setup-rules`
+   - No analytics? → Informational only (optional)
 
-2. **Check for Core Rules** - Publisher profile + Primary voice + Personas
-   - If missing: Extract from indexed content
-   - Uses extract-rules subskill with --foundation-only
+**Important:** All setup logic lives in onboarding-skill. The check-onboarding subskill only checks and loads context, delegating to onboarding operations if user wants to complete missing pieces.
 
-**If foundation exists:**
-- Show quick summary
-- Continue to Step 3
-
-**If foundation missing:**
-- Guide user through setup
-- Takes 5-10 minutes for first-time setup
-- Veteran users skip this automatically
-
-**Why this matters:**
-- Organizational context informs which project sources to use
-- Having core rules before project work ensures consistency
-- Content map shows what already exists (avoid duplication)
-
-Once foundation check is complete, continue to Step 3.
+**After check-onboarding completes:**
+- Organizational context is loaded and available
+- Profile may be updated if user completed missing pieces
+- Continue to Step 3 (project-specific sources)
 
 ---
 
@@ -1140,9 +1082,9 @@ c) Save and resume later
 
 ## Integration with Other Subskills
 
-### Invokes check-foundation (Step 2.5)
+### Invokes check-onboarding (Step 2.5)
 ```
-project-management check-foundation
+project-management check-onboarding
 ```
 Ensures organizational context before project-specific work.
 
@@ -1195,8 +1137,8 @@ Retry? (Y/n)
 ## Key Design Principles
 
 1. **Progressive disclosure** - Only required info (name/goal) upfront
-2. **Foundation first** - Org context before project-specific work
-3. **Orchestration** - Delegates to specialized subskills (check-foundation, gather-sources, extract-rules)
+2. **Onboarding first** - Org context before project-specific work
+3. **Orchestration** - Delegates to specialized subskills (check-onboarding, gather-sources, extract-rules)
 4. **Optional steps** - Sources, targets, rules all skippable
 5. **Batch operations** - Always use batched commands for multiple items
 6. **User control** - Checkpoints before major operations

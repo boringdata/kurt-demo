@@ -121,7 +121,7 @@ Sources ready for reference during updates.
 Claude: Before updating, let me check if we have writing rules...
 
 Claude runs:
-- project-management-skill check-foundation
+- project-management-skill check-onboarding
 
 Claude: ✓ Publisher profile exists
 ✓ Primary voice exists
@@ -259,7 +259,7 @@ Project complete! Summary:
 - `publish --project <name> --targets <list>`
 
 **project-management-skill** (already exists)
-- `check-foundation`
+- `check-onboarding`
 
 **writing-rules-skill** (already exists)
 - `structure --type <mode> --auto-discover`
@@ -1514,9 +1514,9 @@ Claude: I'll create all 4 formats from the same research foundation.
 But first, let me check what rules we have...
 
 Claude runs:
-- project-management-skill check-foundation
+- project-management-skill check-onboarding
 
-Claude: Foundation check:
+Claude: Onboarding check:
 ✓ Publisher profile exists
 ✓ Primary voice exists
 ✓ Developer persona exists
@@ -1699,7 +1699,7 @@ kurt content list --content-type blog,tutorial,guide,case_study
 | **content-operations-skill** (NEW) | publish<br>export<br>schedule-publish | 1, 3, 5, 6 |
 | **writing-rules-skill** (exists) | publisher<br>style<br>structure<br>persona | 1, 3, 4, 5, 6 |
 | **research-skill** (exists) | query<br>daily<br>discover | 6 |
-| **project-management-skill** (exists) | create-project<br>resume-project<br>check-foundation | All |
+| **project-management-skill** (exists) | create-project<br>resume-project<br>check-onboarding | All |
 
 ### CLI Commands Matrix
 

@@ -5,78 +5,139 @@ description: One-time team setup that creates Kurt profile and foundation rules
 
 # Onboarding Skill
 
-**Purpose:** One-time team setup and profile creation
-**Entry:** `/start` command
+**Purpose:** Organizational setup and profile management
+**Entry:** `/create-profile` or `/update-profile` commands
 **Output:** `.kurt/profile.md` + foundation rules + indexed content
 
 ---
 
 ## Overview
 
-This skill orchestrates the onboarding process by routing through specialized subskills:
+This skill manages organizational onboarding through modular operations:
 
-1. **questionnaire** - Capture team context, goals, sources
-2. **map-content** - Map and fetch content from sources
-3. **setup-analytics** - Configure analytics for domains (optional)
-4. **extract-foundation** - Extract publisher, style, personas
-5. **create-profile** - Generate `.kurt/profile.md`
+1. **create-profile** - Complete onboarding flow for new teams
+2. **update-profile** - Update existing profile (selective updates)
+3. **setup-content** - Map and fetch organizational content
+4. **setup-analytics** - Configure analytics for domains (optional)
+5. **setup-rules** - Extract foundation rules (publisher, style, personas)
+
+**Key principle:** Operations are standalone and composable. They can be invoked independently OR as part of create-profile/update-profile flows.
+
+---
+
+## Operations
+
+### create-profile
+Complete onboarding flow for new teams.
+
+**Entry:** `/create-profile` or `onboarding create-profile`
+
+**Flow:**
+1. Questionnaire - Capture team context
+2. Map content - Organizational websites
+3. Setup analytics - Optional traffic configuration
+4. Extract rules - Foundation rules
+5. Create profile - Generate `.kurt/profile.md`
+
+See: `subskills/create-profile.md`
+
+### update-profile
+Update existing profile with selective changes.
+
+**Entry:** `/update-profile` or `onboarding update-profile`
+
+**Options:**
+- Update content map (add/remove domains)
+- Update analytics configuration
+- Re-extract foundation rules
+- Update team information
+
+See: `subskills/update-profile.md`
+
+### setup-content
+Map and fetch organizational content.
+
+**Entry:** `onboarding setup-content`
+
+**Called by:**
+- create-profile subskill
+- update-profile subskill
+- project-management check-onboarding (if content missing)
+
+See: `subskills/map-content.md`
+
+### setup-analytics
+Configure analytics for organizational domains.
+
+**Entry:** `onboarding setup-analytics`
+
+**Called by:**
+- create-profile subskill (optional)
+- update-profile subskill
+- project-management check-onboarding (if user wants analytics)
+
+See: `subskills/setup-analytics.md`
+
+### setup-rules
+Extract foundation rules from organizational content.
+
+**Entry:** `onboarding setup-rules`
+
+**Called by:**
+- create-profile subskill
+- update-profile subskill
+- project-management check-onboarding (if rules missing)
+
+See: `subskills/extract-foundation.md`
 
 ---
 
 ## Routing Logic
 
 ```bash
-# Check if profile already exists
-if [ -f ".kurt/profile.md" ]; then
-  echo "⚠️  Kurt profile already exists"
-  echo ""
-  echo "Would you like to:"
-  echo "  a) View existing profile"
-  echo "  b) Update profile"
-  echo "  c) Start over (overwrites existing)"
-  echo ""
-  read -p "Choose: " choice
+# Parse first argument to determine operation
+OPERATION=$1
 
-  case "$choice" in
-    a)
-      cat .kurt/profile.md
-      exit 0
-      ;;
-    b)
-      OPERATION="update"
-      ;;
-    c)
-      OPERATION="start-over"
-      ;;
-    *)
-      echo "Cancelled"
-      exit 0
-      ;;
-  esac
-else
-  OPERATION="new"
-fi
+case "$OPERATION" in
+  create-profile)
+    # Full onboarding flow
+    invoke: subskills/create-profile.md
+    ;;
 
-# Parse flags
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    --continue)
-      OPERATION="continue"
-      shift
-      ;;
-    --minimal)
-      OPERATION="minimal"
-      shift
-      ;;
-    --update)
-      OPERATION="update"
-      shift
-      ;;
-    *)
-      shift
-      ;;
-  esac
-done
+  update-profile)
+    # Selective updates to existing profile
+    invoke: subskills/update-profile.md
+    ;;
+
+  setup-content)
+    # Map and fetch organizational content
+    invoke: subskills/map-content.md
+    ;;
+
+  setup-analytics)
+    # Configure analytics
+    invoke: subskills/setup-analytics.md
+    ;;
+
+  setup-rules)
+    # Extract foundation rules
+    invoke: subskills/extract-foundation.md
+    ;;
+
+  *)
+    echo "Unknown operation: $OPERATION"
+    echo ""
+    echo "Available operations:"
+    echo "  create-profile    - Complete onboarding for new teams"
+    echo "  update-profile    - Update existing profile"
+    echo "  setup-content     - Map organizational content"
+    echo "  setup-analytics   - Configure analytics"
+    echo "  setup-rules       - Extract foundation rules"
+    echo ""
+    echo "Usage: onboarding <operation>"
+    exit 1
+    ;;
+esac
 ```
 
 ---
@@ -283,19 +344,32 @@ Then retry: /start
 
 ## Integration Points
 
+**Called by:**
+- `/create-profile` slash command → create-profile operation
+- `/update-profile` slash command → update-profile operation
+- `project-management check-onboarding` → Can invoke setup-content, setup-analytics, setup-rules if incomplete
+
 **Invokes:**
-- `onboarding-skill/subskills/questionnaire` - Capture user input
-- `onboarding-skill/subskills/map-content` - Map and fetch sources
-- `onboarding-skill/subskills/setup-analytics` - Configure analytics (optional)
-- `onboarding-skill/subskills/extract-foundation` - Extract rules
-- `onboarding-skill/subskills/create-profile` - Generate profile
+- `onboarding-skill/subskills/questionnaire` - Capture team context
+- `onboarding-skill/subskills/map-content` - Map organizational content
+- `onboarding-skill/subskills/setup-analytics` - Configure analytics
+- `onboarding-skill/subskills/extract-foundation` - Extract foundation rules
+- `onboarding-skill/subskills/create-profile` - Generate/update profile
+- `onboarding-skill/subskills/update-profile` - Selective profile updates
+- `project-management extract-rules --foundation-only` - Delegates rule extraction
+- `writing-rules-skill` - For extracting rules (via extract-foundation)
+
+**Calls:**
+- `kurt CLI` - For content mapping (`kurt map`), fetching (`kurt fetch`), analytics
+- `writing-rules-skill` - For rule extraction
+- `project-management extract-rules` - Delegates foundation rule extraction
 
 **Creates:**
-- `.kurt/profile.md` - Team profile (includes analytics config if set up)
-- `.kurt/temp/onboarding-data.json` - Temporary data (deleted after)
-- Foundation rules (via extract-foundation subskill)
-- Analytics configuration (via setup-analytics subskill, optional)
+- `.kurt/profile.md` - Team profile with organizational context
+- `.kurt/temp/onboarding-data.json` - Temporary data (deleted after create-profile)
+- Foundation rules - Publisher profile, primary voice, personas
+- Analytics configuration - Stored in profile.md
 
 ---
 
-*This router orchestrates the onboarding process through specialized subskills.*
+*This skill owns all organizational setup. Operations are composable and can be invoked independently or as part of create/update flows.*
