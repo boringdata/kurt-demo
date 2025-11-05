@@ -15,6 +15,70 @@ The Kurt Plugin helps tech companies create consistent, high-quality content fas
 
 ---
 
+## Quick Start
+
+**Zero-configuration startup:** When you first open Claude Code in your project, Kurt automatically initializes the database and applies any necessary migrations. Just start working!
+
+### 1. First Time Setup
+
+Run `/start` in Claude Code to set up your team profile:
+
+```
+/start
+```
+
+This interactive wizard (10-15 minutes) will:
+- Capture your company, team, and content goals
+- Map your website and content sources
+- Optionally configure analytics for traffic-based prioritization (PostHog)
+- Extract your writing style, company profile, and target personas
+- Create `.kurt/profile.md` with your team setup
+
+**You can skip any question** - Kurt adapts to what you know.
+
+**Analytics integration:** During onboarding, you'll be offered the option to connect PostHog analytics. This enables traffic-based content prioritization, helping you focus on high-impact updates. Analytics setup is optional and can be added later via `/start --update`.
+
+### 2. Define Workflows (Optional)
+
+If you have recurring project patterns, codify them as reusable workflows:
+
+```
+workflow-skill add
+```
+
+Examples:
+- "Weekly tutorial publication"
+- "Product launch campaigns"
+- "Quarterly docs refresh"
+
+**Workflows are optional** - projects can be created without them.
+
+### 3. Create Projects
+
+Create content projects using your profile and workflows:
+
+```
+# With workflow (recurring pattern)
+/create-project --workflow weekly-tutorial
+
+# Without workflow (one-off project)
+/create-project
+```
+
+Projects automatically use your team profile (rules, personas, sources).
+
+### 4. Create Content
+
+Use the content-writing-skill to create outlines and drafts:
+
+```
+content-writing-skill outline <project> <asset>
+content-writing-skill draft <project> <asset>
+content-writing-skill edit <file> --instructions "..."
+```
+
+---
+
 ## What is kurt-core?
 
 This plugin wraps **kurt-core**, a CLI tool that provides document intelligence capabilities:
@@ -44,23 +108,11 @@ kurt --version
 
 **Note:** The kurt-core CLI handles all document fetching, storage, and indexing. The plugin orchestrates workflows using Claude Code.
 
-### 2. Initialize Kurt Database
-
-Create a Kurt database in your project directory:
-
-```bash
-# Create database
-kurt init
-
-# Apply migrations if needed
-kurt migrate apply
-```
-
-This creates a `.kurt/` directory with the SQLite database.
-
-### 3. Install the Kurt Plugin
+### 2. Install the Kurt Plugin
 
 Install this plugin in Claude Code (instructions will vary based on plugin distribution method).
+
+**Note:** Kurt automatically initializes the database and applies migrations when you open Claude Code. No manual setup required!
 
 ---
 
